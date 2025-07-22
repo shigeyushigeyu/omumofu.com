@@ -1,0 +1,99 @@
+/* フォント適用 */
+/* --- 全体の基本設定 --- */
+main {
+    max-width: 800px; /* 少し幅を狭めて、まとまり感を出す */
+    margin: 3rem auto;
+    padding: 2rem 2.5rem; /* 内側の余白をたっぷり取る */
+    font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
+    
+    /* 背景画像の上に、ほんのりピンクがかった半透明のクリーム色を重ねる */
+    /* これで文字が格段に読みやすくなり、温かい雰囲気も出ます */
+    background-color: rgba(255, 249, 252, 0.4); 
+
+    border-radius: 20px; /* 角をより丸くして、可愛らしい印象に */
+    
+    /* 枠線にピンクの破線を追加して、手作り感を演出 */
+    border: 2px dashed #ffc0cb; /* ベビーピンクの破線 */
+    
+    /* 影をふんわりとさせる。少しピンクがかった影で全体に統一感を */
+    box-shadow: 0 8px 24px rgba(180, 120, 140, 0.15);
+}
+
+/* --- 見出しのスタイル --- */
+h1 {
+    color: #c78b9f; /* 少し落ち着いたピンク色 */
+    text-align: center;
+    font-size: 2.2rem;
+    
+    /* 文字に白い縁取りをつけて、ふんわりと浮き上がらせる */
+    text-shadow: 1px 1px 3px #ffffff, -1px -1px 3px #ffffff;
+    
+    margin-bottom: 1.5rem;
+}
+
+/* 待機中のリトルの見出しは少し小さめに */
+h1.little-waiting {
+    font-size: 1.8rem;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* --- テキストのスタイル --- */
+p {
+    font-size: 1rem;
+    line-height: 1.8; /* 行間を広げて、ゆったりと読めるように */
+    color: #6d5b5b; /* 温かみのあるブラウン系の文字色 */
+    text-align: center;
+}
+
+/* キャッチフレーズのスタイル */
+.catchphrase {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #b97c93;
+    margin-bottom: 2rem;
+}
+
+.welcome-message {
+    margin-bottom: 3rem;
+}
+
+/* --- ボタンのスタイル --- */
+.button-group {
+    display: flex; /* ボタンを横並びに */
+    justify-content: center; /* 中央揃え */
+    gap: 1.5rem; /* ボタン同士の間隔 */
+    margin-top: 3rem;
+    flex-wrap: wrap; /* 画面が小さい時に折り返す */
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 50px; /* 完全に丸い角のボタン */
+    background-color: #ffc0cb; /* 背景色はベビーピンク */
+    color: #ffffff; /* 文字色は白 */
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(200, 150, 160, 0.4);
+    
+    /* ホバー（マウスオーバー）時のアニメーション設定 */
+    transition: all 0.3s ease;
+}
+
+/* ボタンにマウスを乗せた時のスタイル */
+.btn:hover {
+    background-color: #fca8ba; /* 少し濃いピンクに */
+    
+    /* 少し上に持ち上がるような動き */
+    transform: translateY(-3px); 
+    
+    /* 影を少し濃くして、浮き上がった感を強調 */
+    box-shadow: 0 6px 15px rgba(200, 150, 160, 0.5);
+}
+
+/* その他のスタイルはそのまま */
+.catchphrase {
+    /* ... */
+}
