@@ -2,12 +2,11 @@
 //src/pages/index.astro
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
-import LoginButton from '../components/Buttons/LoginButton.astro';
-import AboutSection from '../components/Sections/AboutSection.astro';
-import LittleWaiting from '../components/Sections/LittleWaiting.astro';
-import SectionMessageBoard from '../components/Sections/SectionMessageBoard.astro';
-import Literature from '../components/Sections/Literature.astro';
-import Gallery from '../components/Sections/Gallery.astro';
+import LoginButton from '../components/buttons/loginbutton.astro';
+import AboutSection from '../components/sections/aboutsection.astro';
+import SectionMessageBoard from '../components/sections/sectionmessageboard.astro';
+import Literature from '../components/sections/literature.astro';
+import Gallery from '../components/sections/gallery.astro';
 ---
   <Layout>
     <!-- 1. 背景専用の要素をここに追加 -->
@@ -17,13 +16,15 @@ import Gallery from '../components/Sections/Gallery.astro';
       <h1>おむもふ</h1>
       <p class="catchphrase">ABDL総合コミュニティサイト</p>
       <video
-      src="/assets/videos/indexhero.mp4"
+        src="/assets/videos/indexhero.mp4"
         autoplay
         muted
         loop
         playsinline
         controls
-        class="video"/>  
+        class="video"
+      ></video>
+
 
       <p class="welcome-message">
         ABDLの世界へ初めての方も、長く楽しんでいる方も、
