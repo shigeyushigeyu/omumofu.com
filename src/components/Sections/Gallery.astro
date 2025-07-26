@@ -1,0 +1,12 @@
+---
+// src/components/Sections/Gallery.astro
+import GalleryImage from '../../assets/images/Gallery.png';
+---
+
+<section class="gallery">
+  <h2><a href="/Gallery">おむもふ画廊</a></h2>
+  <p>かわいい作品を集めた、リトルのためのやさしいギャラリー。</p>
+  <div class="image-wrapper">
+    <img src={GalleryImage.src} alt="おむもふ画廊の画像" class="image" />
+  </div>
+</section>

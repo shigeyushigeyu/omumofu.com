@@ -1,0 +1,90 @@
+---
+// CSSのインポートはここに残します
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+// SwiperのJSライブラリに関するimportはここからは削除します
+
+// 画像のインポートはここに残します
+import little1 from '../../assets/images/LittleWaiting/little1.jpeg';
+import little2 from '../../assets/images/LittleWaiting/little2.jpeg';
+import little3 from '../../assets/images/LittleWaiting/little3.jpeg';
+---
+
+<!-- 
+  もし、このコンポーネントをmainの半透明背景の影響から切り離したい場合、
+  divにクラス名を付けて、下の<style>タグで背景色を指定します。
+  例: <div class="swiper-container"> 
+-->
+<h1 class="little-waiting">
+  待機中のリトル
+</h1>
+<p class="little-waiting">
+  18さい未満のリトルは閲覧禁止だよ
+</p>
+
+<div class="swiper">
+  <div class="swiper-wrapper">
+    <div class="swiper-slide"><img src={little1.src} alt="Photo 1" width={little1.width} height={little1.height} /></div>
+    <div class="swiper-slide"><img src={little2.src} alt="Photo 2" width={little2.width} height={little2.height} /></div>
+    <div class="swiper-slide"><img src={little3.src} alt="Photo 3" width={little3.width} height={little3.height} /></div>
+  </div>
+
+  <div class="swiper-button-prev"></div>
+  <div class="swiper-button-next"></div>
+  <div class="swiper-pagination"></div>
+</div>
+
+<script>
+  // SwiperのJavaScriptに関する import は、すべてscriptタグの中にまとめます。
+  import Swiper from 'swiper';
+  import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+
+  const swiper = new Swiper('.swiper', {
+    modules: [Navigation, Pagination, Autoplay],
+    loop: true,
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false, // ユーザー操作後も自動再生を続ける
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+  });
+</script>
+
+<style>
+  /* 
+    コンポーネントの外観を整えるスタイル。
+    このスタイルはこのコンポーネント内でのみ適用されます。
+  */
+  .swiper {
+    width: 90%; /* 親要素(main)の幅の90%にする */
+    max-width: 500px; /* ただし、最大でも600px以上には広がらないようにする */
+    
+    /* 常に正方形を保つ (横:縦 = 1:1) */
+    /* もし 4:3 の比率にしたければ 4 / 3 とします */
+    aspect-ratio: 1 / 1; 
+
+    /* 中央寄せ */
+    margin-left: auto;
+    margin-right: auto;
+    
+    border-radius: 15px; /* 角を丸くする */
+    overflow: hidden;    /* 角丸からはみ出した画像を隠す */
+    
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

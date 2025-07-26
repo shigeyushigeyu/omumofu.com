@@ -1,5 +1,16 @@
+/*src/styles/common.css*/
 /* フォント適用 */
 /* --- 全体の基本設定 --- */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.body{
+  font-family: 'Hatimaru', sans-serif;
+}
+
 main {
     max-width: 800px; /* 少し幅を狭めて、まとまり感を出す */
     margin: 3rem auto;
@@ -20,38 +31,51 @@ main {
 }
 
 /* --- 見出しのスタイル --- */
+/* --- 見出しのスタイル --- */
 h1 {
-    color: #c78b9f; /* 少し落ち着いたピンク色 */
-    text-align: center;
-    font-size: 2.2rem;
-    
-    /* 文字に白い縁取りをつけて、ふんわりと浮き上がらせる */
-    text-shadow: 1px 1px 3px #ffffff, -1px -1px 3px #ffffff;
-    
-    margin-bottom: 1.5rem;
+  color: #d36ba6; /* 明るめのピンク */
+  text-align: center;
+  font-size: 2.4rem;
+  margin-bottom: 1.5rem;
+
+  /* ふわっとした白縁の影 */
+  text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff;
 }
 
-/* 待機中のリトルの見出しは少し小さめに */
+/* 待機中のリトルの見出し（小さめで柔らかく） */
 h1.little-waiting {
-    font-size: 1.8rem;
-    margin-top: 3rem;
-    margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: #e889b3;
+}
+
+/* --- サブ見出し --- */
+h2 {
+  text-align: center;
+  padding: 1.2rem 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 0 12px rgba(240, 120, 180, 0.2);
+  font-size: 1.4rem;
+  color: #a05585;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
 }
 
 /* --- テキストのスタイル --- */
 p {
-    font-size: 1rem;
-    line-height: 1.8; /* 行間を広げて、ゆったりと読めるように */
-    color: #6d5b5b; /* 温かみのあるブラウン系の文字色 */
-    text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #7d5b6b; /* 赤みのある優しいブラウン */
+  text-align: center;
 }
 
-/* キャッチフレーズのスタイル */
+/* キャッチフレーズなどはさらに装飾可 */
 .catchphrase {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #b97c93;
-    margin-bottom: 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #d06d9c;
+  margin-bottom: 2rem;
 }
 
 .welcome-message {
@@ -93,7 +117,102 @@ p {
     box-shadow: 0 6px 15px rgba(200, 150, 160, 0.5);
 }
 
+
+.image-placeholder {
+  width: 100%;
+  max-width: 800px;  /* ← 好みで調整。例: 800pxや600pxなど */
+  margin: 0 auto;    /* ← 中央寄せ（任意） */
+  padding: 16px;     /* ← 任意の余白 */
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;      /* 表示領域の比率を4:3に固定 */
+  overflow: hidden;         /* はみ出し部分を隠す */
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin: 1.5rem auto;
+  position: relative;
+  display: flex;            /* 親をflexコンテナに */
+  justify-content: center;  /* 水平方向中央寄せ */
+  align-items: center;      /* 垂直方向中央寄せ */
+}
+
+.image-wrapper .image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;      /* 縦横比を維持して親枠に収める */
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* position:absoluteやtransformは削除 */
+}
+
+.image-wrapper:hover .image {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.about-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin: 2rem 0;
+  align-items: center;
+}
+
+.item {
+  text-align: center;
+}
+
+.item img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px; /* 任意：角丸 */
+  object-fit: contain; /* cover にすると切れるので注意 */
+}
+
+@font-face {
+  font-family: 'HachiMaruPop';
+  src: url('/assets/fonts/HachiMaruPop-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* その他のスタイルはそのまま */
 .catchphrase {
     /* ... */
+}
+
+/* 表示位置 */
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media screen and (min-width: 768px) {
+  .about-section {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+
+  .item {
+    width: 45%;
+    text-align: left;
+  }
 }

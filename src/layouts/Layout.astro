@@ -1,15 +1,51 @@
+---
+import '../styles/common.css';
+const siteTitle = "おむもふ | ABDL総合コミュニティ";
+const siteDescription = "おむもふはABDL（Adult Baby Diaper Lover）総合コミュニティサイトです。安心して交流できる場所を提供します。";
+const siteUrl = "https://omumofu.com"; // 実際のURLに置き換えてください
+const siteImage = "/assets/images/og-image.png"; // OG画像のパス
+const twitterHandle = "@omumofu_com"; // Twitterアカウント
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <title>{siteTitle}</title>
+  <meta name="description" content={siteDescription} />
+  <meta name="keywords" content="おむもふ, ABDL, Adult Baby, Diaper Lover, コミュニティ, 赤ちゃんプレイ, おむつ" />
+  <meta name="author" content="おむもふコミュニティ運営" />
+  
+  <!-- ファビコン -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={siteUrl} />
+  <meta property="og:title" content={siteTitle} />
+  <meta property="og:description" content={siteDescription} />
+  <meta property="og:image" content={siteImage} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content={twitterHandle} />
+  <meta name="twitter:title" content={siteTitle} />
+  <meta name="twitter:description" content={siteDescription} />
+  <meta name="twitter:image" content={siteImage} />
+
+  <!-- SNSプロフィールなどのリンク -->
+  <link rel="me" href="https://twitter.com/omumofu" />
+  <link rel="me" href="https://www.instagram.com/omumofu" />
+  <link rel="me" href="https://line.me/ti/p/xxxxxxxx" /> <!-- Line公式URLを入れてください -->
+
+  <meta name="generator" content={Astro.generator} />
+</head>
+<body>
+  <slot />
+</body>
 </html>
 
 <style>
@@ -18,5 +54,8 @@
 		margin: 0;
 		width: 100%;
 		height: 100%;
+		font-family: "M PLUS Rounded 1c", sans-serif;
+		background-color: #f8f8ff;
+		color: #5c524e;
 	}
 </style>
