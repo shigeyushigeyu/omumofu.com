@@ -1,0 +1,32 @@
+---
+---
+<a href="/login" class="login_btn" id="loginBtn">ログイン</a>
+
+<style>
+  .login_btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: #b5f57c;
+    color: white;
+    text-decoration: none;
+    border-radius: 1.5rem;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid white;
+  }
+
+  .login_btn:hover {
+    transform: scale(1.05);
+    background-color: #a3ea6c;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('loginBtn');
+    btn.addEventListener('click', () => {
+      console.log('ログインボタンがクリックされました');
+    });
+  });
+</script>

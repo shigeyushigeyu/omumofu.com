@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おむもふコミュニティ ☆ リトルの紹介</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #fff0f5; /* ふんわりしたピンクの背景 */
+            color: #5c5c5c;
+            line-height: 1.8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 3px dashed #ffc0cb; /* 点線の枠 */
+        }
+
+        h1 {
+            color: #ff69b4; /* ホットピンク */
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px #ffc0cb;
+            margin-bottom: 20px;
+        }
+        h1::before, h1::after {
+            content: ' ☆.。.:*・゜ ';
+            color: #ffb6c1;
+        }
+
+        h2 {
+            background: linear-gradient(to right, #ffefba, #ffffff); /* 黄色から白へのグラデーション */
+            color: #e98b2a;
+            font-size: 1.8em;
+            text-align: center;
+            padding: 15px;
+            border-radius: 30px;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            border-left: 10px solid #ffd700;
+            border-right: 10px solid #ffd700;
+        }
+
+        h3 {
+            color: #87cefa; /* ライトスカイブルー */
+            font-size: 1.5em;
+            border-bottom: 3px solid #b0e0e6;
+            padding-bottom: 8px;
+            margin-top: 30px;
+        }
+
+        .little-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .little-card {
+            background-color: #f0f8ff; /* アリスブルー */
+            border: 2px solid #add8e6; /* ライトブルー */
+            border-radius: 15px;
+            padding: 20px;
+            flex-basis: calc(33.333% - 20px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .little-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .little-card .name {
+            font-weight: 700;
+            color: #4682b4; /* スチールブルー */
+            font-size: 1.2em;
+        }
+
+        .little-card .gender-arrow {
+            font-size: 0.9em;
+            color: #ff7f50; /* コーラル */
+        }
+
+        .element-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .element-list li {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-left: 8px solid #98fb98; /* ペールグリーン */
+        }
+
+        .element-list .name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3cb371; /* ミディアムシーグリーン */
+        }
+
+        .element-list .quote {
+            font-style: italic;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: #ff69b4;
+            font-weight: bold;
+        }
+        
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .little-card {
+                flex-basis: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            .little-card {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>きみはどんなリトルちゃん？</h1>
+        <p style="text-align:center;">
+            おむもふコミュニティの素敵なおともだち「リトル」について紹介するね。<br>
+            いつもの自分とはちょっと違う、新しい自分を見つけにいこうよ！
+        </p>
+
+        <section id="label">
+            <h2>♡ﾟ･｡｡･ﾟ♡ﾟ･｡ ラベルを見つけてね ｡･ﾟ♡ﾟ･｡｡･ﾟ♡</h2>
+            <p style="text-align:center;">
+                リアルでのあなたと、リトルとしてのあなたは、ちょっぴり違うかもしれないね。<br>
+                それはとっても素敵なことなんだよ♪ あなたにぴったりのラベルを見つけてみてね。
+            </p>
+
+            <h3>🍼 リアルが男の子のリトルちゃん 🍼</h3>
+            <div class="little-card-container">
+                <div class="little-card">
+                    <p><span class="name">リトル・ノムル</span> <span class="gender-arrow">(男性→男性)</span></p>
+                    <p>ありのままのボクが一番安心できるんだ。シンプルで素直な性格で、落ち着いたぬいぐるみが好きなおともだち。</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・ファンタジア</span> <span class="gender-arrow">(男性→女性)</span></p>
+                    <p>夢見るみたいに可愛いワタシに変身っ！ふわふわのドレスを着て、お姫様ごっこがだーいすき♡</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・リリィ</span> <span class="gender-arrow">(男性→中性)</span></p>
+                    <p>男の子とか女の子とか、どっちでもないの。静かにお花を眺めたり、絵本を読んだりするのが好きな、自分だけの時間を大切にするリトルちゃん。</p>
+                </div>
+            </div>
+
+            <h3>🎀 リアルが女の子のリトルちゃん 🎀</h3>
+            <div class="little-card-container">
+                <div class="little-card">
+                    <p><span class="name">リトル・ボア</span> <span class="gender-arrow">(女性→男性)</span></p>
+                    <p>元気いっぱい！冒険が大好き！ブロックで大きなお城を作ったり、ヒーローごっこで世界を救っちゃう、かっこいいボクさ！</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・シフォン</span> <span class="gender-arrow">(女性→女性)</span></p>
+                    <p>可愛いものがとにかく大好き！ふわふわのぬいぐるみと、甘いお菓子に囲まれて、おままごとに夢中になっちゃうの♪</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・アーラ</span> <span class="gender-arrow">(女性→中性)</span></p>
+                    <p>ふんわり、やわらかな心を持っているの。自然のささやきや、空想の世界でお散歩するのが好きな、繊細なリトルちゃん。</p>
+                </div>
+            </div>
+
+            <h3>🎠 リアルが中性的なリトルちゃん 🎠</h3>
+             <div class="little-card-container">
+                <div class="little-card">
+                    <p><span class="name">リトル・ミラージュ</span> <span class="gender-arrow">(中性→男性)</span></p>
+                    <p>のびのび自由なボク！秘密基地を作ったり、ロボットで遊んだり、男の子らしさをめいっぱい楽しんじゃうんだ！</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・リュミル</span> <span class="gender-arrow">(中性→女性)</span></p>
+                    <p>キラキラした女の子の世界って、あこがれちゃう！メルヘンでロマンチックなものが大好きな、夢見るワタシ。</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・アイリス</span> <span class="gender-arrow">(中性→中性)</span></p>
+                    <p>性別なんて関係ないもん♪ ふわふわ浮かぶシャボン玉みたいに、どんな遊びも楽しめちゃう、自由で柔軟なリトルちゃん。</p>
+                </div>
+            </div>
+
+            <h3>🌈 いろんなわたしがいるリトルちゃん 🌈</h3>
+            <div class="little-card-container">
+                 <div class="little-card">
+                    <p><span class="name">リトル・フローラ</span> <span class="gender-arrow">(変動する等)</span></p>
+                    <p>今日のワタシはどんなワタシかな？気分やお天気で、いろんな自分に変わるの。自分らしさを探す旅の途中なんだ♪</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・クアンタ</span> <span class="gender-arrow">(多元的自認)</span></p>
+                    <p>わたしの中には、いろんな「わたし」がいるの。日によって違うおともだちが顔を出す、ちょっぴりミステリアスなリトルちゃん。</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・ゼロ</span> <span class="gender-arrow">(自認なし等)</span></p>
+                    <p>性別はよくわからないけど、「リトルでいること」が一番大切なの。ただ、甘えたり遊んだりするのが幸せなんだ。</p>
+                </div>
+                <div class="little-card">
+                    <p><span class="name">リトル・ノヴァ</span> <span class="gender-arrow">(探求中)</span></p>
+                    <p>まだどんなリトルなのか探しているところ。ドキドキワクワクの冒険、そのものが宝物なんだよ。</p>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="element">
+            <h2>✨ ･｡｡･ﾟ✨ﾟ･｡ きみのエレメントはなあに？ ｡･ﾟ✨ﾟ･｡｡･ﾟ✨</h2>
+            <p style="text-align:center;">
+                リトルちゃんには、それぞれ個性的な「エレメント」があるんだ。<br>
+                きみはどんなことが好き？どんな時にきゅんとしちゃう？
+            </p>
+            <ul class="element-list">
+                <li><span class="name">🍼 リトル・チュア (甘えたい)</span><span class="quote">「ぎゅーってしてほしいの…」</span>おひざが大好きな甘えんぼリトルちゃん。</li>
+                <li><span class="name">🖤 リトル・スレイヴ (支配されたい)</span><span class="quote">「はい、いい子にしてます…」</span>命令されるときゅんとしちゃう従順リトル。</li>
+                <li><span class="name">👶 リトル・チャイル (赤ちゃんロール全開)</span><span class="quote">「おぎゃ〜っ！」</span>ミルクもオムツも全部おまかせな、完全退行リトルベイビー。</li>
+                <li><span class="name">👕 リトル・ウェア (着用フェチ中心)</span><span class="quote">「このおむつ、かわいすぎっ♡」</span>ふかふか素材に包まれて幸せになっちゃう衣服愛好型。</li>
+                <li><span class="name">💧 リトル・リリース (排泄連動系)</span><span class="quote">「トイレ？まだ行かないよ〜」</span>おもらしやおむつ交換で特別な気持ちになる感覚派リトル。</li>
+                <li><span class="name">🏥 リトル・ホスピ (医療系フェチ寄り)</span><span class="quote">「お熱あるの…診てくれる？」</span>包帯・体温計・ナースさんにドキドキしちゃう白衣のリトル。</li>
+                <li><span class="name">🧸 リトル・ケア (世話されたい)</span><span class="quote">「ママ〜、ミルク飲ませて…」</span>いっぱいお世話されたい、甘やかされたい系リトル。</li>
+                <li><span class="name">😈 リトル・リベル (反抗的／強気)</span><span class="quote">「だれが赤ちゃんよ！？」</span>ちょっぴり反抗期だけど、本当はかまってほしいツンデレ系。</li>
+                <li><span class="name">😂 リトル・ックル (くすぐりフェチ)</span><span class="quote">「や、やめてぇ〜♡あはは！」</span>ふにゃふにゃになっちゃう、くすぐりでとろけるリトル。</li>
+                <li><span class="name">🎭 リトル・コスプレ (マスク・コスプレ系)</span><span class="quote">「今日はうさぎさんだよ♪」</span>仮装やマスクで変身するのが大好きななりきりリトル。</li>
+                <li><span class="name">🍓 リトル・プティ (甘えん坊＋わがまま)</span><span class="quote">「やだ！いま抱っこがいいの〜っ！」</span>可愛さとワガママが絶妙にミックスされた小悪魔系。</li>
+                <li><span class="name">👑 リトル・ドミナ (甘えたい×攻める)</span><span class="quote">「だっこしてくれなきゃ、おしおきだよ♡」</span>甘えん坊なのに主導権は握りたい、魅惑のリトル様。</li>
+                <li><span class="name">📸 リトル・モデル (写真を撮られるのが好き)</span><span class="quote">「このお洋服、可愛いでしょ？」</span>ポーズばっちり♪カメラを向けられるとスイッチオン！</li>
+                <li><span class="name">📷 リトル・グラファ (写真を撮ることが好き)</span><span class="quote">「この子のオムツ姿、記念にパシャリ♡」</span>可愛い瞬間をカメラで集めたい観察リトル。</li>
+                <li><span class="name">🎀 リトル・コレクト (収集癖)</span><span class="quote">「おむつの柄、全部そろえたいの！」</span>可愛いモノなら何でも集めたくなっちゃうコレクターリトル。</li>
+                <li><span class="name">🧊 リトル・スタイン (我慢するのが好き)</span><span class="quote">「…まだ、がまんできるもん…っ」</span>限界に挑戦するのがたまらないストイック系リトル。</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>どんなリトルちゃんも、みんな大切な「おむもふ」のおともだちだよ！</p>
+            <p>- ASTRO</p>
+        </footer>
+    </div>
+
+</body>
+</html>
