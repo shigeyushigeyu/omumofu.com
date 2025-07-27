@@ -1,0 +1,442 @@
+---
+// src/pages/AboutABDL.astro
+import AdultBabyAB from '../assets/images/AboutABDL/AdultBabyAB.png';
+import DiaperLoverDL from '../assets/images/AboutABDL/DiaperLoverDL.png';
+import TBDL from '../assets/images/AboutABDL/TBDL.png';
+import Dipaer from '../assets/images/AboutABDL/Diaper.png';
+import Babywear from '../assets/images/AboutABDL/Babywear.png';
+import Care from '../assets/images/AboutABDL/Care.png';
+import Restroom from '../assets/images/AboutABDL/Restroom.png';
+const pageTitle = "ABDLってなあに？ | ABDL総合コミュニティ";
+---
+
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="ABDL（Adult Baby Diaper Lover）について優しく解説するページです。" />
+  <meta name="viewport" content="width=device-width" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  
+  <!-- かわいい丸ゴシックフォントを読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+  
+  <title>{pageTitle}</title>
+</head>
+<body>
+
+  <main class="container">
+    <header class="page-header">
+      <h1 class="title-text">
+        <span class="icon">🍼</span> ABDL総合コミュニティへようこそ！
+      </h1>
+      <p class="intro-text">
+        ABDL（Adult Baby Diaper Lover）とは、大人になっても赤ちゃんのように過ごしたり、おむつ（ダイパー）を身につけて癒やしや安心を感じるライフスタイルや嗜好のことを言うよ。
+      </p>
+    </header>
+
+    <!-- １．ABDLってどんなもの？ -->
+    <section class="info-section">
+      <h2 class="section-title">
+        <span class="num-circle">1</span>
+        ABDLってどんなもの？
+      </h2>
+      <div class="card-grid three-cols">
+        <div class="content-card">
+          <h3>Adult Baby (AB)</h3>
+          <p>赤ちゃんのように甘えたり、ごろごろしたり、ロンパースやよだれかけ、哺乳瓶など赤ちゃんグッズを使って過ごすスタイルです。自分のペースで赤ちゃん気分を楽しむよ。</p>
+          <div class="image-placeholder">
+            <img src={AdultBabyAB.src} alt="ABDLとはの画像"  class="image" />
+          </div>
+        </div>
+        <div class="content-card">
+          <h3>Diaper Lover (DL)</h3>
+          <p>おむつをつけて過ごすことが好きな人たち。おむつに排泄することで安心感や快適さを感じます。赤ちゃんプレイはしなくてもOK！</p>
+          <div class="image-placeholder">
+            <img src={DiaperLoverDL.src} alt="ここにDLの画像"  class="image" />
+          </div>
+        </div>
+        <div class="content-card">
+          <h3>TBDL</h3>
+          <p>10代の若いABDLさんもいます。年齢問わず、多様なメンバーがこのコミュニティに参加しているよ。</p>
+          <div class="image-placeholder">
+            <img src={TBDL.src} alt="ここにTBDLの画像"  class="image" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ２．ABDLの生活スタイル -->
+    <section class="info-section">
+        <h2 class="section-title">
+          <span class="num-circle">2</span>
+          ABDLの生活スタイル
+        </h2>
+        <div class="lifestyle-content">
+          <div class="video-wrapper lifestyle-video">
+            <video src="/assets/videos/Lifestyle.mp4" 
+              autoplay
+              muted
+              loop
+              playsinline            
+              controls autoplay muted playsinline loop></video>
+          </div>
+            <ul class="custom-list">
+                <li>おむつを着用し、お漏らしやおねしょをすることも自然なこととして受け入れられているよ。</li>
+                <li>性的な目的ではなく、癒しや安心感、自分らしさの表現として楽しむ人が多いいよ。</li>
+                <li>おむつ替えは、愛情や信頼の大切なコミュニケーションのひとつだよ。</li>
+                <li>トイレトレーニングを行う人もいて、自分のペースで無理なく生活を調整しているよ。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ３．よく使うアイテム -->
+    <section class="info-section">
+      <h2 class="section-title">
+        <span class="num-circle">3</span>
+        よく使うアイテム
+      </h2>
+      <div class="card-grid four-cols">
+        <div class="content-card item-card">
+          <h4>おむつ</h4>
+          <p class="item-desc">赤ちゃん用（ムーニー等）やABDL専用品（ABU等）があるよ</p>
+          <div class="image-placeholder small">
+            <img src={Dipaer.src} alt="おむつの画像だよ🍼"  class="image" /></div>
+        </div>
+        <div class="content-card item-card">
+          <h4>ベビー服</h4>
+          <p class="item-desc">ロンパース、よだれかけ、哺乳瓶、おしゃぶりなど</p>
+          <div class="image-placeholder small">
+            <img src={Babywear.src} alt="ベビー服の画像だよ👶"  class="image" />
+          </div>
+        </div>
+        <div class="content-card item-card">
+          <h4>ケア用品</h4>
+          <p class="item-desc">防水シーツ、おむつカバー、おもちゃ、ぬいぐるみ</p>
+          <div class="image-placeholder small">
+            <img src={Care.src} alt="ケア用品の画像だよ🧸"  class="image" />
+          </div>
+        </div>
+        <div class="content-card item-card">
+          <h4>トイトレグッズ</h4>
+          <p class="item-desc">おまる、トレーニングパンツなど補助グッズ</p>
+          <div class="image-placeholder small">
+            <img src={Restroom.src} alt="トイトレグッズの画像だよ🚽"  class="image" />            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ４．コミュニティと情報発信 -->
+    <section class="info-section">
+      <h2 class="section-title">
+        <span class="num-circle">4</span>
+        コミュニティと情報発信
+      </h2>
+      <ul class="custom-list">
+        <li>SNS（X、Instagramなど）で安心して情報を共有できる場所が広がっているよ。</li>
+        <li>おむつ姿や赤ちゃんプレイの様子を投稿する人もいて、仲間とつながる大切な手段だよ。</li>
+      </ul>
+    </section>
+
+    <!-- ５．このコミュニティについて -->
+    <section class="info-section community-message">
+      <h2 class="section-title">
+        <span class="num-circle">5</span>
+        このコミュニティについて
+      </h2>
+      <p>ここは、ABDLの全ての方が安心して自分らしくいられる居場所。<br>
+      性別・年齢・スタイル問わず、みんなで尊重し合いながら楽しく交流しようね。</p>
+      <p>質問や悩みも遠慮なくシェアしてね！<br>
+      みんなで支え合い、癒やしの時間を大切にしようね🌈✨</p>
+      <div class="final-message">
+        もしもっと詳しく知りたいことや、相談したいことがあったら、いつでも話してね。<br>
+        <strong>みんなの笑顔があふれるコミュニティにしようね！</strong>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p>ABDL総合コミュニティ 💖</p>
+    </footer>
+  </main>
+
+</body>
+</html>
+
+<style is:global>
+  /* ページ全体のデザインを決める基本的なスタイル */
+  :root {
+    /* ふわふわパステルカラーパレット */
+    --c-bg: #f8f8ff; /* 少し青みがかった背景 #f8f8ff*/
+    --c-text: #5c524e; /* やさしいブラウンの文字色 */
+    --c-pink: #ffe4e1;
+    --c-blue: #e0f0ff;
+    --c-yellow: #fffacd;
+    --c-green: #e6ffed;
+    --c-purple: #f3e8ff;
+    --c-white: #ffffff;
+    --c-accent: #ffb6c1; /* 強調したいピンク */
+    --c-border: #e0d8f0; /* ふんわりした境界線 */
+
+    /* フォント */
+    --font-body: 'M PLUS Rounded 1c', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.8;
+    background-image:
+      radial-gradient(var(--c-blue) 1px, transparent 1px),
+      radial-gradient(var(--c-pink) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+    background-attachment: fixed;
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #4a423f;
+  }
+</style>
+
+<style>
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  
+  /* ページヘッダー */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .title-text {
+    font-size: 2.8rem;
+    color: var(--c-accent);
+    margin: 0 0 1rem 0;
+    text-shadow: 2px 2px 0 var(--c-pink);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .title-text .icon {
+    font-size: 3rem;
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+
+  .intro-text {
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--c-white);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border: 2px dashed var(--c-border);
+  }
+
+  /* 各情報セクションのスタイル */
+  .info-section {
+    background: var(--c-white);
+    padding: 2rem 2.5rem;
+    border-radius: 20px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 8px 20px rgba(180, 180, 220, 0.15);
+    border: 1px solid #eee;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 3px dotted var(--c-border);
+  }
+  
+  .num-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    background: var(--c-accent);
+    color: var(--c-white);
+    font-size: 1.2rem;
+    border-radius: 50%;
+    font-weight: 700;
+  }
+
+  /* カードレイアウト */
+  .card-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .three-cols { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .four-cols { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  .content-card {
+    background-color: var(--c-bg);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid #eee;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(180, 180, 220, 0.2);
+  }
+  .content-card h3 {
+    margin-top: 0;
+    text-align: center;
+    color: var(--c-accent);
+  }
+  .content-card.item-card h4 {
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+    color: var(--c-accent);
+    font-size: 1.1rem;
+  }
+  .item-desc {
+    font-size: 0.85rem;
+    text-align: center;
+    min-height: 40px;
+  }
+
+  /* 画像プレースホルダー */
+  .image-placeholder {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #f0f4ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aab8d3;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    border: 2px dashed #d0d8f0;
+  }
+.image-placeholder.small {
+  aspect-ratio: 4 / 3;
+  background: #f0f4ff;
+  border: 2px dashed #d0d8f0;
+  border-radius: 12px;
+  overflow: hidden; /* ★追加：画像の角を丸く見せるために必要 */
+  padding: 0;        /* 念のため */
+}
+
+.image {
+  width: 100%;
+  height: 100%; /* auto → 100% に */
+  display: block;
+  object-fit: cover; /* contain → cover に変更 */
+  border-radius: 8px;
+}
+  
+  /* 生活スタイルセクション */
+  .lifestyle-content {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 2rem;
+      align-items: center;
+  }
+  .lifestyle-image {
+    margin-top: 0;
+  }
+  @media (max-width: 768px) {
+    .lifestyle-content {
+        grid-template-columns: 1fr;
+    }
+  }
+
+
+  /* カスタムリスト */
+  .custom-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  .custom-list li {
+    padding-left: 2rem;
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .custom-list li::before {
+    content: '💖';
+    position: absolute;
+    left: 0;
+    top: -2px;
+    font-size: 1.2rem;
+    color: var(--c-accent);
+  }
+
+  /* 最後のメッセージ */
+  .community-message {
+    background-color: var(--c-blue);
+    text-align: center;
+  }
+  .final-message {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px dashed var(--c-white);
+    font-size: 1.1rem;
+  }
+  .final-message strong {
+    color: var(--c-accent);
+  }
+
+  /* フッター */
+  .page-footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--c-border);
+    color: var(--c-accent);
+    font-weight: 700;
+  }
+
+  .video-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #000;
+}
+
+.lifestyle-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
+}
+
+
+</style>
