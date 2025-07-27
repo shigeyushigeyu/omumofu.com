@@ -1,0 +1,87 @@
+---
+// 表示したい動画の番号をここにリストアップします
+const videoFiles = [
+  '001.mp4',
+  '002.mp4',
+  '003.mp4',
+  '004.mp4',
+  '005.mp4',
+  '006.mp4',
+  '007.mp4',
+];
+---
+
+<head>
+  <meta charset="UTF-8">  <!-- ← ★最重要★ この行が一番上にあることを確認 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fontsなどの他のlinkタグ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>おむもふ.com</title>
+</head>
+
+
+
+<div class="gallery-container">
+  <h2 class="gallery-title">おむもふ動画</h2>
+  <div class="video-grid">
+    {videoFiles.map((videoFile) => (
+      <div class="video-card">
+        <a href="/cinema">
+          <video
+            src={`/assets/videos/cinema/${videoFile}`}
+            autoplay
+            muted
+            loop
+            playsinline
+            controls={false} 
+            class="video-player"
+          ></video>
+        </a>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .gallery-container {
+    padding: 2rem 1rem;
+    background-color: #fffaf0; /* ふんわりしたクリーム色 */
+  }
+
+  .gallery-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #ff8c8c; /* 可愛いピンク色 */
+    margin-bottom: 2rem;
+    font-family: 'M PLUS Rounded 1c', sans-serif; /* おすすめの丸いフォント */
+  }
+
+  .video-grid {
+    display: grid;
+    /* 画面幅に応じて列数を自動調整 */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem; /* 動画と動画の間隔 */
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .video-card {
+    background: white;
+    border-radius: 16px; /* 角を丸くする */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* ふんわりした影 */
+    overflow: hidden; /* 角丸からはみ出ないように */
+    transition: all 0.3s ease-in-out; /* アニメーションを滑らかに */
+  }
+
+  .video-card:hover {
+    transform: scale(1.05) translateY(-5px); /* 少し大きく、少し浮き上がる */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* 影を濃くする */
+  }
+
+  .video-player {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* コンテナいっぱいに表示 */
+    display: block;
+  }
+</style>
