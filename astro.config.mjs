@@ -1,9 +1,7 @@
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import staticAdapter from '@astrojs/adapter-static';
 
 export default defineConfig({
-  output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
+  output: 'static',
+  adapter: staticAdapter(),
 });
