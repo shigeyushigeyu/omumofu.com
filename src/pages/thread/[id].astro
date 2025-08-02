@@ -1,7 +1,4 @@
 ---
-
-/*
-
 import Layout from '../../layouts/Layout.astro';
 export async function getStaticPaths() {
   const res = await fetch('http://127.0.0.1:5000/api/threads');
@@ -15,7 +12,7 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 
 const res = await fetch(`http://127.0.0.1:5000/api/thread/${id}`);
-const thread = await res.json();
+//const thread = await res.json();
 
 
 
@@ -26,10 +23,9 @@ const thread = {
     { id: 1, content: "こんにちは" },
     { id: 2, content: "よろしくお願いします" }
   ] 
-}; */
+}; 
 
 ---
-<!-- 
 <Layout>
 
 
@@ -46,6 +42,3 @@ const thread = {
 
 
 </Layout>
-
-  -->
-
