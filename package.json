@@ -13,6 +13,7 @@
     "swiper": "^11.2.10"
   },
   "devDependencies": {
+    "@astrojs/node": "^9.3.3",
     "typescript": "^5.8.3"
   }
 }
