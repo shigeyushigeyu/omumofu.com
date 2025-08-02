@@ -1,5 +1,4 @@
 ---
-//src/pages/index.astro
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
 import LoginButton from '../components/buttons/loginbutton.astro';
@@ -7,6 +6,7 @@ import AboutSection from '../components/sections/aboutsection.astro';
 import SectionMessageBoard from '../components/sections/sectionmessageboard.astro';
 import Literature from '../components/sections/literature.astro';
 import Gallery from '../components/sections/gallery.astro';
+import Fetishism from '../components/sections/home_fetishism.astro';
 import Cinema from '../components/sections/cinema.astro';
 ---
   <Layout>
@@ -15,6 +15,7 @@ import Cinema from '../components/sections/cinema.astro';
 
     <main>
       <h1>おむもふ</h1>
+      
       <p class="catchphrase">ABDL総合コミュニティサイト</p>
       <video
         src="/assets/videos/indexhero.mp4"
@@ -41,8 +42,10 @@ import Cinema from '../components/sections/cinema.astro';
       <AboutSection />
       <Literature />
       <Gallery />
+      <!--<Fetishism />-->
       <Cinema />
       <SectionMessageBoard />
+
 
 
       <div class="button-group">
@@ -56,22 +59,32 @@ import Cinema from '../components/sections/cinema.astro';
     </main>
   </Layout>
 
-  <!-- 2. 背景を固定するためのスタイルを追加 -->
-  <style is:global>
-    .fixed-background {
-      position: fixed; /* 画面に固定 */
-      top: 0;
-      left: 0;
-      width: 100vw; /* 画面幅いっぱいに */
-      height: 100vh; /* 画面高さいっぱいに */
-      background: url('/assets/images/index_back.png') no-repeat center center;
-      background-size: cover;
-      opacity: 0.4; /* 背景にのみ透明度を適用 */
-      z-index: -1;  /* コンテンツの背面に配置 */
-    }
 
-    /* もしLayoutのbodyに背景色が設定されている場合、それを無効化 */
-    body {
-      background-color: transparent !important;
-    }
-  </style>
+ 
+
+<!-- 背景動画 -->
+<video class="fixed-background" autoplay muted loop playsinline>
+  <source src="/assets/videos/index_back.mp4" type="video/mp4" />
+  お使いのブラウザは動画に対応していません。
+</video>
+
+<style is:global>
+  .fixed-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;  /* 縦横にフィット */
+    opacity: 0.4;
+    z-index: -1;
+    pointer-events: none; /* クリックイベントを通すように */
+  }
+
+  body {
+    background-color: transparent !important;
+  }
+</style>
+
+
+  

@@ -1,11 +1,18 @@
 ---
 import MessageBoardImage from '~/assets/images/messageBoard.png';
 ---
-
 <section class="message-board">
-  <a href="/messageboard"><h2>おむもふチャット</h2></a>
+  <h2><a href="/messageboard">おむもふ掲示板</a></h2>
   <p>たくさんのリトルと交流しよう</p>
-  <div class="image-wrapper">
-    <img src={MessageBoardImage.src} alt="掲示板の画像" class="image" />
+
+    <div class="image-wrapper">
+      <video
+        src="/assets/videos/messageboard.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        class="video"></video>
   </div>
 </section>

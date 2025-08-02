@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+export async function getStaticPaths() {
+  const res = await fetch('http://127.0.0.1:5000/api/threads');
+  const threads = await res.json();
+
+  return threads.map(thread => ({
+    params: { id: thread.id.toString() }
+  }));
+}
+
+const { id } = Astro.params;
+
+const res = await fetch(`http://127.0.0.1:5000/api/thread/${id}`);
+const thread = await res.json();
+
+
+/*
+const thread = { 
+  id: 1, 
+  title: "はじめまして", 
+  posts: [ 
+    { id: 1, content: "こんにちは" },
+    { id: 2, content: "よろしくお願いします" }
+  ] 
+}; */
+
+---
+
+<Layout>
+  <h1>{thread.title}</h1>
+
+  <ul>
+    {thread.posts.map(post => (
+      <li key={post.id}>{post.content}</li>
+    ))}
+  </ul>
+
+  <a href="/threads">← スレッド一覧に戻る</a>
+</Layout>
+

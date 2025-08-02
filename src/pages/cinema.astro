@@ -8,6 +8,17 @@ const videoFiles = [
   '005.mp4',
   '006.mp4',
   '007.mp4',
+  '008.mp4',
+  '009.mp4',
+  '010.mp4',
+  '011.mp4',
+  '012.mp4',
+  '013.mp4',
+  '014.mp4',
+  '015.mp4',
+  '016.mp4',
+  '017.mp4',
+  '018.mp4',
 ];
 ---
 
@@ -57,11 +68,12 @@ const videoFiles = [
   }
 
   .video-grid {
-    display: grid;
+    display: block;
     /* 画面幅に応じて列数を自動調整 */
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem; /* 動画と動画の間隔 */
-    max-width: 1200px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
   }
 
