@@ -1,3 +1,5 @@
+import { defineConfig } from 'astro/config';
+
 export default defineConfig({
-  // adapter: staticAdapter(),  // この行もコメントアウトまたは削除
+  // adapter: staticAdapter(),  // まだ使わないならコメントアウトでOK
 });
