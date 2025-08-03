@@ -1,66 +1,78 @@
 ---
+// src/pages/thread/[id].astro
+export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
-
-export async function getStaticPaths() {
-  const threads = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-  ];
-  return threads.map(thread => ({
-    params: { id: thread.id.toString() },
-  }));
-}
+import { getDbClient } from '../../lib/db';
 
 const { id } = Astro.params;
 
-// API呼び出しはまだ実装していないのでコメントアウト
-// const res = await fetch(`http://127.0.0.1:5000/api/thread/${id}`);
-// const thread = await res.json();
+let thread = null;
+let posts = [];
+const client = getDbClient();
+try {
+  await client.connect();
+  // スレッド情報を取得
+  const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
+  if (threadResult.rows.length > 0) {
+    thread = threadResult.rows[0];
 
-// idに応じたダミーデータを返す例
-const threadData = {
-  1: { 
-    id: 1, 
-    title: "はじめまして", 
-    posts: [ 
-      { id: 1, content: "こんにちは" },
-      { id: 2, content: "よろしくお願いします" }
-    ] 
-  },
-  2: { 
-    id: 2, 
-    title: "２番目のスレッド", 
-    posts: [ 
-      { id: 3, content: "おはようございます" },
-      { id: 4, content: "元気ですか？" }
-    ] 
-  },
-  3: { 
-    id: 3, 
-    title: "３番目の話題", 
-    posts: [ 
-      { id: 5, content: "こんばんは" },
-      { id: 6, content: "よろしくね" }
-    ] 
+    // 投稿一覧を取得
+    const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
+    posts = postsResult.rows;
   }
-};
-
-const thread = threadData[id] ?? {
-  id,
-  title: "スレッドが見つかりません",
-  posts: [],
-};
+} catch (err) {
+  console.error(err);
+} finally {
+  await client.end();
+}
 ---
+<Layout title={thread ? thread.title : 'スレッドが見つかりません'}>
+  <main>
+    {thread ? (
+      <>
+        <h1>{thread.title}</h1>
+        
+        <!-- 投稿一覧 -->
+        <div class="posts-container">
+          {posts.map((post, index) => (
+            <div class="post">
+              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
+              <p>{post.body}</p>
+            </div>
+          ))}
+        </div>
 
-<Layout>
-  <h1>{thread.title}</h1>
+        <hr />
 
-  <ul>
-    {thread.posts.map(post => (
-      <li key={post.id}>{post.content}</li>
-    ))}
-  </ul>
-
-  <a href="/threads">← スレッド一覧に戻る</a>
+        <!-- 投稿フォーム -->
+        <h2>書き込む</h2>
+        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+          <input type="hidden" name="thread_id" value={thread.id} />
+          <div>
+            <label for="author_name">名前:</label>
+            <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
+          </div>
+          <div>
+            <label for="body">本文:</label>
+            <textarea id="body" name="body" rows="5" required></textarea>
+          </div>
+          <button type="submit">書き込む</button>
+        </form>
+      </>
+    ) : (
+      <h1>スレッドが見つかりません</h1>
+    )}
+  </main>
 </Layout>
+
+<style>
+  /* 簡単なスタイリング */
+  .post {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  form div {
+    margin-bottom: 10px;
+  }
+</style>

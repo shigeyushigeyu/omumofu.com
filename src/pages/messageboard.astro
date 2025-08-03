@@ -1,33 +1,39 @@
 ---
-export const prerender = false;
-import Layout from "~/layouts/Layout.astro";
-const res = await fetch('http://127.0.0.1:5000/api/threads');
-const threads = await res.json();
+// src/pages/messageboard.astro
+import Layout from '../layouts/Layout.astro';
+// getDbClient のような関数を使っている場合
+import { getDbClient } from '../lib/db'; 
 
-/*
-const threads = [
-  { id: 1, title: "はじめまして", created_at: "2025-08-01T12:00:00Z" },
-  { id: 2, title: "オムモフの魅力", created_at: "2025-08-02T08:30:00Z" }
-]; */
+// "let" で宣言し、try...finallyブロックで処理を完結させるのが安全
+let threads = [];
+let error = null;
+
+try {
+  // DB接続からデータ取得、接続終了までをすべてこのブロック内で行う
+  // この部分はサーバーサイドでのみ実行されることが保証される
+  const client = getDbClient(); 
+  await client.connect();
+  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
+  threads = result.rows;
+  await client.end();
+} catch (err) {
+  console.error("Database query failed:", err);
+  error = "データベースからのデータ取得に失敗しました。";
+}
+// この時点で DB 接続に関するオブジェクト (client) はスコープ外になっているのが理想
+
 ---
-
-<Layout>
-  <h1>スレッド一覧</h1>
-<!-- 
-
-  <ul>
-    {
-      threads.map(thread => (
+<Layout title="掲示板">
+  <main>
+    <h1>掲示板スレッド一覧</h1>
+    <ul>
+      {threads.map(thread => (
         <li>
-          <a href={`/thread/${thread.id}`}>
-            {thread.title}
-          </a>
+          <a href={`/thread/${thread.id}`}>{thread.title}</a>
+          <small>({new Date(thread.created_at).toLocaleString()})</small>
         </li>
-      ))
-    }
-  </ul>
-
-  <p><a href="/new">新しいスレッドを作成する</a></p>
-
-  -->
+      ))}
+    </ul>
+    {threads.length === 0 && <p>まだスレッドがありません。</p>}
+  </main>
 </Layout>
