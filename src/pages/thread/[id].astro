@@ -1,35 +1,59 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-export async function getStaticPaths() {
-  const res = await fetch('http://127.0.0.1:5000/api/threads');
-  const threads = await res.json();
 
+export async function getStaticPaths() {
+  const threads = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+  ];
   return threads.map(thread => ({
-    params: { id: thread.id.toString() }
+    params: { id: thread.id.toString() },
   }));
 }
 
 const { id } = Astro.params;
 
-const res = await fetch(`http://127.0.0.1:5000/api/thread/${id}`);
-//const thread = await res.json();
+// API呼び出しはまだ実装していないのでコメントアウト
+// const res = await fetch(`http://127.0.0.1:5000/api/thread/${id}`);
+// const thread = await res.json();
 
+// idに応じたダミーデータを返す例
+const threadData = {
+  1: { 
+    id: 1, 
+    title: "はじめまして", 
+    posts: [ 
+      { id: 1, content: "こんにちは" },
+      { id: 2, content: "よろしくお願いします" }
+    ] 
+  },
+  2: { 
+    id: 2, 
+    title: "２番目のスレッド", 
+    posts: [ 
+      { id: 3, content: "おはようございます" },
+      { id: 4, content: "元気ですか？" }
+    ] 
+  },
+  3: { 
+    id: 3, 
+    title: "３番目の話題", 
+    posts: [ 
+      { id: 5, content: "こんばんは" },
+      { id: 6, content: "よろしくね" }
+    ] 
+  }
+};
 
-
-const thread = { 
-  id: 1, 
-  title: "はじめまして", 
-  posts: [ 
-    { id: 1, content: "こんにちは" },
-    { id: 2, content: "よろしくお願いします" }
-  ] 
-}; 
-
+const thread = threadData[id] ?? {
+  id,
+  title: "スレッドが見つかりません",
+  posts: [],
+};
 ---
+
 <Layout>
-
-
-
   <h1>{thread.title}</h1>
 
   <ul>
@@ -39,6 +63,4 @@ const thread = {
   </ul>
 
   <a href="/threads">← スレッド一覧に戻る</a>
-
-
 </Layout>
