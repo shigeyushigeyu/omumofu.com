@@ -1,25 +1,19 @@
 ---
 // 表示したい動画の番号をここにリストアップします
-const videoFiles = [
-  '001.mp4',
-  '002.mp4',
-  '003.mp4',
-  '004.mp4',
-  '005.mp4',
-  '006.mp4',
-  '007.mp4',
-  '008.mp4',
-  '009.mp4',
-  '010.mp4',
-  '011.mp4',
-  '012.mp4',
-  '013.mp4',
-  '014.mp4',
-  '015.mp4',
-  '016.mp4',
-  '017.mp4',
-  '018.mp4',
-];
+const totalVideos = 18; // ← 将来、動画が20個になったら、ここを 20 に変更するだけ！
+
+// totalVideos の数だけ、'001.mp4', '002.mp4', ... という形式の
+// ファイル名の配列を自動的に生成します。
+const videoFiles = (() => {
+  const files = [];
+  for (let i = 1; i <= totalVideos; i++) {
+    // 数値を3桁の文字列に変換し、足りない桁は '0' で埋めます (例: 1 → "001")
+    const number = i.toString().padStart(3, '0');
+    // ファイル名を配列に追加します
+    files.push(`${number}.mp4`);
+  }
+  return files;
+})();
 ---
 
 <head>
@@ -30,70 +24,130 @@ const videoFiles = [
   <title>おむもふ.com</title>
 </head>
 
-
-
 <div class="gallery-container">
   <h2 class="gallery-title">おむもふ動画</h2>
   <div class="video-grid">
     {videoFiles.map((videoFile) => (
-      <div class="video-card">
-        <a href="/cinema">
-          <video
-            src={`/assets/videos/cinema/${videoFile}`}
-            autoplay
-            muted
-            loop
-            playsinline
-            controls={false} 
-            class="video-player"
-          ></video>
-        </a>
+      <div 
+        class="video-card" 
+        data-video-src={`/assets/videos/cinema/${videoFile}`}
+        onmouseenter={(e) => e.currentTarget.querySelector('video').play()}
+        onmouseleave={(e) => e.currentTarget.querySelector('video').pause()}
+      >
+        <video
+          src={`/assets/videos/cinema/${videoFile}`}
+          muted
+          loop
+          playsinline
+          controls={false}
+          class="video-player"
+        ></video>
+        <div class="play-icon-overlay">▶</div>
       </div>
     ))}
   </div>
 </div>
 
+<!-- ライトボックス表示用の要素（最初は非表示） -->
+<div id="lightbox" class="lightbox-overlay" style="display:none;">
+  <div class="lightbox-content">
+    <span class="lightbox-close">×</span>
+    <video id="lightbox-video" controls autoplay></video>
+  </div>
+</div>
+
+/* CSSの修正 */
 <style>
+  /* 基本スタイルはそのまま */
   .gallery-container {
     padding: 2rem 1rem;
-    background-color: #fffaf0; /* ふんわりしたクリーム色 */
+    background-color: #fffaf0;
   }
-
   .gallery-title {
     text-align: center;
     font-size: 2.5rem;
-    color: #ff8c8c; /* 可愛いピンク色 */
+    color: #ff8c8c;
     margin-bottom: 2rem;
-    font-family: 'M PLUS Rounded 1c', sans-serif; /* おすすめの丸いフォント */
+    font-family: 'M PLUS Rounded 1c', sans-serif;
   }
 
+  /* --- ここからが重要な修正点 --- */
+
   .video-grid {
-    display: block;
-    /* 画面幅に応じて列数を自動調整 */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem; /* 動画と動画の間隔 */
+    display: grid; /* ★★★ display: block から grid に変更！ ★★★ */
+    /* auto-fill より auto-fit の方が、最後の行の要素が伸びてくれるので見た目が良いことが多いです */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
     width: 100%;
-    max-width: 100%;
+    max-width: 1200px; /* 最大幅を設定するとPCで見やすくなります */
     margin: 0 auto;
   }
 
   .video-card {
+    position: relative; /* アイコンを重ねるために必要 */
     background: white;
-    border-radius: 16px; /* 角を丸くする */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* ふんわりした影 */
-    overflow: hidden; /* 角丸からはみ出ないように */
-    transition: all 0.3s ease-in-out; /* アニメーションを滑らかに */
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer; /* クリックできることを示す */
   }
-
   .video-card:hover {
-    transform: scale(1.05) translateY(-5px); /* 少し大きく、少し浮き上がる */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* 影を濃くする */
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   }
-
   .video-player {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* コンテナいっぱいに表示 */
+    object-fit: cover;
     display: block;
   }
+  
+  /* 再生アイコンのスタイル（おまけ） */
+  .play-icon-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none; /* アイコンがマウスイベントを邪魔しないように */
+    transition: opacity 0.3s ease;
+  }
+  .video-card:hover .play-icon-overlay {
+    opacity: 0; /* ホバー中はアイコンを消す */
+  }
+
+  /* --- ライトボックス用のCSS --- */
+  .lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .lightbox-content {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 3rem;
+    color: white;
+    cursor: pointer;
+  }
+  #lightbox-video {
+    width: 100%;
+    max-height: 90vh;
+  }
 </style>
+
