@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  // adapterは使わずにまずビルドを試す
+  adapter: cloudflare(),
 });
