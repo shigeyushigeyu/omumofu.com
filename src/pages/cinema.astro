@@ -1,38 +1,16 @@
 ---
 import Layout from "~/layouts/Layout.astro";
 
-// 表示したい動画の番号をここにリストアップします
-// 1. 動画の総数を変数として定義します
+// 動画リストの自動生成
 const totalVideos = 18;
-
-// 2. totalVideosの数だけ、ファイル名の配列を自動で生成します
-const videoFiles = (() => {
-  const files = [];
-  // 1から18までループ処理
-  for (let i = 1; i <= totalVideos; i++) {
-    // iを3桁の文字列に変換します (例: 1 → "001")
-    const number = i.toString().padStart(3, '0');
-    // 配列にファイル名を追加します
-    files.push(`${number}.mp4`);
-  }
-  return files;
-})();
+const videoFiles = Array.from({ length: totalVideos }, (_, i) => {
+  const number = (i + 1).toString().padStart(3, '0');
+  return `${number}.mp4`;
+});
 ---
-
-
-<head>
-  <meta charset="UTF-8">  <!-- ← ★最重要★ この行が一番上にあることを確認 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Google Fontsなどの他のlinkタグ -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <title>おむもふ.com</title>
-</head>
-
-
 
 <Layout title="おむもふ動画ギャラリー">
   <div class="gallery-container">
-    <h2 class="gallery-title">おむもふ動画</h2>
     <div class="video-grid">
       <!-- ★★★ここからHTMLの変更★★★ -->
       {videoFiles.map((videoFile) => {
@@ -44,14 +22,16 @@ const videoFiles = (() => {
           >
             <video
               src={videoSrc}
+              autoplay  
               muted
               loop
               playsinline
-              controls={false}
+              controls={false} 
               class="video-player"
               preload="metadata"
             ></video>
-            <div class="play-icon-overlay">▶</div>
+            <!-- おまけ: 最初から動いているので、再生アイコンは不要かもしれません -->
+            <!-- <div class="play-icon-overlay">▶</div> -->
           </div>
         );
       })}
@@ -59,7 +39,7 @@ const videoFiles = (() => {
     </div>
   </div>
 
-  <!-- ★★★ライトボックス用のHTMLをここに追加★★★ -->
+  <!-- ライトボックス用のHTML（変更なし） -->
   <div id="lightbox" class="lightbox-overlay">
     <div class="lightbox-content">
       <span id="lightbox-close" class="lightbox-close">×</span>
@@ -67,92 +47,55 @@ const videoFiles = (() => {
     </div>
   </div>
 
-<style>
-  .gallery-container {
-    padding: 2rem 1rem;
-    background-color: #fffaf0; /* ふんわりしたクリーム色 */
-  }
-
-  .gallery-title {
-    text-align: center;
-    font-size: 2.5rem;
-    color: #ff8c8c; /* 可愛いピンク色 */
-    margin-bottom: 2rem;
-    font-family: 'M PLUS Rounded 1c', sans-serif; /* おすすめの丸いフォント */
-  }
-
-  .video-grid {
-    display: grid;
-    /* 画面幅に応じて列数を自動調整 */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem; /* 動画と動画の間隔 */
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .video-card {
-    background: white;
-    border-radius: 16px; /* 角を丸くする */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* ふんわりした影 */
-    overflow: hidden; /* 角丸からはみ出ないように */
-    transition: all 0.3s ease-in-out; /* アニメーションを滑らかに */
-    cursor: pointer; /* クリックできることを示す */
-    aspect-ratio: 16 / 9; /* 高さを揃えてレイアウト崩れを防ぐ */
-    position: relative; /* アイコンを重ねるために必要 */
-  }
-
-  .video-card:hover {
-    transform: scale(1.05) translateY(-5px); /* 少し大きく、少し浮き上がる */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* 影を濃くする */
-  }
-
-  .video-player {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* コンテナいっぱいに表示 */
-    display: block;
-  }/* ★★★ライトボックス用のCSSをここに追加★★★ */
-    .lightbox-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
+  <!-- CSS（変更なし） -->
+  <style>
+    .gallery-container {
+      padding: 2rem 1rem;
+      background-color: #fffaf0;
+    }
+    .gallery-title {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #ff8c8c;
+      margin-bottom: 2rem;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .video-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+    .video-card:hover {
+      transform: scale(1.05) translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    .video-player {
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      display: none; /* 初期状態は非表示 */
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+      object-fit: cover;
+      display: block;
     }
-    .lightbox-overlay.visible {
-      display: flex;
-      opacity: 1;
-    }
-    .lightbox-content {
-      position: relative;
-      width: 90%;
-      max-width: 900px;
-      max-height: 90vh;
-    }
-    #lightbox-close {
-      position: absolute;
-      top: -40px;
-      right: 0px;
-      font-size: 3rem;
-      color: white;
-      cursor: pointer;
-      line-height: 1;
-    }
-    #lightbox-video {
-      width: 100%;
-      max-height: 90vh;
-      border-radius: 8px;
-    }
+    /* ... ライトボックスのスタイルは省略（前回のものをそのまま使用） ... */
+    .lightbox-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out; }
+    .lightbox-overlay.visible { display: flex; opacity: 1; }
+    .lightbox-content { position: relative; width: 90%; max-width: 900px; max-height: 90vh; }
+    #lightbox-close { position: absolute; top: -40px; right: 0px; font-size: 3rem; color: white; cursor: pointer; line-height: 1; }
+    #lightbox-video { width: 100%; max-height: 90vh; border-radius: 8px; }
   </style>
 
-    <!-- ★★★ブラウザで動くJavaScriptをここに追加★★★ -->
+  <!-- ★★★ここからJavaScriptの変更★★★ -->
   <script>
     // 必要なHTML要素を取得
     const videoCards = document.querySelectorAll('.video-card');
@@ -162,37 +105,21 @@ const videoFiles = (() => {
 
     // 各動画カードの処理
     videoCards.forEach(card => {
-      const video = card.querySelector('video');
-
-      // 1. マウスが乗ったらプレビュー再生
-      card.addEventListener('mouseenter', () => video.play().catch(e => {}));
-      
-      // 2. マウスが離れたらプレビュー停止
-      card.addEventListener('mouseleave', () => video.pause());
-
-      // 3. カードがクリックされたらライトボックスを表示
+      // カードがクリックされたらライトボックスを表示する機能だけを残す
       card.addEventListener('click', () => {
-        // カードに保存した動画URLを取得して、ライトボックスのvideoに設定
         lightboxVideo.src = card.dataset.videoSrc;
-        // ライトボックスに 'visible' クラスを付けて表示
         lightbox.classList.add('visible');
       });
     });
 
-    // ライトボックスを閉じる処理を一つの関数にまとめる
+    // ライトボックスを閉じる処理（変更なし）
     function closeLightbox() {
       lightbox.classList.remove('visible');
-      // 動画の再生を停止し、読み込みもリセット
       lightboxVideo.pause();
       lightboxVideo.src = '';
     }
-
-    // 4. 閉じるボタン（×）がクリックされたらライトボックスを閉じる
     lightboxClose.addEventListener('click', closeLightbox);
-    
-    // 5. 背景の黒い部分がクリックされてもライトボックスを閉じる
     lightbox.addEventListener('click', (event) => {
-      // クリックされたのが背景（lightbox自身）の時だけ閉じる
       if (event.target === lightbox) {
         closeLightbox();
       }
