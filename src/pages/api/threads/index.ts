@@ -1,3 +1,4 @@
+//src/pages/api/threads/index.ts
 import type { APIRoute } from 'astro';
 import { getDbClient } from '../../../lib/db';
 
