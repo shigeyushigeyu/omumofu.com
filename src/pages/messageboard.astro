@@ -1,56 +1,35 @@
 ---
 // src/pages/messageboard.astro
 import Layout from '../layouts/Layout.astro';
-// getDbClient のような関数を使っている場合
-import { getDbClient } from '../lib/db'; 
+import { getDbClient } from '../lib/db';
 
-// --- ここからが重要 ---
+// ★ try...catch を使わず、トップレベルで直接 await する！
+// これが Astro の SSR で最もシンプルかつ推奨されるデータ取得方法。
+const client = getDbClient();
+await client.connect();
+const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
+const threads = result.rows;
+await client.end();
 
-// letで変数を宣言。try...catchの外で使えるようにするため。
-let threads = [];
-let error = null;
-
-try {
-  // このtryブロックの中でDB処理をすべて完結させる
-  const client = getDbClient();
-  await client.connect();
-  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
-  threads = result.rows;
-  await client.end(); // 必ず接続を閉じる
-} catch (e) {
-  console.error("messageboard.astro database error:", e);
-  // ★ ここで pageError にエラーオブジェクト自体を格納するように変更
-  error = e; 
-}
-
-// --- ここまで ---
+// もしこの過程でエラーが起きれば、Astroが自動的に500エラーページを
+// 表示してくれる。デバッグはそのログを見て行うのが正道。
 ---
 <Layout title="掲示板">
   <main>
-    {/* ★ ここから表示ロジックを修正 */}
-    {error ? (
-      <div>
-        <h1>サーバーでエラーが発生しました</h1>
-        <p>messageboard.astroでエラーが起きました。</p>
-        <pre>{JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}</pre>
-      </div>
+    <h1>掲示板スレッド一覧</h1>
+    
+    {threads.length > 0 ? (
+      <ul>
+        {threads.map(thread => (
+          <li>
+            <a href={`/thread/${thread.id}`}>{thread.title}</a>
+            <small>({new Date(thread.created_at).toLocaleString()})</small>
+          </li>
+        ))}
+      </ul>
     ) : (
-      <>
-        <h1>掲示板スレッド一覧</h1>
-        {threads.length > 0 ? (
-          <ul>
-            {threads.map(thread => (
-              <li>
-                <a href={`/thread/${thread.id}`}>{thread.title}</a>
-                <small>({new Date(thread.created_at).toLocaleString()})</small>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>まだスレッドがありません。</p>
-        )}
-      </>
+      <p>まだスレッドがありません。</p>
     )}
-    {/* ★ ここまで */}
+
   </main>
 </Layout>
