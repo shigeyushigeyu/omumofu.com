@@ -1,9 +1,12 @@
-// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
+// https://astro.build/config
 export default defineConfig({
-  //output: 'server',        // SSRを有効に
-  adapter: cloudflare(),   // Cloudflare向けに最適化
-  // mode: "nodejs" は書かない
+  // ★ ここから追加
+  output: 'hybrid', // SSGとSSRの混在モードを明示
+  adapter: cloudflare({
+    mode: "nodejs_compat" // Node.js互換モードを有効化
+  })
+  // ★ ここまで
 });
