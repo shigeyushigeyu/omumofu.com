@@ -1,6 +1,6 @@
 ---
 // src/pages/thread/[id].astro
-//export const prerender = false; // ★このページだけSSRにする、という宣言は必須
+export const prerender = false; // ★このページだけSSRにする、という宣言は必須
 
 import Layout from '../../layouts/Layout.astro';
 import { getDbClient } from '../../lib/db'; // 共通のDB接続ヘルパーを使う
