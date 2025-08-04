@@ -5,11 +5,18 @@ import { getDbClient } from '../lib/db';
 
 // ★ try...catch を使わず、トップレベルで直接 await する！
 // これが Astro の SSR で最もシンプルかつ推奨されるデータ取得方法。
-const client = getDbClient();
-await client.connect();
-const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
-const threads = result.rows;
-await client.end();
+let threads = [];
+
+try {
+  const client = getDbClient();
+  await client.connect();
+  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
+  threads = result.rows;
+  await client.end();
+} catch (e) {
+  console.error('messageboard.astro error:', e);
+  threads = []; // fallback
+}
 
 // もしこの過程でエラーが起きれば、Astroが自動的に500エラーページを
 // 表示してくれる。デバッグはそのログを見て行うのが正道。

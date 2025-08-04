@@ -18,3 +18,4 @@ stable-diffusion-webui/
 
 # Environment variables
 .env
+/generated/prisma
