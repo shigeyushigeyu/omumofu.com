@@ -1,68 +1,90 @@
 ---
 // src/pages/thread/[id].astro
-export const prerender = false;
+export const prerender = false; // ★このページだけSSRにする、という宣言は必須
+
 import Layout from '../../layouts/Layout.astro';
+import { getDbClient } from '../../lib/db'; // 共通のDB接続ヘルパーを使う
+
 const { id } = Astro.params;
 
-// 型定義
-type Post = { author_name: string; body: string; created_at: string; };
-type ThreadData = { id: number; title: string; posts: Post[]; };
-
-let threadData: ThreadData | null = null;
-let error: string | null = null;
+let thread = null;
+let posts = [];
+let pageError = null;
 
 try {
-  const apiUrl = new URL(`/api/threads/${id}`, Astro.url);
-  const response = await fetch(apiUrl);
-
-  if (response.ok) {
-    threadData = await response.json();
-  } else {
-    error = response.status === 404 ? "指定されたスレッドは見つかりませんでした。" : `スレッドの取得に失敗しました (ステータス: ${response.status})`;
+  if (!id) {
+    throw new Error("URLにスレッドIDがありません。");
   }
+
+  // messageboard.astroと全く同じ方法でDBに接続
+  const client = getDbClient();
+  try {
+    await client.connect();
+    
+    // スレッド情報を取得
+    const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
+    if (threadResult.rows.length === 0) {
+      // スレッドがなければ404エラーにするのが親切
+      return new Response(null, { status: 404, statusText: 'Not Found' });
+    }
+    thread = threadResult.rows[0];
+
+    // 投稿一覧を取得
+    const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
+    posts = postsResult.rows;
+
+  } finally {
+    // 成功しても失敗しても、必ず接続を閉じる
+    if (client) await client.end();
+  }
+
 } catch (e) {
-  console.error(e);
-  error = "APIへの接続中にエラーが発生しました。";
+  console.error(`Error in thread/${id}.astro:`, e);
+  pageError = e;
 }
 ---
-<Layout title={threadData ? threadData.title : (error ? "エラー" : "読み込み中...")}>
+<Layout title={pageError ? "サーバーエラー" : (thread ? thread.title : 'スレッドが見つかりません')}>
   <main>
-    {error && (<div><h1>エラー</h1><p>{error}</p><a href="/messageboard">一覧に戻る</a></div>)}
-    {threadData && (
+    {pageError ? (
+      <div>
+        <h1>サーバーでエラーが発生しました</h1>
+        <pre>{JSON.stringify(pageError, Object.getOwnPropertyNames(pageError), 2)}</pre>
+      </div>
+    ) : (
       <>
-        <h1>{threadData.title}</h1>
-        <div class="posts-container">
-          {threadData.posts.map((post, index) => (
-            <div class="post">
-              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
-              <p set:html={post.body.replace(/\n/g, '<br>')} />
+        {thread ? (
+          <>
+            <h1>{thread.title}</h1>
+            <div class="posts-container">
+              {posts.map((post, index) => (
+                <div class="post">
+                  <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
+                  <p set:html={post.body.replace(/\n/g, '<br>')} />
+                </div>
+              ))}
+              {posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
             </div>
-          ))}
-          {threadData.posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
-        </div>
-        <hr />
-        <h2>書き込む</h2>
-        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
-          <input type="hidden" name="thread_id" value={threadData.id} />
-          <div>
-            <label for="author_name">名前:</label>
-            <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
-          </div>
-          <div>
-            <label for="body">本文:</label>
-            <textarea id="body" name="body" rows="5" required></textarea>
-          </div>
-          <button type="submit">書き込む</button>
-        </form>
+            <hr />
+            <h2>書き込む</h2>
+            <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+              <input type="hidden" name="thread_id" value={thread.id} />
+              {/* ...フォーム入力欄... */}
+              <div>
+                <label for="author_name">名前:</label>
+                <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
+              </div>
+              <div>
+                <label for="body">本文:</label>
+                <textarea id="body" name="body" rows="5" required></textarea>
+              </div>
+              <button type="submit">書き込む</button>
+            </form>
+          </>
+        ) : (
+          <h1>スレッドが見つかりません</h1>
+        )}
       </>
     )}
   </main>
 </Layout>
-
-<style>
-  .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; word-wrap: break-word; }
-  .post p { margin: 0.5em 0; }
-  form div { margin-bottom: 10px; }
-  label { display: block; margin-bottom: 5px; }
-  input[type="text"], textarea { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; }
-</style>
+<style>/* ... */</style>
