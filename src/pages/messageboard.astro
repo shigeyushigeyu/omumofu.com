@@ -1,35 +1,37 @@
 ---
 // src/pages/messageboard.astro
 import Layout from '../layouts/Layout.astro';
+// getDbClient のような関数を使っている場合
+import { getDbClient } from '../lib/db'; 
 
-// APIから返ってくるデータの型を定義
-type Thread = {
-  id: number;
-  title: string;
-  created_at: string; // JSONではDateオブジェクトは文字列になる
-}
+// "let" で宣言し、try...finallyブロックで処理を完結させるのが安全
+// --- ここからが重要 ---
 
-let threads: Thread[] = [];
-let error: string | null = null;
-let pageError: any = null; // ★ error -> pageError, 型をanyに
+// letで変数を宣言。try...catchの外で使えるようにするため。
+let threads = [];
+let error = null;
 
 try {
-  // 自分のサイトのAPIを fetch で呼び出す
-  //const response = await fetch(`${Astro.url.origin}/api/threads`);
-  const apiUrl = new URL('/api/threads', Astro.url);
-  const response = await fetch(apiUrl); 
-  //const response = await fetch('/api/threads'); 
-  if (response.ok) {
-    threads = await response.json();
-  } else {
-    error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
-  }
+  // DB接続からデータ取得、接続終了までをすべてこのブロック内で行う
+  // このtryブロックの中でDB処理をすべて完結させる
+  const client = getDbClient();
+  await client.connect();
+  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
+  threads = result.rows;
+  await client.end();
+
 } catch (e) {
-  console.error(e);
-  error = "APIへの接続中にエラーが発生しました。";
-  pageError = e; // ★ エラーオブジェクトそのものを格納
+  // もしエラーが起きたら、内容をコンソールに出力し、エラーメッセージをセットする
+  // これで500エラーではなく、エラーメッセージが表示されるようになる
+  console.error("messageboard.astro database error:", e);
+  error = "スレッド一覧の取得中にエラーが発生しました。しばらくしてから再読み込みしてください。";
 }
+// この時点で DB 接続に関するオブジェクト (client) はスコープ外になっているのが理想
+
+// --- ここまで ---
 ---
+
+
 <Layout title="掲示板">
   <main>
     <h1>掲示板スレッド一覧</h1>
