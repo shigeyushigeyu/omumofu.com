@@ -18,25 +18,39 @@ try {
   threads = result.rows;
   await client.end(); // 必ず接続を閉じる
 } catch (e) {
-  // もしエラーが起きたら、内容をコンソールに出力し、エラーメッセージをセットする
-  // これで500エラーではなく、エラーメッセージが表示されるようになる
   console.error("messageboard.astro database error:", e);
-  error = "スレッド一覧の取得中にエラーが発生しました。しばらくしてから再読み込みしてください。";
+  // ★ ここで pageError にエラーオブジェクト自体を格納するように変更
+  error = e; 
 }
 
 // --- ここまで ---
 ---
 <Layout title="掲示板">
   <main>
-    <h1>掲示板スレッド一覧</h1>
-    <ul>
-      {threads.map(thread => (
-        <li>
-          <a href={`/thread/${thread.id}`}>{thread.title}</a>
-          <small>({new Date(thread.created_at).toLocaleString()})</small>
-        </li>
-      ))}
-    </ul>
-    {threads.length === 0 && <p>まだスレッドがありません。</p>}
+    {/* ★ ここから表示ロジックを修正 */}
+    {error ? (
+      <div>
+        <h1>サーバーでエラーが発生しました</h1>
+        <p>messageboard.astroでエラーが起きました。</p>
+        <pre>{JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}</pre>
+      </div>
+    ) : (
+      <>
+        <h1>掲示板スレッド一覧</h1>
+        {threads.length > 0 ? (
+          <ul>
+            {threads.map(thread => (
+              <li>
+                <a href={`/thread/${thread.id}`}>{thread.title}</a>
+                <small>({new Date(thread.created_at).toLocaleString()})</small>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>まだスレッドがありません。</p>
+        )}
+      </>
+    )}
+    {/* ★ ここまで */}
   </main>
 </Layout>

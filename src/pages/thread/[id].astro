@@ -4,75 +4,92 @@ export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { getDbClient } from '../../lib/db';
 
+// ★ Astro.params は必ず try ブロックの外、トップレベルで呼び出す！
 const { id } = Astro.params;
 
 let thread = null;
 let posts = [];
-const client = getDbClient();
-try {
-  await client.connect();
-  // スレッド情報を取得
-  const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
-  if (threadResult.rows.length > 0) {
-    thread = threadResult.rows[0];
+let pageError = null;
 
-    // 投稿一覧を取得
-    const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
-    posts = postsResult.rows;
+try {
+  // id が取得できなかった場合のガード処理
+  if (!id) {
+    throw new Error("スレッドIDがURLに含まれていません。");
   }
-} catch (err) {
-  console.error(err);
-} finally {
-  await client.end();
+
+  const client = getDbClient();
+  try {
+    await client.connect();
+    const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
+    
+    if (threadResult.rows.length > 0) {
+      thread = threadResult.rows[0];
+      const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
+      posts = postsResult.rows;
+    } else {
+      throw new Error(`スレッドID: ${id} は見つかりませんでした。`);
+    }
+  } finally {
+    await client.end();
+  }
+} catch (e) {
+  console.error(`thread/[id].astro error:`, e);
+  pageError = e;
 }
 ---
-<Layout title={thread ? thread.title : 'スレッドが見つかりません'}>
+<Layout title={pageError ? "サーバーエラー" : (thread ? thread.title : '不明なスレッド')}>
   <main>
-    {thread ? (
-      <>
-        <h1>{thread.title}</h1>
-        
-        <!-- 投稿一覧 -->
-        <div class="posts-container">
-          {posts.map((post, index) => (
-            <div class="post">
-              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
-              <p>{post.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <hr />
-
-        <!-- 投稿フォーム -->
-        <h2>書き込む</h2>
-        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
-          <input type="hidden" name="thread_id" value={thread.id} />
-          <div>
-            <label for="author_name">名前:</label>
-            <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
-          </div>
-          <div>
-            <label for="body">本文:</label>
-            <textarea id="body" name="body" rows="5" required></textarea>
-          </div>
-          <button type="submit">書き込む</button>
-        </form>
-      </>
+    {pageError ? (
+      <div>
+        <h1>サーバーでエラーが発生しました</h1>
+        <p>thread/[id].astroでエラーが起きました。</p>
+        <pre>{JSON.stringify(pageError, Object.getOwnPropertyNames(pageError), 2)}</pre>
+      </div>
     ) : (
-      <h1>スレッドが見つかりません</h1>
+      <>
+        {thread ? (
+          <>
+            <h1>{thread.title}</h1>
+            
+            {/* 投稿一覧 */}
+            <div class="posts-container">
+              {posts.map((post, index) => (
+                <div class="post">
+                  <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
+                  <p>{post.body}</p>
+                </div>
+              ))}
+              {posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
+            </div>
+
+            <hr />
+
+            {/* 投稿フォーム */}
+            <h2>書き込む</h2>
+            <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+              <input type="hidden" name="thread_id" value={thread.id} />
+              <div>
+                <label for="author_name">名前:</label>
+                <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
+              </div>
+              <div>
+                <label for="body">本文:</label>
+                <textarea id="body" name="body" rows="5" required></textarea>
+              </div>
+              <button type="submit">書き込む</button>
+            </form>
+          </>
+        ) : (
+          <h1>スレッドが見つかりません</h1>
+        )}
+      </>
     )}
   </main>
 </Layout>
 
 <style>
-  /* 簡単なスタイリング */
-  .post {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  form div {
-    margin-bottom: 10px;
-  }
+  /* ... */
+  pre { background-color: #eee; padding: 1em; white-space: pre-wrap; word-wrap: break-word; }
+  .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+  form div { margin-bottom: 10px; }
 </style>
