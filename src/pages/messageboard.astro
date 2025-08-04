@@ -2,40 +2,53 @@
 // src/pages/messageboard.astro
 import Layout from '../layouts/Layout.astro';
 
-// ★ try...catch を使わず、トップレベルで直接 await する！
-// これが Astro の SSR で最もシンプルかつ推奨されるデータ取得方法。
-let threads = [];
-
-try {
-  const client = getDbClient();
-  await client.connect();
-  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
-  threads = result.rows;
-  await client.end();
-} catch (e) {
-  console.error('messageboard.astro error:', e);
-  threads = []; // fallback
+// APIから返ってくるデータの型を定義
+type Thread = {
+  id: number;
+  title: string;
+  created_at: string; // JSONではDateオブジェクトは文字列になる
 }
 
-// もしこの過程でエラーが起きれば、Astroが自動的に500エラーページを
-// 表示してくれる。デバッグはそのログを見て行うのが正道。
+let threads: Thread[] = [];
+let error: string | null = null;
+
+try {
+  // 自分のサイトのAPIを fetch で呼び出す
+  //const response = await fetch(`${Astro.url.origin}/api/threads`);
+  const apiUrl = new URL('/api/threads/', Astro.url);
+  const response = await fetch(apiUrl); 
+  //const response = await fetch('/api/threads'); 
+  if (response.ok) {
+    threads = await response.json();
+  } else {
+    error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
+  }
+} catch (e) {
+  console.error(e);
+  error = "APIへの接続中にエラーが発生しました。";
+}
 ---
 <Layout title="掲示板">
   <main>
     <h1>掲示板スレッド一覧</h1>
     
-    {threads.length > 0 ? (
-      <ul>
-        {threads.map(thread => (
-          <li>
-            <a href={`/thread/${thread.id}`}>{thread.title}</a>
-            <small>({new Date(thread.created_at).toLocaleString()})</small>
-          </li>
-        ))}
-      </ul>
+    {error ? (
+      <p style="color: red;">{error}</p>
     ) : (
-      <p>まだスレッドがありません。</p>
+      <>
+        {threads.length > 0 ? (
+          <ul>
+            {threads.map(thread => (
+              <li>
+                <a href={`/thread/${thread.id}`}>{thread.title}</a>
+                <small>({new Date(thread.created_at).toLocaleString()})</small>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>まだスレッドがありません。</p>
+        )}
+      </>
     )}
-
   </main>
 </Layout>
