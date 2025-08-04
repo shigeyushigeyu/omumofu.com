@@ -11,6 +11,7 @@ type Thread = {
 
 let threads: Thread[] = [];
 let error: string | null = null;
+let pageError: any = null; // ★ error -> pageError, 型をanyに
 
 try {
   // 自分のサイトのAPIを fetch で呼び出す
@@ -26,6 +27,7 @@ try {
 } catch (e) {
   console.error(e);
   error = "APIへの接続中にエラーが発生しました。";
+  pageError = e; // ★ エラーオブジェクトそのものを格納
 }
 ---
 <Layout title="掲示板">
@@ -52,3 +54,4 @@ try {
     )}
   </main>
 </Layout>
+<style> pre { background-color: #eee; padding: 1em; white-space: pre-wrap; word-wrap: break-word; } </style>
