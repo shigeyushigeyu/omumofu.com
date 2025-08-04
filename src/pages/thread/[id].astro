@@ -1,22 +1,12 @@
 ---
 // src/pages/thread/[id].astro
-export const prerender = false; // このページはSSR
-
+export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
-
 const { id } = Astro.params;
 
 // 型定義
-type Post = {
-  author_name: string;
-  body: string;
-  created_at: string;
-};
-type ThreadData = {
-  id: number;
-  title: string;
-  posts: Post[];
-};
+type Post = { author_name: string; body: string; created_at: string; };
+type ThreadData = { id: number; title: string; posts: Post[]; };
 
 let threadData: ThreadData | null = null;
 let error: string | null = null;
@@ -28,12 +18,7 @@ try {
   if (response.ok) {
     threadData = await response.json();
   } else {
-    // 404の場合は特別なメッセージにする
-    if (response.status === 404) {
-      error = "指定されたスレッドは見つかりませんでした。";
-    } else {
-      error = `スレッドの取得に失敗しました (ステータス: ${response.status})`;
-    }
+    error = response.status === 404 ? "指定されたスレッドは見つかりませんでした。" : `スレッドの取得に失敗しました (ステータス: ${response.status})`;
   }
 } catch (e) {
   console.error(e);
@@ -42,18 +27,10 @@ try {
 ---
 <Layout title={threadData ? threadData.title : (error ? "エラー" : "読み込み中...")}>
   <main>
-    {error && (
-      <div>
-        <h1>エラー</h1>
-        <p>{error}</p>
-        <a href="/messageboard">掲示板一覧に戻る</a>
-      </div>
-    )}
-
+    {error && (<div><h1>エラー</h1><p>{error}</p><a href="/messageboard">一覧に戻る</a></div>)}
     {threadData && (
       <>
         <h1>{threadData.title}</h1>
-        
         <div class="posts-container">
           {threadData.posts.map((post, index) => (
             <div class="post">
@@ -63,12 +40,9 @@ try {
           ))}
           {threadData.posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
         </div>
-
         <hr />
-
         <h2>書き込む</h2>
-        {/* ★★★ ここからフォーム部分を完全な形に ★★★ */}
-        <form method="POST" action="/api/threads/posts" enctype="application/x-www-form-urlencoded">
+        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
           <input type="hidden" name="thread_id" value={threadData.id} />
           <div>
             <label for="author_name">名前:</label>
@@ -80,36 +54,15 @@ try {
           </div>
           <button type="submit">書き込む</button>
         </form>
-        {/* ★★★ ここまで ★★★ */}
       </>
     )}
-
-    {/* データ取得中でもエラーでもない、最初の読み込み中の表示 */}
-    {!threadData && !error && <p>読み込み中...</p>}
   </main>
 </Layout>
 
 <style>
-  .post {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-    word-wrap: break-word; /* 長い単語も折り返す */
-  }
-  .post p {
-    margin: 0.5em 0;
-  }
-  form div {
-    margin-bottom: 10px;
-  }
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  input[type="text"], textarea {
-    width: 100%;
-    max-width: 500px;
-    padding: 8px;
-    box-sizing: border-box; /* paddingを含めてwidthを計算 */
-  }
+  .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; word-wrap: break-word; }
+  .post p { margin: 0.5em 0; }
+  form div { margin-bottom: 10px; }
+  label { display: block; margin-bottom: 5px; }
+  input[type="text"], textarea { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; }
 </style>
