@@ -1,5 +1,5 @@
 // src/lib/db.ts
-import { Client } from 'pg';
+import { Client } from 'pg-cloudflare';
 
 export function getDbClient() {
   const connectionString = import.meta.env.DATABASE_URL;

@@ -12,6 +12,7 @@
     "@astrojs/cloudflare": "^12.6.2",
     "astro": "^5.12.0",
     "pg": "^8.16.3",
+    "pg-cloudflare": "^1.2.7",
     "swiper": "^11.2.10"
   },
   "devDependencies": {
