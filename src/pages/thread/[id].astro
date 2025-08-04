@@ -17,25 +17,24 @@ try {
   }
 
   // messageboard.astroと全く同じ方法でDBに接続
-  const client = getDbClient();
+  
   try {
+    const client = getDbClient();
     await client.connect();
     
     // スレッド情報を取得
     const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
-    if (threadResult.rows.length === 0) {
-      // スレッドがなければ404エラーにするのが親切
-      return new Response(null, { status: 404, statusText: 'Not Found' });
-    }
-    thread = threadResult.rows[0];
+    thread = threadResult.rows;
 
     // 投稿一覧を取得
     const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
     posts = postsResult.rows;
+    
+    await client.end();
 
   } finally {
     // 成功しても失敗しても、必ず接続を閉じる
-    if (client) await client.end();
+   
   }
 
 } catch (e) {
