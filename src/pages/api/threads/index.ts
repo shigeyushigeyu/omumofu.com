@@ -15,10 +15,22 @@ export const GET: APIRoute = async () => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('API Error in /api/threads:', error);
-    return new Response(JSON.stringify({ message: 'Internal Server Error' }), {
-      status: 500,
-    });
+
+   // ★ ログをより詳細に
+    console.error('API PANIC in /api/threads:', {
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    cause: error instanceof Error ? error.cause : undefined,
+  });
+    return new Response(JSON.stringify({ 
+    message: 'Internal Server Error',
+    // エラーの詳細をレスポンスに含めてしまう（デバッグ用）
+    error: {
+      message: error instanceof Error ? error.message : String(error),
+    }
+  }), {
+    status: 500,
+  });
   } finally {
     if (client) await client.end();
   }
