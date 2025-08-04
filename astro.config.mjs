@@ -7,6 +7,6 @@ export default defineConfig({
   // この2行を追加・または変更
   output: 'server',
   adapter: cloudflare(),
-
+  mode: "nodejs"
   // ... 他の設定（もしあれば）...
 });
