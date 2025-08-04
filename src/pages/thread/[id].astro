@@ -1,95 +1,70 @@
 ---
 // src/pages/thread/[id].astro
-export const prerender = false;
-import Layout from '../../layouts/Layout.astro';
-import { getDbClient } from '../../lib/db';
+export const prerender = false; // このページはSSR
 
-// ★ Astro.params は必ず try ブロックの外、トップレベルで呼び出す！
+import Layout from '../../layouts/Layout.astro';
+
 const { id } = Astro.params;
 
-let thread = null;
-let posts = [];
-let pageError = null;
+// 型定義
+type Post = {
+  author_name: string;
+  body: string;
+  created_at: string;
+};
+type ThreadData = {
+  id: number;
+  title: string;
+  posts: Post[];
+};
+
+let threadData: ThreadData | null = null;
+let error: string | null = null;
 
 try {
-  // id が取得できなかった場合のガード処理
-  if (!id) {
-    throw new Error("スレッドIDがURLに含まれていません。");
-  }
-
-  const client = getDbClient();
-  try {
-    await client.connect();
-    const threadResult = await client.query('SELECT id, title FROM threads WHERE id = $1', [id]);
-    
-    if (threadResult.rows.length > 0) {
-      thread = threadResult.rows[0];
-      const postsResult = await client.query('SELECT author_name, body, created_at FROM posts WHERE thread_id = $1 ORDER BY created_at ASC', [id]);
-      posts = postsResult.rows;
-    } else {
-      throw new Error(`スレッドID: ${id} は見つかりませんでした。`);
-    }
-  } finally {
-    await client.end();
+  const response = await fetch(`${Astro.url.origin}/api/threads/${id}`);
+  if (response.ok) {
+    threadData = await response.json();
+  } else {
+    error = `スレッドの取得に失敗しました (ステータス: ${response.status})`;
   }
 } catch (e) {
-  console.error(`thread/[id].astro error:`, e);
-  pageError = e;
+  console.error(e);
+  error = "APIへの接続中にエラーが発生しました。";
 }
 ---
-<Layout title={pageError ? "サーバーエラー" : (thread ? thread.title : '不明なスレッド')}>
+<Layout title={threadData ? threadData.title : (error ? "エラー" : "読み込み中...")}>
   <main>
-    {pageError ? (
+    {error && (
       <div>
-        <h1>サーバーでエラーが発生しました</h1>
-        <p>thread/[id].astroでエラーが起きました。</p>
-        <pre>{JSON.stringify(pageError, Object.getOwnPropertyNames(pageError), 2)}</pre>
+        <h1>エラー</h1>
+        <p>{error}</p>
       </div>
-    ) : (
+    )}
+    {threadData && (
       <>
-        {thread ? (
-          <>
-            <h1>{thread.title}</h1>
-            
-            {/* 投稿一覧 */}
-            <div class="posts-container">
-              {posts.map((post, index) => (
-                <div class="post">
-                  <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
-                  <p>{post.body}</p>
-                </div>
-              ))}
-              {posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
+        <h1>{threadData.title}</h1>
+        <div class="posts-container">
+          {threadData.posts.map((post, index) => (
+            <div class="post">
+              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
+              <p>{post.body}</p>
             </div>
-
-            <hr />
-
-            {/* 投稿フォーム */}
-            <h2>書き込む</h2>
-            <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
-              <input type="hidden" name="thread_id" value={thread.id} />
-              <div>
-                <label for="author_name">名前:</label>
-                <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
-              </div>
-              <div>
-                <label for="body">本文:</label>
-                <textarea id="body" name="body" rows="5" required></textarea>
-              </div>
-              <button type="submit">書き込む</button>
-            </form>
-          </>
-        ) : (
-          <h1>スレッドが見つかりません</h1>
-        )}
+          ))}
+          {threadData.posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
+        </div>
+        <hr />
+        <h2>書き込む</h2>
+        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+          <input type="hidden" name="thread_id" value={threadData.id} />
+          {/* ...フォームの残りの部分... */}
+        </form>
       </>
     )}
+    {!threadData && !error && <p>読み込み中...</p>}
   </main>
 </Layout>
-
 <style>
-  /* ... */
-  pre { background-color: #eee; padding: 1em; white-space: pre-wrap; word-wrap: break-word; }
   .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
   form div { margin-bottom: 10px; }
 </style>
