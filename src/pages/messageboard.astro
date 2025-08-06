@@ -1,34 +1,29 @@
 ---
 // src/pages/messageboard.astro
 import Layout from '../layouts/Layout.astro';
-// getDbClient のような関数を使っている場合
-import { getDbClient } from '../lib/db'; 
+type Thread = {
+  id: number;
+  title: string;
+  created_at: string;
+}
 
-// "let" で宣言し、try...finallyブロックで処理を完結させるのが安全
-// --- ここからが重要 ---
-
-// letで変数を宣言。try...catchの外で使えるようにするため。
-let threads = [];
-let error = null;
+let threads: Thread[] = [];
+let error: string | null = null;
 
 try {
-  // DB接続からデータ取得、接続終了までをすべてこのブロック内で行う
-  // このtryブロックの中でDB処理をすべて完結させる
-  const client = getDbClient();
-  await client.connect();
-  const result = await client.query('SELECT id, title, created_at FROM threads ORDER BY created_at DESC');
-  threads = result.rows;
-  await client.end();
+  // ★★★ ここを修正 ★★★
+ const apiUrl = new URL('/api/threads', 'https://api.omumofu.com');
+ const response = await fetch(apiUrl);
 
+  if (response.ok) {
+    threads = await response.json();
+  } else {
+    error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
+  }
 } catch (e) {
-  // もしエラーが起きたら、内容をコンソールに出力し、エラーメッセージをセットする
-  // これで500エラーではなく、エラーメッセージが表示されるようになる
-  console.error("messageboard.astro database error:", e);
-  error = "スレッド一覧の取得中にエラーが発生しました。しばらくしてから再読み込みしてください。";
+  console.error(e);
+  error = "APIへの接続中にエラーが発生しました。";
 }
-// この時点で DB 接続に関するオブジェクト (client) はスコープ外になっているのが理想
-
-// --- ここまで ---
 ---
 
 
