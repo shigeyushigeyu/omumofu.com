@@ -2,7 +2,7 @@
 import Layout from "~/layouts/Layout.astro";
 
 // 動画リストの自動生成
-const totalVideos = 21;
+const totalVideos = 26;
 const videoFiles = Array.from({ length: totalVideos }, (_, i) => {
   const number = (i + 1).toString().padStart(3, '0');
   return `${number}.mp4`;

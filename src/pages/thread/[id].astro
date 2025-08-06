@@ -22,7 +22,7 @@ let error: string | null = null;
 
 try {
   // プランA：IPアドレスとポートを直接指定してAPIを叩く
-  const apiUrl = new URL(`https://api.omumofu.com/api/threads/${id}`);
+  const apiUrl = new URL(`https://api.omumofu.com/threads/${id}`);
   const response = await fetch(apiUrl);
 
   if (response.ok) {
@@ -67,29 +67,26 @@ try {
         <hr />
 
         <h2>書き込む</h2>
-        {/* ★★★ ここからが修正済みのフォームです ★★★ */}
-        <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
-          {/* どのスレッドへの投稿かを示す隠しフィールド */}
-          <input type="hidden" name="thread_id" value={threadData.id} />
-          
-          <div>
-            <label for="author_name">名前:</label>
-            <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
-          </div>
-          
-          <div>
-            <label for="body">本文:</label>
-            <textarea id="body" name="body" rows="5" required></textarea>
-          </div>
-          
-          <button type="submit">書き込む</button>
-        </form>
-        {/* ★★★ ここまで ★★★ */}
+          {/* ★★★ actionを /api/posts に戻す ★★★ */}
+          <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="thread_id" value={threadData.id} />
+            <div>
+              <label for="author_name">名前:</label>
+              <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
+            </div>
+            <div>
+              <label for="body">本文:</label>
+              <textarea id="body" name="body" rows="5" required></textarea>
+            </div>
+            <button type="submit">書き込む</button>
+          </form>
+          {/* ... */}
       </>
     )}
 
     {!threadData && !error && <p>読み込み中...</p>}
   </main>
+
 </Layout>
 
 <style>
