@@ -17,6 +17,28 @@ const apiUrl = new URL('https://api.omumofu.com/threads');
 
   if (response.ok) {
     threads = await response.json();
+
+// ↓↓↓↓ この並び替え処理を追加 ↓↓↓↓
+threads.sort((a, b) => {
+  // bの最新投稿日時 - aの最新投稿日時 で降順ソート
+  // 投稿がない(null)場合は、比較のために非常に古い時刻とみなす
+  const timeA = a.latest_post_at ? new Date(a.latest_post_at).getTime() : 0;
+  const timeB = b.latest_post_at ? new Date(b.latest_post_at).getTime() : 0;
+
+  // 最新投稿日時が異なる場合は、その順で決定
+  if (timeA !== timeB) {
+    return timeB - timeA;
+  }
+
+  // 最新投稿日時が同じ場合は、スレッド自体の作成日時で降順ソート
+  const createdA = new Date(a.created_at).getTime();
+  const createdB = new Date(b.created_at).getTime();
+  return createdB - createdA;
+});
+
+
+
+
   } else {
     error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
   }
