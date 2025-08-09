@@ -1,4 +1,6 @@
 ---
+//src/pages/index.astro
+import MoreMenu from "../components/shared/MoreMenu.astro";
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
 import LoginButton from '../components/buttons/loginbutton.astro';
@@ -8,8 +10,11 @@ import Literature from '../components/sections/literature.astro';
 import Gallery from '../components/sections/gallery.astro';
 import Fetishism from '../components/sections/home_fetishism.astro';
 import Cinema from '../components/sections/cinema.astro';
+import { isNewExpression } from "typescript";
 ---
   <Layout>
+  <MoreMenu />
+
     <div class="fixed-background"></div>
 
     <video class="background-video" autoplay muted loop playsinline>
@@ -17,6 +22,7 @@ import Cinema from '../components/sections/cinema.astro';
     </video>
 
     <main>
+
       <h1>おむもふ</h1>
       
       <p class="catchphrase">ABDL総合コミュニティサイト</p>

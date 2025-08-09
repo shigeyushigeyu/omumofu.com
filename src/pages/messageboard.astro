@@ -1,6 +1,8 @@
 ---
 // src/pages/messageboard.astro
+import menuBackground from '~/assets/images/moremenu.png';
 import Layout from '../layouts/Layout.astro';
+import MoreMenu from '~/components/shared/MoreMenu.astro';
 type Thread = {
   id: number;
   title: string;
@@ -50,6 +52,7 @@ threads.sort((a, b) => {
 
 
 <Layout title="掲示板">
+  <MoreMenu />
   <main>
     <h1>掲示板スレッド一覧</h1>
     

@@ -1,4 +1,7 @@
 ---
+import Layout from "~/layouts/Layout.astro";
+import MoreMenu from "../components/shared/MoreMenu.astro";
+
 
 const pageTitle = "おむもふ画廊 | ABDL総合コミュニティ";
 
@@ -12,7 +15,8 @@ const images = (() => {
   return arr;
 })();
 ---
-
+<Layout>
+<MoreMenu />
 <div class="gallery-grid">
   {images.map(src => (
     <div class="gallery-item">
@@ -20,6 +24,7 @@ const images = (() => {
     </div>
   ))}
 </div>
+<Layout />
 
 <style>
 /* ギャラリー全体のスタイル */

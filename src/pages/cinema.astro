@@ -1,5 +1,7 @@
 ---
+//src/pages/cinema.astro
 import Layout from "~/layouts/Layout.astro";
+import MoreMenu from "../components/shared/MoreMenu.astro";
 
 const pageTitle = "おむもふシネマ | ABDL総合コミュニティ";
 
@@ -12,6 +14,7 @@ const videoFiles = Array.from({ length: totalVideos }, (_, i) => {
 ---
 
 <Layout title="おむもふ動画ギャラリー">
+  <MoreMenu />
   <div class="gallery-container">
     <div class="video-grid">
       <!-- ★★★ここからHTMLの変更★★★ -->

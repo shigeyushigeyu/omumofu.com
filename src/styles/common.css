@@ -242,3 +242,12 @@ p {
   box-sizing: border-box; /* paddingを含めて幅を計算する */
 }
 
+.menu-button {
+  font-size: 28px;      /* 3点リーダーを大きく見せる */
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #000;          /* 文字色を黒に */
+  line-height: 1;
+  user-select: none;
+}

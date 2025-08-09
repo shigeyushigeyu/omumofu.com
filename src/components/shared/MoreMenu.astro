@@ -1,0 +1,114 @@
+---
+//src/components/shared/MoreMenu.astro
+import menuBackground from '~/assets/images/moremenu.png';
+
+const menuItems = [
+  { label: "ホーム", url: "https://omumofu.com" },
+  { label: "ABDLとは", url: "https://omumofu.com/aboutabdl" },
+  { label: "リトルについて", url: "https://omumofu.com/aboutlittle" },
+  { label: "おむもふ画廊", url: "https://omumofu.com/gallery" },
+  { label: "おむもふシネマ", url: "https://omumofu.com/cinema" },
+  { label: "おむもふ掲示板", url: "https://omumofu.com/messageboard" },
+  { label: "おむもふ文庫", url: "https://omumofu.com/literature" }
+];
+---
+
+<style>
+.menu-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+}
+.menu-button {
+  font-size: 28px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  line-height: 1;
+  user-select: none;
+  color: #333;
+}
+.menu-list {
+  display: none;
+  position: absolute;
+  top: 35px;
+  right: 0;
+  border: 3px solid #ffc0e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 9998; /* コンテナよりは低く */
+  min-width: 300px;
+  font-family: 'HachiMaruPop', sans-serif;
+  padding: 0; /* ★ aタグでpaddingを管理するため0に */
+  overflow: hidden;
+  background-color: white; 
+  background-repeat: no-repeat; 
+  background-position: center center; 
+  background-size: cover; 
+}
+.menu-list.show {
+  display: block;
+}
+
+/* ★ aタグをスタイリングするように変更 */
+.menu-item a {
+  display: block; /* リンク領域を広げる */
+  padding: 8px 12px;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
+  color: inherit; /* 親要素の文字色を継承 */
+  text-decoration: none; /* 下線を消す */
+}
+
+/* ★ ホバーは.menu-itemに適用 */
+.menu-item:hover {
+  background-color: #ffdefd;
+}
+</style>
+
+<div class="menu-container" id="moreMenu">
+  <button class="menu-button" id="menuButton" aria-label="メニュー">⋮</button>
+  
+  <div 
+    class="menu-list" 
+    id="menuList"
+    style={`background-image: url(${menuBackground.src})`}
+   >
+    <div class="menu-item"><a href="/" data-astro-reload>ホーム</a></div>
+    <div class="menu-item"><a href="/aboutabdl" data-astro-reload>ABDLとは</a></div>
+    <div class="menu-item"><a href="/aboutlittle" data-astro-reload>リトルについて</a></div>
+    <div class="menu-item"><a href="/gallery" data-astro-reload>おむもふ画廊</a></div>
+    <div class="menu-item"><a href="/cinema" data-astro-reload>おむもふシネマ</a></div>
+    <div class="menu-item"><a href="/messageboard" data-astro-reload>おむもふ掲示板</a></div>
+    <div class="menu-item"><a href="/literature" data-astro-reload>おむもふ文庫</a></div>
+  </div>
+</div>
+
+<script is:client="load">
+  const btn = document.getElementById("menuButton");
+  const list = document.getElementById("menuList");
+  const menuContainer = document.getElementById("moreMenu");
+
+  if (btn && list && menuContainer) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      list.classList.toggle("show");
+    });
+
+    // ★★★ 画面遷移はaタグが担当するので、このイベントリスナーは不要 ★★★
+    /*
+    list.addEventListener("click", (e) => {
+      // ... このブロック全体を削除 ...
+    });
+    */
+
+    document.addEventListener("click", (e) => {
+      if (!menuContainer.contains(e.target)) {
+        list.classList.remove("show");
+      }
+    });
+  }
+</script>
