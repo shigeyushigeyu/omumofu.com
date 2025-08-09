@@ -6,6 +6,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: transparent !important; 
 }
 
 .body{
@@ -219,16 +220,14 @@ p {
   }
 }
 
-.fixed-background {
+.background-video {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  /* 動画ではなく画像を使う最初の案に戻します */
-  background: url('/assets/images/index_back.png') no-repeat center center;
-  background-size: cover;
-  opacity: 0.4;
-  z-index: -1;
+  object-fit: cover; /* 動画を画面いっぱいに広げる */
+  opacity: 0.4;      /* 半透明にする */
+  z-index: -1;       /* 一番背面に配置する */
   pointer-events: none;
 }
