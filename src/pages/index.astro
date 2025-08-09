@@ -61,24 +61,3 @@ import Cinema from '../components/sections/cinema.astro';
       </video>
     </main>
   </Layout>
-
-<style is:global>
-  .fixed-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;  /* 縦横にフィット */
-    opacity: 0.4;
-    z-index: -1;
-    pointer-events: none; /* クリックイベントを通すように */
-  }
-
-  body {
-    background-color: transparent !important;
-  }
-</style>
-
-
-  

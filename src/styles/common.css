@@ -10,6 +10,7 @@ html, body {
 
 .body{
   font-family: 'Hatimaru', sans-serif;
+  background-color: transparent !important;
 }
 
 main {
@@ -216,4 +217,18 @@ p {
     width: 45%;
     text-align: left;
   }
+}
+
+.fixed-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  /* 動画ではなく画像を使う最初の案に戻します */
+  background: url('/assets/images/index_back.png') no-repeat center center;
+  background-size: cover;
+  opacity: 0.4;
+  z-index: -1;
+  pointer-events: none;
 }
