@@ -12,7 +12,6 @@ import Cinema from '../components/sections/cinema.astro';
   <Layout>
     <!-- 1. 背景専用の要素をここに追加 -->
     <div class="fixed-background"></div>
-
     <main>
       <h1>おむもふ</h1>
       
@@ -54,17 +53,14 @@ import Cinema from '../components/sections/cinema.astro';
         <a href="/aboutlittle" class="btn">リトルとは</a>
         <a href="/forum" class="btn">掲示板・チャット</a>
         <a href="/literature" class="btn">おむもふ文庫</a>
-
-
       </div>
+      <!-- 背景動画 -->
+      <video class="fixed-background" autoplay muted loop playsinline>
+        <source src="/assets/videos/index_back.mp4" type="video/mp4" />
+        お使いのブラウザは動画に対応していません。
+      </video>
     </main>
   </Layout>
-
-<!-- 背景動画 -->
-<video class="fixed-background" autoplay muted loop playsinline>
-  <source src="/assets/videos/index_back.mp4" type="video/mp4" />
-  お使いのブラウザは動画に対応していません。
-</video>
 
 <style is:global>
   .fixed-background {
