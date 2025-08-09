@@ -1,48 +1,54 @@
-/*src/styles/common.css*/
-/* フォント適用 */
-/* --- 全体の基本設定 --- */
-
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: transparent !important; 
+  background-color: transparent !important;
 }
 
-.body{
+.body {
   font-family: 'Hatimaru', sans-serif;
   background-color: transparent !important;
 }
 
-main {
-    max-width: 800px; /* 少し幅を狭めて、まとまり感を出す */
-    margin: 3rem auto;
-    padding: 2rem 2.5rem; /* 内側の余白をたっぷり取る */
-    font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
-    
-    /* 背景画像の上に、ほんのりピンクがかった半透明のクリーム色を重ねる */
-    /* これで文字が格段に読みやすくなり、温かい雰囲気も出ます */
-    background-color: rgba(255, 249, 252, 0.4); 
-
-    border-radius: 20px; /* 角をより丸くして、可愛らしい印象に */
-    
-    /* 枠線にピンクの破線を追加して、手作り感を演出 */
-    border: 2px dashed #ffc0cb; /* ベビーピンクの破線 */
-    
-    /* 影をふんわりとさせる。少しピンクがかった影で全体に統一感を */
-    box-shadow: 0 8px 24px rgba(180, 120, 140, 0.15);
+/* --- 背景動画のスタイル --- */
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  opacity: 0.3; /* 背景動画を少し控えめ(30%)にして、コンテンツを引き立てます */
+  z-index: -1;
 }
 
-/* --- 見出しのスタイル --- */
-/* --- 見出しのスタイル --- */
-h1 {
-  color: #d36ba6; /* 明るめのピンク */
-  text-align: center;
-  font-size: 2.4rem;
-  margin-bottom: 1.5rem;
+/* --- メインコンテンツのエリア --- */
+main {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2.5rem 3rem; /* 内側の余白を少し広げて、ゆったりとした印象に */
+  font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
+  
+  /* ▼▼▼ 【最重要】背景の半透明ピンクを濃く(85%)して、文字を読みやすくします ▼▼▼ */
+  background-color: rgba(255, 249, 252, 0.85); 
 
-  /* ふわっとした白縁の影 */
-  text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff;
+  border-radius: 25px; /* 角をさらに丸くして、より可愛く */
+  
+  /* 枠線を点線(dotted)にすると、手縫いのような可愛さが出ます */
+  border: 3px dotted #ffc0cb; 
+  
+  box-shadow: 0 10px 30px rgba(180, 120, 140, 0.2);
+}
+
+/* --- メインタイトル (一番大きな見出し) --- */
+h1 {
+  color: #d36ba6;
+  text-align: center;
+  font-size: 2.8rem; /* 少し大きくして、よりタイトルらしく */
+  margin-bottom: 1.5rem;
+  
+  /* 白い縁取りを少し太くして、文字をくっきりさせます */
+  text-shadow: 2px 2px 4px #fff, -2px -2px 4px #fff;
 }
 
 /* 待機中のリトルの見出し（小さめで柔らかく） */
@@ -56,24 +62,27 @@ h1.little-waiting {
 /* --- サブ見出し --- */
 h2 {
   text-align: center;
-  padding: 1.2rem 2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 0 12px rgba(240, 120, 180, 0.2);
-  font-size: 1.4rem;
+  padding: 1rem 2rem;
+  border-radius: 50px; /* 完全に丸いカプセル型にして、可愛さを強調 */
+  box-shadow: 0 4px 10px rgba(240, 120, 180, 0.25);
+  font-size: 1.5rem;
   color: #a05585;
-  margin-bottom: 1.5rem;
+  margin: 3rem 0 1.5rem; /* 上下の余白を調整 */
   font-weight: 600;
+  
+  /* ▼▼▼ アクセントとして、ほぼ不透明で可愛い白背景を残します ▼▼▼ */
+  background-color: rgba(255, 250, 252, 0.95); 
 }
 
-/* --- テキストのスタイル --- */
+/* --- 通常の文章 --- */
 p {
   font-size: 1.05rem;
-  line-height: 1.8;
-  color: #7d5b6b; /* 赤みのある優しいブラウン */
+  line-height: 1.9; /* 行間を広げて、読みやすく */
+  color: #7d5b6b;
   text-align: center;
 }
 
-/* キャッチフレーズなどはさらに装飾可 */
+/* --- (他のスタイルは、ほぼ変更なしでも大丈夫です) --- */
 .catchphrase {
   font-size: 1.2rem;
   font-weight: bold;
@@ -85,109 +94,40 @@ p {
     margin-bottom: 3rem;
 }
 
-/* --- ボタンのスタイル --- */
 .button-group {
-    display: flex; /* ボタンを横並びに */
-    justify-content: center; /* 中央揃え */
-    gap: 1.5rem; /* ボタン同士の間隔 */
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
     margin-top: 3rem;
-    flex-wrap: wrap; /* 画面が小さい時に折り返す */
+    flex-wrap: wrap;
 }
 
 .btn {
     display: inline-block;
     padding: 12px 28px;
-    border-radius: 50px; /* 完全に丸い角のボタン */
-    background-color: #ffc0cb; /* 背景色はベビーピンク */
-    color: #ffffff; /* 文字色は白 */
+    border-radius: 50px;
+    background-color: #ffc0cb;
+    color: #ffffff;
     font-size: 1.1rem;
     font-weight: bold;
     text-decoration: none;
     box-shadow: 0 4px 10px rgba(200, 150, 160, 0.4);
-    
-    /* ホバー（マウスオーバー）時のアニメーション設定 */
     transition: all 0.3s ease;
 }
 
-/* ボタンにマウスを乗せた時のスタイル */
 .btn:hover {
-    background-color: #fca8ba; /* 少し濃いピンクに */
-    
-    /* 少し上に持ち上がるような動き */
+    background-color: #fca8ba;
     transform: translateY(-3px); 
-    
-    /* 影を少し濃くして、浮き上がった感を強調 */
     box-shadow: 0 6px 15px rgba(200, 150, 160, 0.5);
-}
-
-
-.image-placeholder {
-  width: 100%;
-  max-width: 800px;  /* ← 好みで調整。例: 800pxや600pxなど */
-  margin: 0 auto;    /* ← 中央寄せ（任意） */
-  padding: 16px;     /* ← 任意の余白 */
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.image-wrapper {
-  width: 100%;
-  aspect-ratio: 4 / 3;      /* 表示領域の比率を4:3に固定 */
-  overflow: hidden;         /* はみ出し部分を隠す */
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin: 1.5rem auto;
-  position: relative;
-  display: flex;            /* 親をflexコンテナに */
-  justify-content: center;  /* 水平方向中央寄せ */
-  align-items: center;      /* 垂直方向中央寄せ */
-}
-
-.image-wrapper .image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;      /* 縦横比を維持して親枠に収める */
-  border-radius: 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* position:absoluteやtransformは削除 */
-}
-
-.image-wrapper:hover .image {
-  transform: scale(1.05);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-}
-
-.about-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin: 2rem 0;
-  align-items: center;
-}
-
-.item {
-  text-align: center;
-}
-
-.item img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .video {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 12px; /* 任意：角丸 */
-  object-fit: contain; /* cover にすると切れるので注意 */
+  border-radius: 12px;
+  object-fit: contain;
 }
-
 @font-face {
   font-family: 'HachiMaruPop';
   src: url('/assets/fonts/HachiMaruPop-Regular.ttf') format('truetype');
@@ -207,27 +147,98 @@ p {
   align-items: center;
 }
 
+/* --- 「ABDLとは？」セクションの基本スタイル（スマホ表示） --- */
+.about-section {
+  display: flex;
+  flex-direction: column; /* スマホではアイテムを縦に並べる */
+  align-items: center;   /* 中央に寄せる */
+  gap: 2rem;             /* アイテム間のスペース */
+  margin: 4rem 0;        /* セクション全体の上下の余白 */
+}
+
+/* --- カード風アイテムのスタイル --- */
+.item {
+  width: 90%;            /* 画面幅の90%を使う */
+  max-width: 400px;        /* ただし、最大でも400pxまで */
+  background-color: rgba(255, 255, 255, 0.7); /* ほんのり透ける白いカード背景 */
+  padding: 1.5rem;
+  border-radius: 20px;     /* カードの角を丸くする */
+  box-shadow: 0 6px 15px rgba(180, 120, 140, 0.15);
+  box-sizing: border-box;  /* paddingを含めて幅を計算する（はみ出し防止） */
+  text-align: center;
+  transition: all 0.3s ease; /* マウスを乗せた時のアニメーション */
+}
+
+/* カードにマウスを乗せると少し浮き上がる */
+.item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(180, 120, 140, 0.25);
+}
+
+/* --- 【画像のはみ出し解決】アイテム内の画像のスタイル --- */
+.item img {
+  width: 100%;             /* 親要素(.item)の幅いっぱいに広げる */
+  aspect-ratio: 16 / 10;   /* 画像の縦横比を16:10に固定（高さを揃える）*/
+  object-fit: cover;       /* 比率を保ったまま、枠内に収まるように切り抜く */
+  border-radius: 1rem;
+  margin-top: 1rem;        /* 上のテキストとの余白 */
+}
+
+/* アイテム内の見出し(h2)とリンク(a)のスタイルを整える */
+.item h2 {
+  margin-top: 0;
+}
+
+.item h2 a {
+  text-decoration: none; /* リンクの下線を消す */
+  color: inherit;        /* 文字色を親(h2)から引き継ぐ */
+}
+
+/* --- 【PC表示用の設定】画面幅が768px以上になったら適用 --- */
 @media screen and (min-width: 768px) {
   .about-section {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: flex-start;
+    flex-direction: row;     /* アイテムを横に並べる */
+    justify-content: center; /* 中央に寄せる */
+    flex-wrap: wrap;         /* 画面が狭ければ折り返す */
+    align-items: stretch;    /* アイテムの高さを揃える */
   }
 
   .item {
-    width: 45%;
-    text-align: left;
+    width: 45%;              /* 横に2つ並ぶように幅を設定 */
   }
 }
 
 .background-video {
+  /* 画面に位置を固定します（スクロールしても動かないように）*/
   position: fixed;
+
+  /* 画面の左上を基準点にします */
   top: 0;
   left: 0;
+
+  /* 画面いっぱいの幅と高さに広げます */
   width: 100vw;
   height: 100vh;
-  object-fit: cover; /* 動画を画面いっぱいに広げる */
-  opacity: 0.4;      /* 半透明にする */
-  z-index: -1;       /* 一番背面に配置する */
-  pointer-events: none;
+
+  /* 動画のアスペクト比を保ったまま、画面全体を覆うように拡大・縮小します */
+  object-fit: cover;
+
+  /* 動画を半透明にします（0.4は40%の濃さ。0.1〜1.0で調整可能）*/
+  opacity: 0.4;
+
+  /* 全てのコンテンツの背面（一番奥）に配置します */
+  z-index: -1;
 }
+
+.image-placeholder {
+  /* ▼▼▼▼▼ このように max-width に一本化します ▼▼▼▼▼ */
+  max-width: 100%; /* 親要素の幅を超えないようにする（はみ出し防止） */
+  /* width: 100%; */   /* ← この行は不要なので削除、またはコメントアウトします */
+  
+  margin: 0 auto;
+  padding: 16px;
+
+  /* ▼▼▼ この1行を追加すると、計算がより正確になります ▼▼▼ */
+  box-sizing: border-box; /* paddingを含めて幅を計算する */
+}
+
