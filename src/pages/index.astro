@@ -1,6 +1,7 @@
 ---
 //src/pages/index.astro
-import MoreMenu from "../components/shared/MoreMenu.astro";
+import AppBar from "../components/shared/AppBar.astro"
+import Videos from "../components/shared/videos.astro";
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
 import LoginButton from '../components/buttons/loginbutton.astro';
@@ -14,13 +15,12 @@ import Cinema from '../components/sections/cinema.astro';
 import { isNewExpression } from "typescript";
 ---
   <Layout>
-  <MoreMenu />
+  <AppBar />
 
     <div class="fixed-background"></div>
-    <video class="background-video" autoplay muted loop playsinline>
-      <source src="/assets/videos/index_back.mp4" type="video/mp4" />
-    </video>
+      <Videos />
     <main>
+
 
       <h1>おむもふ</h1>
       

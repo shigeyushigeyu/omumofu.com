@@ -1,0 +1,126 @@
+---
+
+---    
+    <!-- <video class="background-video" autoplay muted loop playsinline>
+      <source src="../assets/videos/index_back.mp4" type="video/mp4" />
+    </video>-->
+
+
+<video id="bgVideo" class="background-video" autoplay muted playsinline></video>
+
+<script>
+    const videoElement = document.getElementById('bgVideo');
+
+    // 再生したい動画のリスト
+    const videos = [
+        '/assets/videos/cinema/001.mp4',
+        '/assets/videos/cinema/002.mp4',
+        '/assets/videos/cinema/003.mp4',
+        '/assets/videos/cinema/004.mp4',
+        '/assets/videos/cinema/005.mp4',
+        '/assets/videos/cinema/006.mp4',
+        '/assets/videos/cinema/007.mp4',
+        '/assets/videos/cinema/008.mp4',
+        '/assets/videos/cinema/009.mp4',
+        '/assets/videos/cinema/010.mp4',
+        '/assets/videos/cinema/011.mp4',
+        '/assets/videos/cinema/012.mp4',
+        '/assets/videos/cinema/013.mp4',
+        '/assets/videos/cinema/014.mp4',
+        '/assets/videos/cinema/015.mp4',
+        '/assets/videos/cinema/016.mp4',
+        '/assets/videos/cinema/017.mp4',
+        '/assets/videos/cinema/018.mp4',
+        '/assets/videos/cinema/019.mp4',
+        '/assets/videos/cinema/020.mp4',
+        '/assets/videos/cinema/021.mp4',
+        '/assets/videos/cinema/022.mp4',
+        '/assets/videos/cinema/023.mp4',
+        '/assets/videos/cinema/024.mp4',
+        '/assets/videos/cinema/025.mp4',
+        '/assets/videos/cinema/026.mp4',
+        '/assets/videos/cinema/027.mp4',
+        '/assets/videos/cinema/028.mp4',
+        '/assets/videos/cinema/029.mp4',
+        '/assets/videos/cinema/030.mp4',
+        '/assets/videos/cinema/031.mp4',
+        '/assets/videos/cinema/032.mp4',
+        '/assets/videos/cinema/033.mp4',
+        '/assets/videos/cinema/034.mp4',
+        '/assets/videos/cinema/035.mp4',
+        '/assets/videos/cinema/036.mp4',
+        '/assets/videos/cinema/037.mp4',
+        '/assets/videos/cinema/038.mp4',
+        '/assets/videos/cinema/039.mp4',
+        '/assets/videos/cinema/040.mp4',
+        '/assets/videos/cinema/041.mp4',
+        '/assets/videos/cinema/042.mp4',
+        '/assets/videos/cinema/043.mp4',
+        '/assets/videos/cinema/044.mp4',
+        '/assets/videos/cinema/045.mp4',
+        '/assets/videos/cinema/046.mp4',
+        '/assets/videos/cinema/047.mp4',
+        '/assets/videos/cinema/048.mp4',
+        '/assets/videos/cinema/049.mp4',
+        '/assets/videos/cinema/050.mp4',
+        '/assets/videos/cinema/051.mp4',
+        '/assets/videos/cinema/052.mp4',
+        '/assets/videos/cinema/053.mp4',
+        '/assets/videos/cinema/054.mp4',
+        '/assets/videos/cinema/055.mp4',
+        '/assets/videos/cinema/056.mp4',
+        '/assets/videos/cinema/057.mp4',
+        '/assets/videos/cinema/058.mp4',
+        '/assets/videos/cinema/059.mp4',
+        '/assets/videos/cinema/060.mp4',
+        '/assets/videos/cinema/061.mp4',
+        '/assets/videos/cinema/062.mp4',
+        '/assets/videos/cinema/063.mp4',
+        '/assets/videos/cinema/064.mp4',
+        '/assets/videos/cinema/065.mp4',
+        '/assets/videos/cinema/066.mp4',
+        '/assets/videos/cinema/067.mp4',
+        '/assets/videos/cinema/068.mp4',
+        '/assets/videos/cinema/069.mp4',
+        '/assets/videos/cinema/070.mp4',
+        '/assets/videos/cinema/071.mp4',
+        '/assets/videos/cinema/072.mp4',
+        '/assets/videos/cinema/073.mp4',
+        '/assets/videos/cinema/074.mp4',
+        '/assets/videos/cinema/075.mp4',
+        '/assets/videos/cinema/076.mp4',
+        '/assets/videos/cinema/077.mp4',
+        '/assets/videos/cinema/078.mp4',
+        '/assets/videos/cinema/079.mp4',
+        '/assets/videos/cinema/080.mp4',
+        '/assets/videos/cinema/081.mp4'
+    ];
+
+    // 配列をランダムにシャッフル
+    function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+    }
+
+    let videoQueue = shuffle([...videos]);
+    let currentIndex = 0;
+
+    function playNext() {
+    videoElement.src = videoQueue[currentIndex];
+    videoElement.play();
+
+    currentIndex++;
+    if (currentIndex >= videoQueue.length) {
+        videoQueue = shuffle([...videos]);
+        currentIndex = 0;
+    }
+    }
+
+    videoElement.addEventListener('ended', playNext);
+
+    // 初回再生
+    playNext();
+
+</script>
+
+
+

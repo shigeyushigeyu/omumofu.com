@@ -2,7 +2,7 @@
 // src/pages/messageboard.astro
 import menuBackground from '~/assets/images/moremenu.png';
 import Layout from '../layouts/Layout.astro';
-import MoreMenu from '~/components/shared/MoreMenu.astro';
+import AppBar from "../components/shared/AppBar.astro"
 type Thread = {
   id: number;
   title: string;
@@ -51,8 +51,8 @@ threads.sort((a, b) => {
 ---
 
 
-<Layout title="掲示板">
-  <MoreMenu />
+<Layout title="おむもふ掲示板">
+  <AppBar />
   <main>
     <h1>掲示板スレッド一覧</h1>
     
