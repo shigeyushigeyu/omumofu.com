@@ -37,10 +37,6 @@ import MoreMenu from "../components/shared/MoreMenu.astro";
             text-shadow: 2px 2px 4px #ffc0cb;
             margin-bottom: 20px;
         }
-        h1::before, h1::after {
-            content: ' ☆.。.:*・゜ ';
-            color: #ffb6c1;
-        }
 
         h2 {
             background: linear-gradient(to right, #ffefba, #ffffff); /* 黄色から白へのグラデーション */
@@ -133,7 +129,7 @@ import MoreMenu from "../components/shared/MoreMenu.astro";
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .little-card {
-                flex-basis: calc(50% - 20px);
+                flex-basis: 100%;
             }
         }
 

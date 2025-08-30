@@ -18,7 +18,7 @@ html, body {
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  opacity: 0.3; /* 背景動画を少し控えめ(30%)にして、コンテンツを引き立てます */
+  opacity: 1.0; /* 背景動画を少し控えめ(30%)にして、コンテンツを引き立てます */
   z-index: -1;
 }
 
@@ -30,7 +30,7 @@ main {
   font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
   
   /* ▼▼▼ 【最重要】背景の半透明ピンクを濃く(85%)して、文字を読みやすくします ▼▼▼ */
-  background-color: rgba(255, 249, 252, 0.85); 
+  background-color: rgba(255, 249, 252, 0.50); 
 
   border-radius: 25px; /* 角をさらに丸くして、より可愛く */
   
@@ -224,7 +224,7 @@ p {
   object-fit: cover;
 
   /* 動画を半透明にします（0.4は40%の濃さ。0.1〜1.0で調整可能）*/
-  opacity: 0.4;
+  opacity: 0.8;
 
   /* 全てのコンテンツの背面（一番奥）に配置します */
   z-index: -1;

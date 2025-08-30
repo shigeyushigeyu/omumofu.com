@@ -4,7 +4,8 @@ import MoreMenu from "../components/shared/MoreMenu.astro";
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
 import LoginButton from '../components/buttons/loginbutton.astro';
-import AboutSection from '../components/sections/aboutsection.astro';
+import AboutLittle from '../components/sections/aboutlittle.astro';
+import AboutABDL from '../components/sections/aboutabdl.astro';
 import SectionMessageBoard from '../components/sections/sectionmessageboard.astro';
 import Literature from '../components/sections/literature.astro';
 import Gallery from '../components/sections/gallery.astro';
@@ -16,11 +17,9 @@ import { isNewExpression } from "typescript";
   <MoreMenu />
 
     <div class="fixed-background"></div>
-
     <video class="background-video" autoplay muted loop playsinline>
       <source src="/assets/videos/index_back.mp4" type="video/mp4" />
     </video>
-
     <main>
 
       <h1>おむもふ</h1>
@@ -43,20 +42,22 @@ import { isNewExpression } from "typescript";
         たくさんのリトルとおともだちになろう
       </p>
 
-      <div class="center-wrapper"><LoginButton /></div>
-      <p class="welcome-message">はじめてリトルはここから</p>
-
-      <AboutSection />
+      <!--<div class="center-wrapper"><LoginButton /></div>-->
+      <!--<p class="welcome-message">はじめてリトルはここから</p>-->
       <Gallery />
       <Cinema />
       <SectionMessageBoard />
       <Literature />
-      <!--<Fetishism />-->
+      <!--<<AboutSection />-->
+      <AboutABDL />
+      <AboutLittle />
+
+      <!--<Fetishism />
       <div class="button-group">
         <a href="/aboutabdl" class="btn">ABDLとは？</a>
         <a href="/aboutlittle" class="btn">リトルとは</a>
         <a href="/forum" class="btn">掲示板・チャット</a>
         <a href="/literature" class="btn">おむもふ文庫</a>
-      </div>
+      </div>-->
     </main>
   </Layout>
