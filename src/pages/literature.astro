@@ -13,9 +13,9 @@ const bunkoSections = [
     title: "おむもふひとくち物語",
     description: "ちいさくて可愛い短編小説の宝箱。読み切りで気軽に楽しめる、夢と優しさが詰まった物語たち。",
     stories: [
-      'ふわふわおむつのひみつ',
-      'おねしょの夜の星空',
-      'ぽんぽんパジャマの冒険'
+      { title: "おむつ後輩さん", link: "/literature/businesswoman" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
     ],
     bgColor: "var(--c-pink)" // CSS変数で色を指定
   },
@@ -24,9 +24,9 @@ const bunkoSections = [
     title: "おむもふ夢綴り",
     description: "長く続く連載作品のページ。ゆらゆら揺れる夢のような物語が、少しずつ綴られていくよ。",
     stories: [
-      'パフパフ王国のひみつ',
-      'ゆらゆら雲のたび',
-      'きらきら星のささやき'
+      '準備中です',
+      '準備中です',
+      '準備中です'
     ],
     bgColor: "var(--c-blue)"
   },
@@ -35,9 +35,9 @@ const bunkoSections = [
     title: "おむもふ詩集",
     description: "ふわふわと舞う言葉たちの庭。リズムと感情が織りなす、やさしい詩とポエムの世界。",
     stories: [
-      'ふわり風にのせて',
-      'ぽよぽよおむつのうた',
-      'ひだまりのリリック'
+      '準備中です',
+      '準備中です',
+      '準備中です'
     ],
     bgColor: "var(--c-green)"
   },
@@ -46,9 +46,9 @@ const bunkoSections = [
     title: "おむもふ思い出綴",
     description: "あたたかくてほっこりする実話体験の記録。読者と作家の心がつながる、やわらかな記憶のページ。",
     stories: [
-      'はじめてのリトルデビュー',
-      'おむつ交換のあたたかい時間',
-      'そっと泣いた夜'
+      '準備中です',
+      '準備中です',
+      '準備中です'
     ],
     bgColor: "var(--c-yellow)"
   },
@@ -57,9 +57,9 @@ const bunkoSections = [
     title: "おむもふ夢空想",
     description: "とろけるような妄想やファンタジーが広がる場所。自由に空想の翼を広げて、あなただけの夢を描いてね。",
     stories: [
-      'ふわふわの国の王さま',
-      'きらきらおむつの魔法',
-      'ぽよぽよ雲の上のひみつ基地'
+      '準備中です',
+      '準備中です',
+      '準備中です'
     ],
     bgColor: "var(--c-purple)"
   }
@@ -108,9 +108,9 @@ const bunkoSections = [
         <ul class="story-list">
           {section.stories.map(story => (
             <li>
-              <a href="#">
+              <a href={story.link}>
                 <span class="book-icon">📖</span>
-                {story}
+                {story.title}
               </a>
             </li>
           ))}
