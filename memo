@@ -1,3 +1,7 @@
+---------------------------------------------------------------------------
+ssh -i ~/.ssh/ssh_key_admin.pem root@162.43.24.68
+
+---------------------------------------------------------------------------
 cd /Users/user/Documents/Astro/abdl
 npm run build
 git add .
@@ -81,21 +85,21 @@ cd /Users/user/stable-diffusion-project/stable-diffusion-webui
 本日の学習内容は以下の通りです
  
 書籍学習：
-　テスト駆動Python
+　Pythonプログラミングパーフェクトマスター
  
 【学習項目】
-pytestをインストールする
-pytestを実行する
-ここまでの復讐
-練習問題
-サンプルアプリケーションをインストールする
-テストを書きながら学ぶ
-assert文を使う
-pytest.fail()と例外でテストを失敗させる
-アサーションヘルパー関数をかく
+　Anacondaインストール
+　データ型
+　オブジェクトと変数
+　変数を使っていろんな計算をする
+　文字列や数値をPythonの道具で自在に操ろう（関数、メソッド）
 
 
 
+one adult woman,
+wearing a pastel frilly onesie with lace and bows, soft smile, pacifier in mouth, holding a star-pattern rattle, 
+floating gently in a magical pastel sky with glowing stars, fluffy clouds, crescent moon, 
+surrounded by sparkling plush toys and ribbons, dreamy and kawaii atmosphere, highly detailed, vibrant colors, cinematic lighting
 
 
 
@@ -199,9 +203,22 @@ antisemitic / racist propaganda
 violent extremist language
 
 
-
+時はいとしき者をのせて 〜Forget You Not〜
 はじめまして！
 お写真から上品で綺麗な雰囲気を感じました。
 料理の勉強を始められたとのこと素晴らしいですね。私も三枚おろしや桂剥きなど料理を日々修練しています。
+人生に少しのスパイスを添えて、素敵な時間を味わっていけたらと思っています。
+ぜひお話ししながらお互いのことを知っていけたら嬉しいです。
+
+
+
+はじめまして！
+お写真から上品で綺麗な雰囲気を感じました。
+料理が好きなこと素晴らしいですね。私も三枚おろしや桂剥きなど料理を日々修練しています。
+写真撮影、プログラミングが趣味です。
+剣道初段・空手初段です。
+
+
+
 人生に少しのスパイスを添えて、素敵な時間を味わっていけたらと思っています。
 ぜひお話ししながらお互いのことを知っていけたら嬉しいです。
