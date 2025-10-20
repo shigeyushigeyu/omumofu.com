@@ -5,7 +5,7 @@ ssh -i ~/.ssh/ssh_key_admin.pem root@162.43.24.68
 cd /Users/user/Documents/Astro/abdl
 npm run build
 git add .
-git commit -m "画像追加"
+git commit -m "画像動画追加"
 git push origin main
 ---------------------------------------------------------------------------
 i=817
@@ -18,7 +18,7 @@ cd /Users/user/Documents/Astro/abdl
 npm run dev
 ---------------------------------------------------------------------------
 かわいい女の子のイラストです♥️
-テーマ「放課後生徒会長特別授業」
+テーマ「図書館」
 
 他、画像もみてみてね。
 📍 http://omumofu.com/gallery
