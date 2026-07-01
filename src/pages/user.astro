@@ -1,0 +1,427 @@
+---
+// src/pages/user.astro
+import Layout from "../layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro";
+import '../styles/common.css';
+
+// profileOptions から共通定義データをインポート
+import { KOKORO_OPTIONS, TOKIMEKI_OPTIONS, KOKORO_CATEGORIES as categories } from "../data/profileOptions";
+---
+
+<Layout title="プロフィール設定 - おむもふ">
+  <AppBar title="おむもふ設定" />
+  <main class="profile-page-container">
+    <div class="profile-card">
+      <div class="user-header">
+        <h1 id="welcome-message">プロフィール設定</h1>
+        <p id="user-email" class="email-text"></p>
+      </div>
+
+      <!-- メッセージ表示用 -->
+      <p id="status-message" class="status-text" style="display: none;"></p>
+
+      <form id="profile-form" class="profile-form">
+        <!-- 1. ディスプレイネーム -->
+        <div class="form-group card">
+          <label for="display-name" class="section-label">ディスプレイネーム</label>
+          <input type="text" id="display-name" required placeholder="表示名を入力..." maxlength="50" />
+        </div>
+
+        <!-- 2. 自己紹介 -->
+        <div class="form-group card">
+          <label for="user-bio" class="section-label">簡単な自己紹介</label>
+          <textarea id="user-bio" rows="4" placeholder="自己紹介やリトルとして好きなことを書いてね..." maxlength="500"></textarea>
+        </div>
+
+        <!-- 3. こころのすがた（単一選択） -->
+        <div class="form-group card">
+          <h2 class="section-label">こころのすがた (自認タイプ)</h2>
+          <p class="section-desc">あなたに一番しっくりくるすがたを1つ選んでね。</p>
+          
+          {categories.map(cat => (
+            <div class="category-group">
+              <h3 class="category-title">{cat}</h3>
+              <div class="options-grid">
+                {KOKORO_OPTIONS.filter(opt => opt.category === cat).map(opt => (
+                  <label class="option-card radio-label">
+                    <input type="radio" name="kokoro-select" value={opt.id} />
+                    <span class="option-content">
+                      <strong class="option-title">{opt.label}</strong>
+                      <span class="option-desc">{opt.desc}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- 4. ときめきスタイル（複数選択） -->
+        <div class="form-group card">
+          <h2 class="section-label">ときめきスタイル (フェチ・嗜好)</h2>
+          <p class="section-desc">あなたがときめく・好きなスタイルを選んでね（複数選択可）。</p>
+          
+          <div class="options-grid">
+            {TOKIMEKI_OPTIONS.map(opt => (
+              <label class="option-card checkbox-label">
+                <input type="checkbox" name="tokimeki-select" value={opt.id} />
+                <span class="option-content">
+                  <strong class="option-title">{opt.label}</strong>
+                  <span class="option-desc">{opt.desc}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="form-actions">
+          <button type="submit" class="save-btn">設定を保存する</button>
+          <button type="button" id="logout-btn" class="logout-btn">ログアウト</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { db, auth } from '../lib/firebase';
+  import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+  import { onAuthStateChanged, signOut } from 'firebase/auth';
+
+
+  const userEmailText = document.getElementById('user-email')!;
+  const displayNameInput = document.getElementById('display-name') as HTMLInputElement;
+  const bioInput = document.getElementById('user-bio') as HTMLTextAreaElement;
+  const profileForm = document.getElementById('profile-form') as HTMLFormElement;
+  const logoutBtn = document.getElementById('logout-btn')!;
+  const statusMessage = document.getElementById('status-message')!;
+
+  let currentUid: string | null = null;
+
+  // 1. ログインガードとプロフィール初期データロード
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // 未ログイン時はログインページへリダイレクト
+      window.location.href = '/login';
+      return;
+    }
+
+    currentUid = user.uid;
+    userEmailText.textContent = user.email || '';
+
+
+    // Firestoreからすでに保存されたデータを取得
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        displayNameInput.value = data.displayName || user.displayName || '';
+        bioInput.value = data.bio || '';
+
+        // こころのすがた（ラジオ）の初期化
+        if (data.kokoro) {
+          const radio = document.querySelector(`input[name="kokoro-select"][value="${data.kokoro}"]`) as HTMLInputElement;
+          if (radio) radio.checked = true;
+        }
+
+        // ときめきスタイル（チェックボックス）の初期化
+        if (data.tokimeki && Array.isArray(data.tokimeki)) {
+          data.tokimeki.forEach((val: string) => {
+            const checkbox = document.querySelector(`input[name="tokimeki-select"][value="${val}"]`) as HTMLInputElement;
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+      } else {
+        // 初めてログインした場合はGoogleの情報を初期値にセット
+        displayNameInput.value = user.displayName || '';
+      }
+    } catch (err: any) {
+      console.error('Error fetching user profile:', err);
+      showStatus('プロフィールの取得に失敗しました。', 'error');
+    }
+  });
+
+  // 2. プロフィールの保存処理
+  profileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUid) return;
+
+    // 選択された「こころのすがた」の取得
+    const selectedKokoroRadio = document.querySelector('input[name="kokoro-select"]:checked') as HTMLInputElement;
+    const kokoro = selectedKokoroRadio ? selectedKokoroRadio.value : '';
+
+    // 選択された「ときめきスタイル」の取得
+    const checkedTokimekiBoxes = document.querySelectorAll('input[name="tokimeki-select"]:checked');
+    const tokimeki: string[] = [];
+    checkedTokimekiBoxes.forEach((box: any) => {
+      tokimeki.push(box.value);
+    });
+
+    const displayName = displayNameInput.value.trim();
+    const bio = bioInput.value.trim();
+
+    showStatus('保存中...', 'info');
+
+    try {
+      const userDocRef = doc(db, 'users', currentUid);
+      await setDoc(userDocRef, {
+        displayName,
+        bio,
+        kokoro,
+        tokimeki,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      showStatus('設定を保存しました！', 'success');
+      
+      // 保存完了後に少し経ってメッセージを消す
+      setTimeout(() => {
+        statusMessage.style.display = 'none';
+      }, 3000);
+    } catch (err: any) {
+      console.error('Error saving user profile:', err);
+      showStatus(`保存に失敗しました: ${err.message}`, 'error');
+    }
+  });
+
+  // 3. ログアウト処理
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.href = '/login';
+    } catch (err: any) {
+      alert(`ログアウトに失敗しました: ${err.message}`);
+    }
+  });
+
+  // メッセージ表示補助関数
+  function showStatus(text: string, type: 'success' | 'error' | 'info') {
+    statusMessage.textContent = text;
+    statusMessage.style.display = 'block';
+    statusMessage.className = `status-text ${type}`;
+  }
+</script>
+
+<style>
+  .profile-page-container {
+    max-width: 800px;
+    margin: 80px auto 40px;
+    padding: 20px;
+  }
+  .profile-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+  }
+  
+  /* ユーザーヘッダー */
+  .user-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .email-text {
+    color: #888;
+    font-size: 0.9rem;
+  }
+
+  /* フォーム要素 */
+  .profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  .card {
+    background: #ffffff;
+    border: 2px dashed #ffc0cb; /* 手縫い風点線 */
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(180, 120, 140, 0.05);
+  }
+  .section-label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #d36ba6;
+    margin-bottom: 12px;
+  }
+  .section-desc {
+    color: #888;
+    font-size: 0.9rem;
+    margin-top: -8px;
+    margin-bottom: 20px;
+  }
+  
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px dotted #ffc0cb;
+    border-radius: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    background-color: #fffafc;
+    color: #7d5b6b;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: #b5f57c;
+    background-color: #fafffa;
+  }
+
+  /* カテゴリ別グループ */
+  .category-group {
+    margin-bottom: 25px;
+  }
+  .category-title {
+    font-size: 1.05rem;
+    color: #a05585;
+    border-bottom: 2px dashed #ffe0e6;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  /* グリッドとオプションカード */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  @media screen and (min-width: 600px) {
+    .options-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .option-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fffafc;
+    border: 2px solid #ffe0e6;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-sizing: border-box;
+  }
+  .option-card:hover {
+    transform: translateY(-2px);
+    border-color: #ffc0cb;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(255, 192, 203, 0.25);
+  }
+  
+  /* ラジオ・チェックボックスの選択時のスタイル */
+  .option-card input[type="radio"],
+  .option-card input[type="checkbox"] {
+    margin-top: 4px;
+    accent-color: #8cc63f; /* かわいいミントグリーン */
+    cursor: pointer;
+  }
+  
+  /* 選択されたカードのボーダー強調 */
+  .option-card:has(input:checked) {
+    border-color: #8cc63f;
+    background-color: #fafffa;
+    box-shadow: 0 4px 12px rgba(140, 198, 63, 0.2);
+  }
+
+  .option-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .option-title {
+    font-size: 0.95rem;
+    color: #555;
+    font-weight: bold;
+  }
+  .option-desc {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  /* 保存とログアウトボタン */
+  .form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  .save-btn {
+    background-color: #eef9e6; /* パステルグリーン */
+    color: #8cc63f;
+    border: 2px dashed #b5f57c;
+    border-radius: 9999px; /* 完全に楕円形 */
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .save-btn:hover {
+    background-color: #e2f5d3;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(180, 245, 124, 0.4);
+  }
+  .logout-btn {
+    background-color: #ffeef2; /* パステルピンク */
+    color: #e64980;
+    border: 2px dashed #ffc0cb;
+    border-radius: 9999px;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .logout-btn:hover {
+    background-color: #ffd8e2;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(255, 192, 203, 0.4);
+  }
+
+  /* ステータスメッセージ */
+  .status-text {
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .status-text.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+  .status-text.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+  .status-text.info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+  }
+</style>

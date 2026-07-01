@@ -125,6 +125,23 @@ import AppBar from "../components/shared/AppBar.astro"
             color: #ff69b4;
             font-weight: bold;
         }
+
+        .explanation-box {
+            background-color: #fff9fa;
+            border: 2px dashed #ffd1dc;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto 30px;
+            font-size: 0.95em;
+            line-height: 1.7;
+            text-align: left;
+        }
+        .explanation-box strong {
+            color: #ff69b4;
+            display: inline-block;
+            margin-bottom: 6px;
+            font-size: 1.1em;
+        }
         
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
@@ -160,11 +177,12 @@ import AppBar from "../components/shared/AppBar.astro"
         </p>
 
         <section id="label">
-            <h2>♡ﾟ･｡｡･ﾟ♡ﾟ･｡ ラベルを見つけてね ｡･ﾟ♡ﾟ･｡｡･ﾟ♡</h2>
-            <p style="text-align:center;">
-                リアルでのあなたと、リトルとしてのあなたは、ちょっぴり違うかもしれないね。<br>
-                それはとっても素敵なことなんだよ♪ あなたにぴったりのラベルを見つけてみてね。
-            </p>
+            <h2>🧸 こころのすがた (自認タイプ) 🧸</h2>
+            <div class="explanation-box">
+                <strong>「こころのすがた」とは？</strong><br>
+                リアル（身体の性別）でのあなたと、リトル（心の中の赤ちゃん・子供）としてのあなたの組み合わせを表現した自認タイプのことです。<br>
+                身体は男の子だけど、リトルの時は可愛い女の子になりたい（ファンタジア）、性別の枠にとらわれずに自由でありたい（リリィ、アイリス）など、あなたに一番しっくりくる「こころのすがた」を設定する際の参考にしてみてね。
+            </div>
 
             <h3>🍼 リアルが男の子のリトルちゃん 🍼</h3>
             <div class="little-card-container">
@@ -237,11 +255,12 @@ import AppBar from "../components/shared/AppBar.astro"
         </section>
 
         <section id="element">
-            <h2>✨ ･｡｡･ﾟ✨ﾟ･｡ きみのエレメントはなあに？ ｡･ﾟ✨ﾟ･｡｡･ﾟ✨</h2>
-            <p style="text-align:center;">
-                リトルちゃんには、それぞれ個性的な「エレメント」があるんだ。<br>
-                きみはどんなことが好き？どんな時にきゅんとしちゃう？
-            </p>
+            <h2>✨ ときめきスタイル (フェチ・嗜好) ✨</h2>
+            <div class="explanation-box">
+                <strong>「ときめきスタイル」とは？</strong><br>
+                あなたがリトルとして過ごす中で、どんなことに対して幸せやときめき、または特別なフェチやこだわりを感じるかを表すプレイスタイルのことです。<br>
+                いっぱい甘やかされたい（チュア、ケア）、オムツのふわふわ感や可愛いお洋服が大好き（ウェア）、赤ちゃん返り全開になりたい（チャイル）など、あなたの心のエレメント（複数選択可）を見つけるヒントにしてね。
+            </div>
             <ul class="element-list">
                 <li><span class="name">🍼 リトル・チュア (甘えたい)</span><span class="quote">「ぎゅーってしてほしいの…」</span>おひざが大好きな甘えんぼリトルちゃん。</li>
                 <li><span class="name">🖤 リトル・スレイヴ (支配されたい)</span><span class="quote">「はい、いい子にしてます…」</span>命令されるときゅんとしちゃう従順リトル。</li>
@@ -264,7 +283,6 @@ import AppBar from "../components/shared/AppBar.astro"
 
         <footer>
             <p>どんなリトルちゃんも、みんな大切な「おむもふ」のおともだちだよ！</p>
-            <p>- ASTRO</p>
         </footer>
     </div>
 

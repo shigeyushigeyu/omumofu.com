@@ -1,79 +1,350 @@
 ---
 // src/pages/messageboard.astro
-import menuBackground from '~/assets/images/moremenu.png';
 import Layout from '../layouts/Layout.astro';
-import AppBar from "../components/shared/AppBar.astro"
-type Thread = {
-  id: number;
-  title: string;
-  created_at: string;
-}
-
-let threads: Thread[] = [];
-let error: string | null = null;
-
-try {
-  // ★★★ ここを修正 ★★★
-const apiUrl = new URL('https://api.omumofu.com/threads');
- const response = await fetch(apiUrl);
-
-  if (response.ok) {
-    threads = await response.json();
-
-// ↓↓↓↓ この並び替え処理を追加 ↓↓↓↓
-threads.sort((a, b) => {
-  // bの最新投稿日時 - aの最新投稿日時 で降順ソート
-  // 投稿がない(null)場合は、比較のために非常に古い時刻とみなす
-  const timeA = a.latest_post_at ? new Date(a.latest_post_at).getTime() : 0;
-  const timeB = b.latest_post_at ? new Date(b.latest_post_at).getTime() : 0;
-
-  // 最新投稿日時が異なる場合は、その順で決定
-  if (timeA !== timeB) {
-    return timeB - timeA;
-  }
-
-  // 最新投稿日時が同じ場合は、スレッド自体の作成日時で降順ソート
-  const createdA = new Date(a.created_at).getTime();
-  const createdB = new Date(b.created_at).getTime();
-  return createdB - createdA;
-});
-
-
-
-
-  } else {
-    error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
-  }
-} catch (e) {
-  console.error(e);
-  error = "APIへの接続中にエラーが発生しました。";
-}
+import AppBar from "../components/shared/AppBar.astro";
+import '../styles/common.css';
 ---
 
-
-<Layout title="おむもふ掲示板">
+<Layout title="おむもふ掲示板 - スレッド一覧">
   <AppBar />
-  <main>
+  <main class="forum-container">
     <h1>掲示板スレッド一覧</h1>
-    
-    {error ? (
-      <p style="color: red;">{error}</p>
-    ) : (
-      <>
-        {threads.length > 0 ? (
-          <ul>
-            {threads.map(thread => (
-              <li>
-                <a href={`/thread/${thread.id}`}>{thread.title}</a>
-                <small>({new Date(thread.created_at).toLocaleString()})</small>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>まだスレッドがありません。</p>
-        )}
-      </>
-    )}
+
+    <!-- スレッド新規作成エリア（ログイン時のみ表示） -->
+    <div id="create-thread-section" style="display: none;" class="card create-card">
+      <h2>新しいスレッドを作成する</h2>
+      <form id="create-thread-form">
+        <div class="form-group">
+          <label for="thread-title">スレッドタイトル:</label>
+          <input type="text" id="thread-title" required placeholder="タイトルを入力..." maxlength="100" />
+        </div>
+        <button type="submit" class="btn">作成する</button>
+      </form>
+    </div>
+
+    <!-- 未ログイン時の案内 -->
+    <div id="login-prompt-section" class="card info-card">
+      <p>新しいスレッドを作成するには、<a href="/login" class="login-link">ログイン</a>してください。</p>
+    </div>
+
+    <!-- エラー表示用 -->
+    <p id="error-message" class="error-text" style="display: none;"></p>
+
+    <!-- スレッド一覧表示エリア -->
+    <div id="loading-spinner" class="spinner">読み込み中...</div>
+    <ul id="thread-list" class="thread-list" style="display: none;">
+      <!-- JavaScriptで動的に挿入されます -->
+    </ul>
+    <p id="no-threads-message" style="display: none;">スレッドがまだありません。</p>
   </main>
 </Layout>
-<style> pre { background-color: #eee; padding: 1em; white-space: pre-wrap; word-wrap: break-word; } </style>
+
+<script>
+  import { db, auth } from '../lib/firebase';
+  import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+  import { onAuthStateChanged } from 'firebase/auth';
+
+  const threadList = document.getElementById('thread-list')!;
+  const loadingSpinner = document.getElementById('loading-spinner')!;
+  const noThreadsMessage = document.getElementById('no-threads-message')!;
+  const errorMessage = document.getElementById('error-message')!;
+  
+  const createThreadSection = document.getElementById('create-thread-section')!;
+  const loginPromptSection = document.getElementById('login-prompt-section')!;
+  const createThreadForm = document.getElementById('create-thread-form') as HTMLFormElement;
+  const threadTitleInput = document.getElementById('thread-title') as HTMLInputElement;
+
+  let currentUser: any = null;
+
+  // 1. ログイン状態の監視
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      createThreadSection.style.display = 'block';
+      loginPromptSection.style.display = 'none';
+    } else {
+      createThreadSection.style.display = 'none';
+      loginPromptSection.style.display = 'block';
+    }
+    // ログイン状態が確定した後にスレッド一覧をロードする
+    loadThreads();
+  });
+
+  // 2. スレッド一覧の取得と描画
+  async function loadThreads() {
+    errorMessage.style.display = 'none';
+    try {
+      // 最新の投稿順（latestPostAt）の降順で取得
+      const q = query(collection(db, 'threads'), orderBy('latestPostAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      
+      threadList.innerHTML = '';
+      loadingSpinner.style.display = 'none';
+
+      if (querySnapshot.empty) {
+        noThreadsMessage.style.display = 'block';
+        threadList.style.display = 'none';
+        return;
+      }
+
+      noThreadsMessage.style.display = 'none';
+      threadList.style.display = 'block';
+
+      querySnapshot.forEach((documentSnapshot) => {
+        const data = documentSnapshot.data();
+        const li = document.createElement('li');
+        li.className = 'thread-item';
+
+        // 左側：タイトルと日時・作成者
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'thread-info';
+
+        const link = document.createElement('a');
+        link.href = `/thread/${documentSnapshot.id}`;
+        link.textContent = data.title;
+        link.className = 'thread-title-link';
+
+        const meta = document.createElement('span');
+        meta.className = 'thread-meta';
+        const dateStr = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString() : '作成中...';
+        const authorName = data.authorName || '名無し';
+        const authorId = data.authorId || '';
+        
+        // HTMLエスケープヘルパー
+        const escapeHTML = (str: string) => str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+
+        if (authorId) {
+          meta.innerHTML = ` (<a href="/user/${authorId}" class="profile-link" title="${escapeHTML(authorName)}のプロフィール">${escapeHTML(authorName)}</a> - ${dateStr})`;
+        } else {
+          meta.textContent = ` (${authorName} - ${dateStr})`;
+        }
+
+        infoDiv.appendChild(link);
+        infoDiv.appendChild(meta);
+        li.appendChild(infoDiv);
+
+        // 右側：削除ボタン（自分が作成したスレッドのみ）
+        if (currentUser && data.authorId === currentUser.uid) {
+          const actionDiv = document.createElement('div');
+          actionDiv.className = 'thread-actions';
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '削除';
+          deleteBtn.className = 'delete-btn-small';
+          deleteBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm(`スレッド「${data.title}」を削除しますか？\n（注: スレッド内の投稿も閲覧できなくなります）`)) {
+              try {
+                await deleteDoc(doc(db, 'threads', documentSnapshot.id));
+                loadThreads(); // 再読み込み
+              } catch (err: any) {
+                console.error('Delete error:', err);
+                alert(`削除に失敗しました: ${err.message}`);
+              }
+            }
+          });
+          actionDiv.appendChild(deleteBtn);
+          li.appendChild(actionDiv);
+        }
+
+        threadList.appendChild(li);
+      });
+    } catch (error: any) {
+      console.error('Error fetching threads:', error);
+      loadingSpinner.style.display = 'none';
+      errorMessage.textContent = `スレッドの取得に失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  }
+
+  // 3. スレッドの新規作成処理
+  createThreadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const title = threadTitleInput.value.trim();
+    if (!title) return;
+
+    errorMessage.style.display = 'none';
+
+    try {
+      // threads コレクションにドキュメントを追加
+      const docRef = await addDoc(collection(db, 'threads'), {
+        title: title,
+        createdAt: serverTimestamp(),
+        latestPostAt: serverTimestamp(),
+        authorId: currentUser.uid,
+        authorName: currentUser.displayName || '名無し'
+      });
+
+      // 成功したら、作成したスレッドの詳細ページに遷移する
+      window.location.href = `/thread/${docRef.id}`;
+    } catch (error: any) {
+      console.error('Error creating thread:', error);
+      errorMessage.textContent = `スレッドの作成に失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  .forum-container {
+    max-width: 800px;
+    margin: 80px auto 40px; /* AppBar 64px を避けるためにマージン調整 */
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2.2rem;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+  }
+  .create-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #444;
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #b5f57c;
+  }
+  .btn {
+    background-color: #b5f57c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn:hover {
+    background-color: #a3ea6c;
+  }
+  .info-card {
+    background-color: #f9f9f9;
+  }
+  .login-link {
+    color: #8cc63f;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  .thread-list {
+    list-style: none;
+    padding: 0;
+  }
+  .thread-item {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .thread-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  @media screen and (min-width: 600px) {
+    .thread-info {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+  .thread-title-link {
+    font-size: 1.1rem;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .thread-title-link:hover {
+    color: #8cc63f;
+    text-decoration: underline;
+  }
+  .thread-meta {
+    font-size: 0.85rem;
+    color: #888;
+  }
+  :global(.profile-link) {
+    color: #d36ba6; /* 優しいピンク */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+  }
+  :global(.profile-link:hover) {
+    color: #e64980;
+    text-decoration: underline dotted; /* 点線のアンダーライン */
+  }
+  .thread-actions {
+    display: flex;
+    align-items: center;
+  }
+  :global(.delete-btn-small) {
+    background-color: #ffeef2; /* パステルピンク */
+    color: #e64980;
+    border: 2px dashed #ffc0cb; /* 手芸風の点線 */
+    border-radius: 9999px; /* 完全に楕円形にする */
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* ぽよんと弾むアニメーション */
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  :global(.delete-btn-small:hover) {
+    background-color: #ffd8e2;
+    transform: translateY(-3px) scale(1.1); /* 浮き出て少し大きくなる */
+    box-shadow: 0 6px 12px rgba(255, 192, 203, 0.4);
+  }
+  .spinner {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  .error-text {
+    color: #f44336;
+    background-color: #ffebee;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+</style>

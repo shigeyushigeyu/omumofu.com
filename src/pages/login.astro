@@ -1,39 +1,164 @@
 ---
-import Layout from "~/layouts/Layout.astro";
-
-
+// src/pages/login.astro
+import Layout from "../layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro";
+import '../styles/common.css';
 ---
-<!-- Google Sign-In クライアントスクリプトを読み込む 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<div id="g_id_onload"
-     data-client_id="350732692726-4embdf0kvo787dstk03ri1v98ulg4mn2.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse"
-     data-auto_prompt="false">
-</div>
+<Layout title="ログイン - おむもふ">
+  <AppBar />
+  <main class="login-container">
+    <div class="login-card">
+      <h1 id="login-title">ログイン</h1>
+      <p id="login-desc">おむもふ掲示板に書き込むにはログインが必要です。</p>
+      
+      <!-- ログイン前の表示 -->
+      <div id="logged-out-state">
+        <button id="google-login-btn" class="login-action-btn google-btn">
+          Googleアカウントでログイン
+        </button>
+      </div>
 
-<div class="g_id_signin"
-     data-type="standard"
-     data-theme="outline"
-     data-size="large">
-</div>
+      <!-- ログイン後の表示 -->
+      <div id="logged-in-state" style="display: none;">
+        <div class="user-profile">
+          <h2 id="user-name">ようこそ、ゲストさん</h2>
+          <p id="user-email"></p>
+        </div>
+        <button id="logout-btn" class="login-action-btn logout-btn">
+          ログアウト
+        </button>
+        <div style="margin-top: 20px;">
+          <a href="/messageboard" class="back-link">掲示板に戻る</a>
+        </div>
+      </div>
+      
+      <p id="error-message" class="error-text" style="display: none;"></p>
+    </div>
+  </main>
+</Layout>
 
-<script is:inline>
-window.handleCredentialResponse = async function(response) {
-  console.log("Googleからのレスポンス:", response);
-  const id_token = response.credential;
+<script>
+  import { auth, googleProvider } from '../lib/firebase';
+  import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
-  const res = await fetch("http://localhost:4321/api/login",{
-    method : "POST",
-    headers : { "Content-Type": "application/json" },
-    body: JSON.stringify({ id_token: id_token })
+  const loggedOutState = document.getElementById('logged-out-state')!;
+  const loggedInState = document.getElementById('logged-in-state')!;
+  const googleLoginBtn = document.getElementById('google-login-btn')!;
+  const logoutBtn = document.getElementById('logout-btn')!;
 
+  const userName = document.getElementById('user-name')!;
+  const userEmail = document.getElementById('user-email')!;
+  const errorMessage = document.getElementById('error-message')!;
+  const loginTitle = document.getElementById('login-title')!;
+  const loginDesc = document.getElementById('login-desc')!;
+
+  // ログイン状態の監視
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // ログイン中ならプロフィールページへリダイレクト
+      window.location.href = '/user';
+    } else {
+      // 未ログイン
+      loggedOutState.style.display = 'block';
+      loggedInState.style.display = 'none';
+      loginTitle.textContent = 'ログイン';
+      loginDesc.textContent = 'おむもふ掲示板に書き込むにはログインが必要です。';
+    }
   });
-};
+
+  // Googleログイン実行
+  googleLoginBtn.addEventListener('click', async () => {
+    errorMessage.style.display = 'none';
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // ログイン成功時は onAuthStateChanged で検知され表示が切り替わります
+    } catch (error: any) {
+      console.error('Login error:', error);
+      errorMessage.textContent = `ログインに失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  });
+
+  // ログアウト実行
+  logoutBtn.addEventListener('click', async () => {
+    errorMessage.style.display = 'none';
+    try {
+      await signOut(auth);
+    } catch (error: any) {
+      console.error('Logout error:', error);
+      errorMessage.textContent = `ログアウトに失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  });
 </script>
 
--->
+<style>
+  .login-container {
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 20px;
+  }
+  .login-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid #eee;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+  .login-action-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 15px;
+  }
+  .google-btn {
+    background-color: #4285f4;
+    color: white;
+  }
+  .google-btn:hover {
+    background-color: #357ae8;
+    transform: translateY(-2px);
+  }
+  .logout-btn {
+    background-color: #f44336;
+    color: white;
+  }
+  .logout-btn:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+  }
+  .user-profile {
+    margin-bottom: 30px;
+  }
 
-<Layout>
-        <h1> login page </h1>
-</Layout>
+  .error-text {
+    color: #f44336;
+    margin-top: 15px;
+    font-size: 0.9rem;
+  }
+  .back-link {
+    color: #8cc63f;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,99 +1,539 @@
 ---
 // src/pages/thread/[id].astro
-export const prerender = false; // このページはSSR
+export const prerender = false; // Cloudflare PagesのSSRで動かすため、またはIDパラメータを受け取るため
 
 import Layout from '../../layouts/Layout.astro';
+import AppBar from "../../components/shared/AppBar.astro";
+import '../../styles/common.css';
+
 const { id } = Astro.params;
-
-// 型定義
-type Post = {
-  author_name: string;
-  body: string;
-  created_at: string;
-};
-type ThreadData = {
-  id: number;
-  title: string;
-  posts: Post[];
-};
-
-let threadData: ThreadData | null = null;
-let error: string | null = null;
-
-try {
-  // プランA：IPアドレスとポートを直接指定してAPIを叩く
-  const apiUrl = new URL(`https://api.omumofu.com/threads/${id}`);
-  const response = await fetch(apiUrl);
-
-  if (response.ok) {
-    threadData = await response.json();
-  } else {
-    if (response.status === 404) {
-      error = "指定されたスレッドは見つかりませんでした。";
-    } else {
-      error = `スレッドの取得に失敗しました (ステータス: ${response.status})`;
-    }
-  }
-} catch (e) {
-  console.error(e);
-  error = "APIサーバーへの接続中にエラーが発生しました。";
-}
 ---
-<Layout title={threadData ? threadData.title : (error ? "エラー" : "読み込み中...")}>
-  <main>
-    {error && (
-      <div>
-        <h1>エラー</h1>
-        <p>{error}</p>
-        <a href="/messageboard">掲示板一覧に戻る</a>
-      </div>
-    )}
 
-    {threadData && (
-      <>
-        <h1>{threadData.title}</h1>
-        
-        <div class="posts-container">
-          {threadData.posts.map((post, index) => (
-            <div class="post">
-              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
-              {/* 改行を<br>に変換して表示 */}
-              <p set:html={post.body.replace(/\n/g, '<br>')} />
-            </div>
-          ))}
-          {threadData.posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
+<Layout title="スレッド詳細 - おむもふ">
+  <AppBar title="おむもふ掲示板" />
+  <main class="thread-container" id="thread-page" data-thread-id={id}>
+    <!-- スレッドタイトル -->
+    <h1 id="thread-title">スレッドを読み込み中...</h1>
+    
+    <!-- エラーメッセージ -->
+    <p id="error-message" class="error-text" style="display: none;"></p>
+
+    <!-- 投稿一覧 -->
+    <div id="posts-container" class="posts-container">
+      <p id="loading-posts">投稿を読み込み中...</p>
+    </div>
+
+    <hr class="separator" />
+
+    <!-- 書き込みフォーム（ログイン時のみ） -->
+    <div id="write-section" style="display: none;" class="card write-card">
+      <h2>スレッドに書き込む</h2>
+      <form id="post-form">
+        <div class="form-group">
+          <label for="author-name">名前:</label>
+          <input type="text" id="author-name" placeholder="名無しさん" maxlength="50" />
         </div>
+        <div class="form-group">
+          <label for="post-body">本文:</label>
+          <textarea id="post-body" rows="5" required placeholder="ここに本文を入力してください..." maxlength="2000"></textarea>
+        </div>
+        <button type="submit" class="btn">書き込む</button>
+      </form>
+    </div>
 
-        <hr />
-
-        <h2>書き込む</h2>
-          {/* ★★★ actionを /api/posts に戻す ★★★ */}
-          <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
-            <input type="hidden" name="thread_id" value={threadData.id} />
-            <div>
-              <label for="author_name">名前:</label>
-              <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
-            </div>
-            <div>
-              <label for="body">本文:</label>
-              <textarea id="body" name="body" rows="5" required></textarea>
-            </div>
-            <button type="submit">書き込む</button>
-          </form>
-          {/* ... */}
-      </>
-    )}
-
-    {!threadData && !error && <p>読み込み中...</p>}
+    <!-- 未ログイン時の案内 -->
+    <div id="login-prompt-section" class="card info-card">
+      <p>このスレッドに書き込むには、<a href="/login" class="login-link">ログイン</a>してください。</p>
+    </div>
+    
+    <div class="navigation-links">
+      <a href="/messageboard" class="back-link">掲示板一覧に戻る</a>
+    </div>
   </main>
-
 </Layout>
 
+<script>
+  import { db, auth } from '../../lib/firebase';
+  import { doc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+  import { onAuthStateChanged } from 'firebase/auth';
+
+  const threadPage = document.getElementById('thread-page')!;
+  const threadId = threadPage.dataset.threadId!;
+
+  const threadTitle = document.getElementById('thread-title')!;
+  const postsContainer = document.getElementById('posts-container')!;
+  const errorMessage = document.getElementById('error-message')!;
+  
+  const writeSection = document.getElementById('write-section')!;
+  const loginPromptSection = document.getElementById('login-prompt-section')!;
+  const postForm = document.getElementById('post-form') as HTMLFormElement;
+  const authorNameInput = document.getElementById('author-name') as HTMLInputElement;
+  const postBodyInput = document.getElementById('post-body') as HTMLTextAreaElement;
+
+  let currentUser: any = null;
+  let latestSnapshot: any = null;
+  let editingPostId: string | null = null;
+  let editingText: string = '';
+
+  // 1. ログイン状態の監視
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      writeSection.style.display = 'block';
+      loginPromptSection.style.display = 'none';
+      // デフォルトの名前をセット
+      if (!authorNameInput.value) {
+        authorNameInput.value = user.displayName || '';
+      }
+    } else {
+      writeSection.style.display = 'none';
+      loginPromptSection.style.display = 'block';
+    }
+    // ログイン状態変更に伴いアバタや編集・削除権限の表示を切り替えるため再描画
+    if (latestSnapshot) {
+      renderPosts(latestSnapshot);
+    }
+  });
+
+  // 2. スレッド情報の取得 (タイトル表示用)
+  async function loadThreadInfo() {
+    try {
+      const threadDocRef = doc(db, 'threads', threadId);
+      const threadDoc = await getDoc(threadDocRef);
+      if (threadDoc.exists()) {
+        threadTitle.textContent = threadDoc.data().title;
+      } else {
+        errorMessage.textContent = '指定されたスレッドが見つかりませんでした。';
+        errorMessage.style.display = 'block';
+        threadTitle.textContent = 'エラー';
+      }
+    } catch (error: any) {
+      console.error('Error fetching thread info:', error);
+      errorMessage.textContent = `スレッド情報の取得に失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  }
+
+  // 3. 投稿一覧のレンダリング処理
+  function renderPosts(snapshot: any) {
+    postsContainer.innerHTML = '';
+    
+    if (snapshot.empty) {
+      postsContainer.innerHTML = '<p class="no-posts">まだ投稿がありません。最初の投稿を書き込んでみましょう！</p>';
+      return;
+    }
+
+    snapshot.docs.forEach((documentSnapshot: any, index: number) => {
+      const postId = documentSnapshot.id;
+      const post = documentSnapshot.data();
+      
+      const postDiv = document.createElement('div');
+      postDiv.className = 'post';
+      postDiv.id = `post-${postId}`;
+
+      const postHeader = document.createElement('p');
+      postHeader.className = 'post-header';
+      
+      const authorName = post.authorName || '名無しさん';
+      const dateStr = post.createdAt?.toDate ? post.createdAt.toDate().toLocaleString() : '送信中...';
+      const authorId = post.authorId || '';
+      if (authorId) {
+        postHeader.innerHTML = `<strong>${index + 1}. <a href="/user/${authorId}" class="profile-link" title="${escapeHTML(authorName)}のプロフィール">${escapeHTML(authorName)}</a></strong> - <span class="post-date">${dateStr}</span>`;
+      } else {
+        postHeader.innerHTML = `<strong>${index + 1}. ${escapeHTML(authorName)}</strong> - <span class="post-date">${dateStr}</span>`;
+      }
+      postDiv.appendChild(postHeader);
+
+      if (editingPostId === postId) {
+        // 編集フォーム表示時
+        const editFormDiv = document.createElement('div');
+        editFormDiv.className = 'edit-form';
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'edit-textarea';
+        textarea.value = editingText;
+        textarea.rows = 4;
+        editFormDiv.appendChild(textarea);
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'edit-btn-group';
+
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '保存';
+        saveBtn.className = 'btn-save-small';
+        saveBtn.addEventListener('click', async () => {
+          const newBody = textarea.value.trim();
+          if (!newBody) return;
+          try {
+            await updateDoc(doc(db, 'threads', threadId, 'posts', postId), {
+              body: newBody
+            });
+            editingPostId = null; // 編集モード終了（onSnapshotのリスナーが自動トリガーされます）
+          } catch (err: any) {
+            alert(`更新に失敗しました: ${err.message}`);
+          }
+        });
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'キャンセル';
+        cancelBtn.className = 'btn-cancel-small';
+        cancelBtn.addEventListener('click', () => {
+          editingPostId = null;
+          renderPosts(snapshot); // 描画を元に戻す
+        });
+
+        btnGroup.appendChild(saveBtn);
+        btnGroup.appendChild(cancelBtn);
+        editFormDiv.appendChild(btnGroup);
+        postDiv.appendChild(editFormDiv);
+      } else {
+        // 通常表示時
+        const postBody = document.createElement('p');
+        postBody.className = 'post-body-text';
+        postBody.innerHTML = escapeHTML(post.body || '').replace(/\n/g, '<br>');
+        postDiv.appendChild(postBody);
+
+        // ログイン中の投稿者本人であれば、編集・削除ボタンを表示
+        if (currentUser && post.authorId === currentUser.uid) {
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'post-actions';
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = '編集';
+          editBtn.className = 'post-action-btn edit-btn';
+          editBtn.addEventListener('click', () => {
+            editingPostId = postId;
+            editingText = post.body;
+            renderPosts(snapshot); // 編集モードにして再描画
+          });
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '削除';
+          deleteBtn.className = 'post-action-btn delete-btn';
+          deleteBtn.addEventListener('click', async () => {
+            if (confirm('この書き込みを削除しますか？')) {
+              try {
+                await deleteDoc(doc(db, 'threads', threadId, 'posts', postId));
+              } catch (err: any) {
+                alert(`削除に失敗しました: ${err.message}`);
+              }
+            }
+          });
+
+          actionsDiv.appendChild(editBtn);
+          actionsDiv.appendChild(deleteBtn);
+          postDiv.appendChild(actionsDiv);
+        }
+      }
+
+      postsContainer.appendChild(postDiv);
+    });
+  }
+
+  // 4. 投稿のリアルタイム購読設定
+  const postsQuery = query(
+    collection(db, 'threads', threadId, 'posts'),
+    orderBy('createdAt', 'asc')
+  );
+
+  const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+    latestSnapshot = snapshot;
+    renderPosts(snapshot);
+  }, (error) => {
+    console.error('Error listening to posts:', error);
+    errorMessage.textContent = `投稿の取得に失敗しました: ${error.message}`;
+    errorMessage.style.display = 'block';
+  });
+
+  // 5. 新規書き込み処理
+  postForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const authorName = authorNameInput.value.trim() || currentUser.displayName || '名無しさん';
+    const body = postBodyInput.value.trim();
+    
+    if (!body) return;
+
+    errorMessage.style.display = 'none';
+
+    try {
+      // 投稿サブコレクションに追加
+      await addDoc(collection(db, 'threads', threadId, 'posts'), {
+        authorName: authorName,
+        authorId: currentUser.uid,
+        body: body,
+        createdAt: serverTimestamp()
+      });
+
+      // 親スレッドの最新投稿日時を更新
+      await updateDoc(doc(db, 'threads', threadId), {
+        latestPostAt: serverTimestamp()
+      });
+
+      // フォームの本文をクリア
+      postBodyInput.value = '';
+    } catch (error: any) {
+      console.error('Error posting message:', error);
+      errorMessage.textContent = `書き込みに失敗しました: ${error.message}`;
+      errorMessage.style.display = 'block';
+    }
+  });
+
+  // HTMLエスケープ関数
+  function escapeHTML(str: string) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // 初期化実行
+  loadThreadInfo();
+</script>
+
 <style>
-  /* スタイルは変更なし */
-  .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; word-wrap: break-word; }
-  .post p { margin: 0.5em 0; }
-  form div { margin-bottom: 10px; }
-  label { display: block; margin-bottom: 5px; }
-  input[text], textarea { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; }
+  .thread-container {
+    max-width: 800px;
+    margin: 80px auto 40px; /* AppBar 64px を避けるためにマージン調整 */
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 25px;
+    border-bottom: 3px solid #b5f57c;
+    padding-bottom: 10px;
+  }
+  .posts-container {
+    margin-bottom: 30px;
+  }
+  .post {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    position: relative;
+  }
+  .post-header {
+    margin: 0 0 10px 0;
+    font-size: 0.95rem;
+    color: #555;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+  }
+  .post-date {
+    color: #888;
+    font-size: 0.85rem;
+  }
+  .post-body-text {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+    color: #333;
+    word-break: break-all;
+  }
+  /* 動的に生成されるボタンやフォームのグローバルスタイル */
+  :global(.post-actions) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  :global(.post-action-btn) {
+    border: 2px dashed transparent;
+    border-radius: 9999px; /* 完全に楕円形にする */
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* ぽよんと弾むイージング */
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  :global(.edit-btn) {
+    background-color: #fff9db; /* パステルイエロー */
+    color: #f59f00;
+    border: 2px dashed #ffe066;
+  }
+  :global(.edit-btn:hover) {
+    background-color: #fff3bf;
+    transform: translateY(-3px) scale(1.1); /* 少し大きめに浮き出させる */
+    box-shadow: 0 6px 12px rgba(255, 224, 102, 0.4);
+  }
+  :global(.delete-btn) {
+    background-color: #ffeef2; /* パステルピンク */
+    color: #e64980;
+    border: 2px dashed #ffc0cb;
+  }
+  :global(.delete-btn:hover) {
+    background-color: #ffd8e2;
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 6px 12px rgba(255, 192, 203, 0.4);
+  }
+  
+  /* インプレース編集用スタイル */
+  :global(.edit-form) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #fffafc;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px dashed #ffc0cb;
+  }
+  :global(.edit-textarea) {
+    width: 100%;
+    padding: 10px;
+    border: 2px dotted #ffc0cb;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    background-color: #ffffff;
+    color: #7d5b6b;
+    outline: none;
+  }
+  :global(.edit-textarea:focus) {
+    border-color: #b5f57c;
+    background-color: #fafffa;
+  }
+  :global(.edit-btn-group) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  :global(.btn-save-small) {
+    background-color: #eef9e6; /* パステルグリーン */
+    color: #8cc63f;
+    border: 2px dashed #b5f57c;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  :global(.btn-save-small:hover) {
+    background-color: #e2f5d3;
+    transform: translateY(-2px) scale(1.03);
+  }
+  :global(.btn-cancel-small) {
+    background-color: #f8f9fa; /* パステルグレー */
+    color: #868e96;
+    border: 2px dashed #dee2e6;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  :global(.btn-cancel-small:hover) {
+    background-color: #f1f3f5;
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  .no-posts {
+    color: #666;
+    text-align: center;
+    padding: 20px;
+  }
+  .separator {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 35px 0;
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+  }
+  .write-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #444;
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: #b5f57c;
+  }
+  .btn {
+    background-color: #b5f57c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn:hover {
+    background-color: #a3ea6c;
+  }
+  .info-card {
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+  .login-link {
+    color: #8cc63f;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  .login-link:hover {
+    text-decoration: underline;
+  }
+  .navigation-links {
+    margin-top: 30px;
+  }
+  .back-link {
+    color: #8cc63f;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  .error-text {
+    color: #f44336;
+    background-color: #ffebee;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+  :global(.profile-link) {
+    color: #d36ba6; /* 優しいピンク */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+  }
+  :global(.profile-link:hover) {
+    color: #e64980;
+    text-decoration: underline dotted; /* 点線のアンダーライン */
+  }
 </style>

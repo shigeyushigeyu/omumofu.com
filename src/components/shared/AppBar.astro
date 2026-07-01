@@ -1,17 +1,51 @@
 ---
-//AppBar.astro
+// src/components/shared/AppBar.astro
 import MoreMenu from "./MoreMenu.astro";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "おむもふ" } = Astro.props;
 ---
 
 <header class="app-bar">
   <div class="app-bar-left">
     <button class="back-button" onclick="history.back()">←</button>
+    <a href="/" class="app-title">{title}</a>
   </div>
 
   <div class="app-bar-right">
+    <!-- ログイン状態を表示するコンテナ -->
+    <div id="app-bar-auth-status" class="auth-status-container">
+      <a href="/login" class="login-btn-link">ログイン</a>
+    </div>
     <MoreMenu />
   </div>
 </header>
+
+<script>
+  import { auth } from '../../lib/firebase';
+  import { onAuthStateChanged } from 'firebase/auth';
+
+  const authContainer = document.getElementById('app-bar-auth-status')!;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // ログイン中：マイページへのリンクを表示
+      const displayName = user.displayName || 'ユーザー';
+      
+      authContainer.innerHTML = `
+        <a href="/user" class="login-btn-link" title="${displayName}のプロフィール">マイページ</a>
+      `;
+    } else {
+      // 未ログイン：ログインリンクを表示
+      authContainer.innerHTML = `
+        <a href="/login" class="login-btn-link">ログイン</a>
+      `;
+    }
+  });
+</script>
 
 <style>
 .app-bar {
@@ -21,22 +55,36 @@ import MoreMenu from "./MoreMenu.astro";
   right: 0;
   display: flex;
   align-items: center;
-  height: 56px;
-  padding: 0 16px;
-  background-color: transparent;
-  box-shadow: none;
+  height: 64px; /* 56px から 64px に拡張してゆとりを持たせる */
+  padding: 0 20px;
+  background-color: rgba(255, 255, 255, 0.85); /* 半透明にして視認性を確保 */
+  backdrop-filter: blur(10px); /* グラスモーフィズム効果 */
+  box-shadow: 0 1px 10px rgba(0,0,0,0.05);
   z-index: 1000;
 }
 
 .app-bar-left {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+
+.app-title:hover {
+  color: #8cc63f;
 }
 
 .app-bar-right {
   margin-left: auto; /* これだけで右端に寄せる */
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
 .back-button {
@@ -44,5 +92,40 @@ import MoreMenu from "./MoreMenu.astro";
   background: none;
   border: none;
   cursor: pointer;
+  color: #555;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
+
+.back-button:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* ログイン・ユーザー情報のスタイル */
+.auth-status-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-btn-link {
+  color: #555;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.login-btn-link:hover {
+  background-color: #f9f9f9;
+  border-color: #8cc63f;
+  color: #8cc63f;
+}
+
+
 </style>

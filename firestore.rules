@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザープロフィールのルール
+    match /users/{userId} {
+      allow read: if true; // プロフィール閲覧は全員可能
+      allow write, update: if request.auth != null && request.auth.uid == userId; // 本人のみ編集可能
+    }
+
+    // スレッドのルール
+    match /threads/{threadId} {
+      allow read: if true; // 誰でも閲覧可能
+      allow create: if request.auth != null; // ログインユーザーのみスレッド作成可能
+      allow update: if request.auth != null; // ログインユーザーなら最新投稿日時の更新が可能
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId; // 作成者のみ削除可能
+      
+      // サブコレクションとしての投稿ルール
+      match /posts/{postId} {
+        allow read: if true; // 誰でも閲覧可能
+        allow create: if request.auth != null; // ログインユーザーのみ投稿可能
+        // 投稿者本人だけが編集・削除可能
+        allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+      }
+    }
+  }
+}

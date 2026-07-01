@@ -1,0 +1,391 @@
+---
+// src/pages/user/[id].astro
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import AppBar from "../../components/shared/AppBar.astro";
+import '../../styles/common.css';
+
+const { id } = Astro.params;
+---
+
+<Layout title="おともだちプロフィール - おむもふ">
+  <AppBar title="プロフィール" />
+  <main class="profile-view-container" id="profile-view-page" data-user-id={id}>
+    <div class="profile-card">
+      <!-- 読み込み中状態 -->
+      <div id="loading-state" class="loading-state">
+        <p>おともだちのプロフィールを読み込み中...</p>
+      </div>
+
+      <!-- エラー表示用 -->
+      <div id="error-state" class="error-state" style="display: none;">
+        <p id="error-text">プロフィールの読み込みに失敗しました。</p>
+        <div class="actions">
+          <a href="/messageboard" class="back-btn">掲示板に戻る</a>
+        </div>
+      </div>
+
+      <!-- プロフィール表示用 -->
+      <div id="profile-content" style="display: none;">
+        <div class="user-header">
+          <h1 id="user-display-name">おともだち</h1>
+          <p id="self-indicator" class="self-tag" style="display: none;">あなた自身のプロフィール</p>
+        </div>
+
+        <div class="profile-details">
+          <!-- 1. 自己紹介 -->
+          <div class="info-card">
+            <h2 class="section-label">自己紹介 🧸</h2>
+            <p id="user-bio" class="bio-text">まだ自己紹介がありません。</p>
+          </div>
+
+          <!-- 2. こころのすがた -->
+          <div class="info-card">
+            <h2 class="section-label">こころのすがた 🍼</h2>
+            <div id="kokoro-area">
+              <!-- JSで動的挿入 -->
+            </div>
+          </div>
+
+          <!-- 3. ときめきスタイル -->
+          <div class="info-card">
+            <h2 class="section-label">ときめきスタイル ✨</h2>
+            <div id="tokimeki-area" class="tokimeki-list">
+              <!-- JSで動的挿入 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ボタン領域 -->
+        <div class="profile-actions">
+          <a href="/messageboard" class="back-btn">掲示板に戻る</a>
+          <a href="/user" id="edit-profile-btn" class="edit-btn" style="display: none;">プロフィールを編集する</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { db, auth } from '../../lib/firebase';
+  import { doc, getDoc } from 'firebase/firestore';
+  import { onAuthStateChanged } from 'firebase/auth';
+  import { KOKORO_MAP, TOKIMEKI_MAP } from '../../data/profileOptions';
+
+  const container = document.getElementById('profile-view-page')!;
+  const userId = container.getAttribute('data-user-id')!;
+
+  const loadingState = document.getElementById('loading-state')!;
+  const errorState = document.getElementById('error-state')!;
+  const errorText = document.getElementById('error-text')!;
+  const profileContent = document.getElementById('profile-content')!;
+  
+
+  const userDisplayName = document.getElementById('user-display-name')!;
+  const selfIndicator = document.getElementById('self-indicator')!;
+  const userBio = document.getElementById('user-bio')!;
+  const kokoroArea = document.getElementById('kokoro-area')!;
+  const tokimekiArea = document.getElementById('tokimeki-area')!;
+  const editProfileBtn = document.getElementById('edit-profile-btn')!;
+
+  // 1. プロフィールのフェッチ
+  async function loadProfile() {
+    if (!userId) {
+      showError('ユーザーIDが指定されていません。');
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // ドキュメントがない場合、デフォルト値を設定
+        renderDefaultProfile();
+        return;
+      }
+
+      const data = userDoc.data();
+      renderProfile(data);
+    } catch (err: any) {
+      console.error('Error fetching user profile:', err);
+      showError('プロフィールの読み込み中にエラーが発生しました。');
+    }
+  }
+
+  // 2. 読み込んだデータのレンダリング
+  function renderProfile(data: any) {
+    loadingState.style.display = 'none';
+    profileContent.style.display = 'block';
+
+    // アバター・名前
+
+    userDisplayName.textContent = data.displayName || '名無しのおともだち';
+
+    // 自己紹介
+    if (data.bio && data.bio.trim()) {
+      userBio.textContent = data.bio;
+      userBio.classList.remove('no-data');
+    } else {
+      userBio.textContent = 'まだ自己紹介がありません。';
+      userBio.classList.add('no-data');
+    }
+
+    // こころのすがた
+    if (data.kokoro && KOKORO_MAP[data.kokoro]) {
+      const kokoro = KOKORO_MAP[data.kokoro];
+      kokoroArea.innerHTML = `
+        <div class="selected-kokoro">
+          <strong class="kokoro-title">${escapeHTML(kokoro.label)}</strong>
+          <p class="kokoro-desc">${escapeHTML(kokoro.desc)}</p>
+        </div>
+      `;
+    } else {
+      kokoroArea.innerHTML = `<p class="no-data">こころのすがたは未設定です。</p>`;
+    }
+
+    // ときめきスタイル
+    if (data.tokimeki && Array.isArray(data.tokimeki) && data.tokimeki.length > 0) {
+      tokimekiArea.innerHTML = '';
+      data.tokimeki.forEach((id: string) => {
+        const tokimeki = TOKIMEKI_MAP[id];
+        if (tokimeki) {
+          const badge = document.createElement('div');
+          badge.className = 'tokimeki-badge';
+          badge.innerHTML = `
+            <strong class="badge-title">${escapeHTML(tokimeki.label)}</strong>
+            <p class="badge-desc">${escapeHTML(tokimeki.desc)}</p>
+          `;
+          tokimekiArea.appendChild(badge);
+        }
+      });
+    } else {
+      tokimekiArea.innerHTML = `<p class="no-data">ときめきスタイルは未設定です。</p>`;
+    }
+  }
+
+  // 3. プロフィール未作成時のデフォルト描画
+  function renderDefaultProfile() {
+    loadingState.style.display = 'none';
+    profileContent.style.display = 'block';
+    
+
+    userDisplayName.textContent = '名無しのおともだち';
+    userBio.textContent = 'このおともだちはまだプロフィールを作成していません。';
+    userBio.classList.add('no-data');
+    
+    kokoroArea.innerHTML = `<p class="no-data">未設定</p>`;
+    tokimekiArea.innerHTML = `<p class="no-data">未設定</p>`;
+  }
+
+  // エラー表示
+  function showError(msg: string) {
+    loadingState.style.display = 'none';
+    errorState.style.display = 'block';
+    errorText.textContent = msg;
+  }
+
+  // HTMLエスケープ用
+  function escapeHTML(str: string) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // 4. ログイン状態に応じて「プロフィール編集する」ボタンの表示制御
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.uid === userId) {
+      selfIndicator.style.display = 'inline-block';
+      editProfileBtn.style.display = 'inline-block';
+    } else {
+      selfIndicator.style.display = 'none';
+      editProfileBtn.style.display = 'none';
+    }
+  });
+
+  // ロード開始
+  loadProfile();
+</script>
+
+<style>
+  .profile-view-container {
+    max-width: 700px;
+    margin: 80px auto 40px;
+    padding: 20px;
+  }
+  .profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+  }
+
+  /* ユーザーヘッダー */
+  .user-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .self-tag {
+    background-color: #eef9e6;
+    color: #8cc63f;
+    border: 1px dashed #b5f57c;
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-top: 5px;
+    font-weight: bold;
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+
+  /* 読み込みとエラー */
+  .loading-state, .error-state {
+    text-align: center;
+    padding: 40px 0;
+    color: #666;
+    font-size: 1.1rem;
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .error-state p {
+    color: #e64980;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  /* 詳細情報 */
+  .profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+  .info-card {
+    background: #ffffff;
+    border: 2px dashed #ffc0cb; /* 手縫い風点線 */
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(180, 120, 140, 0.03);
+  }
+  .section-label {
+    font-size: 1.15rem;
+    font-weight: bold;
+    color: #d36ba6;
+    margin-bottom: 15px;
+    border-bottom: 2px dotted #ffe0e6;
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+  .bio-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    white-space: pre-wrap;
+  }
+  .no-data {
+    color: #999;
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+
+  /* こころのすがた */
+  .selected-kokoro {
+    background: #fffafc;
+    border: 1px solid #ffe0e6;
+    border-radius: 12px;
+    padding: 15px;
+  }
+  .kokoro-title {
+    font-size: 1rem;
+    color: #a05585;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .kokoro-desc {
+    font-size: 0.85rem;
+    color: #7d5b6b;
+    line-height: 1.5;
+  }
+
+  /* ときめきスタイル */
+  .tokimeki-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media screen and (min-width: 600px) {
+    .tokimeki-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .tokimeki-badge {
+    background: #fffafc;
+    border: 1px solid #ffe0e6;
+    border-radius: 12px;
+    padding: 12px 15px;
+    box-sizing: border-box;
+  }
+  .badge-title {
+    font-size: 0.9rem;
+    color: #555;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .badge-desc {
+    font-size: 0.8rem;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  /* ボタンアクション */
+  .profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .back-btn {
+    display: inline-block;
+    background-color: #f8f9fa;
+    color: #868e96;
+    border: 2px dashed #dee2e6;
+    border-radius: 9999px;
+    padding: 12px 30px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .back-btn:hover {
+    background-color: #f1f3f5;
+    transform: translateY(-3px) scale(1.05);
+  }
+  .edit-btn {
+    display: inline-block;
+    background-color: #eef9e6; /* パステルグリーン */
+    color: #8cc63f;
+    border: 2px dashed #b5f57c;
+    border-radius: 9999px; /* 楕円形 */
+    padding: 12px 30px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'HachiMaruPop', sans-serif;
+  }
+  .edit-btn:hover {
+    background-color: #e2f5d3;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 15px rgba(180, 245, 124, 0.4);
+  }
+</style>

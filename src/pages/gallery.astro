@@ -1,69 +1,234 @@
 ---
-import Layout from "~/layouts/Layout.astro";
-import AppBar from "../components/shared/AppBar.astro"
+// src/pages/gallery.astro
+import Layout from "../layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro";
+import '../styles/common.css';
 
-const siteTitle = "おむもふ画廊 | ABDL総合コミュニティ";
-const siteDescription = "おむもふ画廊は、ABDL専用の画像を集めたギャラリーページです。";
-const siteUrl = "https://omumofu.com/gallery";
-const siteImage = "/assets/images/og-image.png";
-const twitterHandle = "@omumofu_com";
-
-const images = (() => {
-  const arr = [];
-  for (let i = 847; i >= 1; i--) {
-    const num = i.toString().padStart(3, '0');
-    arr.push(`/assets/images/gallery/${num}.png`);
-  }
-  return arr;
-})();
+import { GALLERY_THEMES } from "../data/galleryThemes";
 ---
+
 <Layout>
-<AppBar />
-  <div class="gallery-grid">
-    {images.map(src => (
-      <div class="gallery-item">
-        <img src={src} alt="gallery image" loading="lazy" />
-      </div>
-    ))}
-  </div>
+  <AppBar title="おむもふ画廊" />
+  
+  <!-- ヒーローヘッダー -->
+  <header class="gallery-hero">
+    <h1>おむもふ画廊 🧸</h1>
+    <p>おむもふ画廊へようこそ！ここはリトルの世界観を表現したお写真やイラストをテーマ（アルバム）ごとに集めた場所だよ。気になるテーマを選んで覗いてみてね！</p>
+  </header>
+
+  <!-- アルバム（テーマ）一覧 -->
+  <main class="gallery-portal-container">
+    <div class="theme-grid">
+      {GALLERY_THEMES.map(theme => (
+        <a href={`/gallery/${theme.id}`} class="theme-card" title={`${theme.title}の画像を見る`}>
+          <!-- カバー画像エリア -->
+          <div class="theme-cover-wrapper">
+            <div class="skeleton-shimmer"></div>
+            <img 
+              src={`/assets/images/gallery/${theme.coverImage}.png`} 
+              alt={theme.title} 
+              loading="lazy" 
+              class="theme-cover-image"
+              onload="this.previousElementSibling.remove(); this.style.opacity=1;"
+            />
+            <span class="image-count-badge">
+              {theme.emoji} {theme.imageIds.length}枚の画像
+            </span>
+          </div>
+
+          <!-- テーマテキスト情報 -->
+          <div class="theme-card-body">
+            <h2 class="theme-card-title">
+              <span>{theme.emoji}</span> {theme.title}
+            </h2>
+            <p class="theme-card-desc">{theme.desc}</p>
+            <div class="theme-card-action">
+              <span>アルバムを見る</span>
+              <span class="arrow-icon">→</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
 </Layout>
+
 <style>
-/* ギャラリー全体のスタイル */
-.gallery-grid {
-  display: grid;
-  /* 画面幅に応じて列数を自動調整します */
-  /* 各列の最小幅は300px、最大で利用可能なスペースを均等に分割します */
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px; /* 画像間の隙間 */
-  padding: 16px; /* ギャラリー全体の余白 */
-  background-color: #f0f0f0;
-}
+  .gallery-portal-container {
+    max-width: 1200px;
+    margin: 40px auto 80px;
+    padding: 0 20px;
+  }
 
-/* 各画像アイテムのスタイル */
-.gallery-item {
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden; /* はみ出しを隠す（ホバーエフェクト用） */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-}
+  /* ヒーローヘッダー */
+  .gallery-hero {
+    text-align: center;
+    padding: 80px 20px 40px;
+    background: linear-gradient(135deg, #eef9e6 0%, #fff6e6 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    margin-top: 64px; /* AppBarの高さの余白 */
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+  }
+  .gallery-hero h1 {
+    font-size: 2.6rem;
+    color: #4a3e3d;
+    margin-bottom: 15px;
+    font-weight: 800;
+  }
+  .gallery-hero p {
+    font-size: 1.1rem;
+    color: #7a6e6b;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
 
-/* ホバー時に少し拡大するエフェクト */
-.gallery-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
+  /* テーマカードグリッド */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+  }
 
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover; /* 画像をコンテナいっぱいに表示（アスペクト比を維持） */
-  transition: transform 0.3s ease;
-}
+  /* 個々のテーマカード */
+  .theme-card {
+    background-color: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s ease;
+  }
+  .theme-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  }
 
-/* ホバー時に画像を少しズーム */
-.gallery-item:hover img {
-  transform: scale(1.05);
-}
+  /* カバー画像部分 */
+  .theme-cover-wrapper {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    background-color: #f7f3f0;
+    overflow: hidden;
+  }
+  
+  .theme-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.5s ease;
+  }
+  .theme-card:hover .theme-cover-image {
+    transform: scale(1.05);
+  }
+
+  /* 画像枚数バッジ */
+  .image-count-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  /* カードボディ */
+  .theme-card-body {
+    padding: 25px 25px 30px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .theme-card-title {
+    font-size: 1.4rem;
+    color: #4a3e3d;
+    font-weight: 800;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .theme-card-desc {
+    font-size: 0.95rem;
+    color: #7a6e6b;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    flex-grow: 1;
+  }
+
+  /* カード内のアクションリンク */
+  .theme-card-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #8cc63f;
+    transition: color 0.2s;
+  }
+  .theme-card:hover .theme-card-action {
+    color: #72a331;
+  }
+
+  .arrow-icon {
+    transition: transform 0.3s ease;
+  }
+  .theme-card:hover .arrow-icon {
+    transform: translateX(6px);
+  }
+
+  /* スケルトンシマーローダー */
+  .skeleton-shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f2ece9 25%, #e8deda 50%, #f2ece9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s infinite linear;
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* レスポンシブ対応 */
+  @media (max-width: 768px) {
+    .gallery-hero {
+      padding: 60px 16px 30px;
+      border-bottom-left-radius: 25px;
+      border-bottom-right-radius: 25px;
+    }
+    .gallery-hero h1 {
+      font-size: 2.1rem;
+    }
+    .theme-grid {
+      gap: 20px;
+    }
+    .theme-card-body {
+      padding: 20px;
+    }
+    .theme-cover-wrapper {
+      height: 200px;
+    }
+  }
 </style>

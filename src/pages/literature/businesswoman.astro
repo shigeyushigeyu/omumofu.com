@@ -217,44 +217,597 @@ const tags = [
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="ABDL総合コミュニティのおむもふ文庫ページ。おむつ後輩さんの物語" />
-    <meta name="viewport" content="width=device-width" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>おむつ後輩さんの物語 | おむもふ Story</title>
+    <title>おむつ後輩さんの物語 | おむもふ文庫</title>
     <style>
-      body { font-family: system-ui, sans-serif; line-height: 1.6; padding: 2rem; background: #f9f9f9; color: #333; }
-      h2 { margin-top: 2rem; color: #2c3e50; }
-      p { margin: 1rem 0; }
-      img { max-width: 100%; margin: 1rem 0; }
-      .tags { margin-top: 2rem; }
-      .tag { display: inline-block; background: #d1ecf1; color: #0c5460; padding: 0.3rem 0.6rem; border-radius: 4px; margin: 0.2rem; font-size: 0.9rem; }
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap');
+
+      body {
+        font-family: 'Noto Serif JP', '游明朝', 'Yu Mincho', 'Hiragino Mincho ProN', Georgia, serif;
+        line-height: 2.0;
+        background-color: #FAF6F0; /* 温かみのある書籍用紙のような背景 */
+        color: #3b3531;
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s ease;
+      }
+
+      /* 外枠ラッパー */
+      .story-page-wrapper {
+        max-width: 780px;
+        margin: 100px auto 80px; /* AppBarのための余白 */
+        padding: 0 20px;
+        box-sizing: border-box;
+        transition: max-width 0.3s ease;
+      }
+      
+      /* 縦書きモード時のラッパー幅拡張 */
+      .story-page-wrapper.vertical-wrapper {
+        max-width: 95vw;
+        margin-top: 85px;
+        margin-bottom: 40px;
+      }
+
+      /* ツールバー (設定メニュー) */
+      .reader-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        background: #ffffff;
+        border: 1px solid rgba(220, 210, 200, 0.4);
+        border-radius: 20px;
+        padding: 12px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(92, 82, 78, 0.03);
+      }
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .toolbar-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #8a7a75;
+        letter-spacing: 0.5px;
+      }
+      .toolbar-btn {
+        background: #fdfcfb;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: #5c524e;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      .toolbar-btn:hover {
+        border-color: #8cc63f;
+        color: #8cc63f;
+      }
+      .toolbar-btn.active {
+        background-color: #8cc63f;
+        border-color: #8cc63f;
+        color: white;
+      }
+      
+      /* テーマボタンの特殊定義 */
+      .theme-btn.light { background: #ffffff; color: #333; }
+      .theme-btn.sepia { background: #FAF6ED; color: #3c3028; border-color: #e5dac9; }
+      .theme-btn.dark { background: #1e1b18; color: #d2c8c0; border-color: #3b3531; }
+      .theme-btn.active {
+        box-shadow: 0 0 0 2px #8cc63f;
+      }
+
+      /* 目次ドロップダウン */
+      .toc-container {
+        margin-bottom: 25px;
+        text-align: center;
+      }
+      .toc-dropdown {
+        width: 100%;
+        max-width: 340px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(220, 210, 200, 0.5);
+        background-color: white;
+        color: #5c524e;
+        font-family: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.85rem;
+        outline: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        transition: border-color 0.2s;
+      }
+      .toc-dropdown:focus {
+        border-color: #8cc63f;
+      }
+
+      /* --- 書籍用紙風コンテナ --- */
+      .book-paper {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 50px 60px;
+        box-shadow: 0 10px 30px rgba(92, 82, 78, 0.05);
+        border: 1px solid rgba(220, 210, 200, 0.4);
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      }
+
+      /* テーマごとの紙面カラー */
+      .book-paper.theme-light { background: #ffffff; color: #3b3531; }
+      .book-paper.theme-sepia { background: #FAF6ED; color: #3c3028; border-color: #e5dac9; }
+      .book-paper.theme-dark { background: #1e1b18; color: #d2c8c0; border-color: #322b27; }
+
+      .book-paper.theme-dark .book-title { color: #f2ece4; }
+      .book-paper.theme-dark .chapter-title { color: #f2ece4; }
+      .book-paper.theme-dark .book-subtitle { color: #a4918a; }
+      .book-paper.theme-dark .tag-badge { background: #2b2724; color: #b0a29a; border-color: #403834; }
+      .book-paper.theme-dark .chapter-separator { background: linear-gradient(to right, rgba(80, 70, 60, 0), rgba(80, 70, 60, 0.4) 50%, rgba(80, 70, 60, 0)); }
+      .book-paper.theme-dark .book-header { border-color: rgba(80, 70, 60, 0.4); }
+      .book-paper.theme-dark .tags-section { border-color: rgba(80, 70, 60, 0.4); }
+
+      /* 文字サイズ */
+      .book-paper.size-small { font-size: 0.95rem; }
+      .book-paper.size-medium { font-size: 1.1rem; }
+      .book-paper.size-large { font-size: 1.25rem; }
+
+      /* 表紙ヘッダー */
+      .book-header {
+        text-align: center;
+        border-bottom: 2px dashed rgba(220, 210, 200, 0.5);
+        padding-bottom: 35px;
+        margin-bottom: 50px;
+      }
+      .book-title {
+        font-size: 2.4rem;
+        color: #2c2522;
+        margin: 0 0 15px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+      .book-subtitle {
+        font-size: 1.05rem;
+        color: #8a7a75;
+        margin: 0;
+        letter-spacing: 1px;
+      }
+
+      /* 各章の構成 */
+      .chapter-section {
+        margin-bottom: 70px;
+      }
+      .chapter-title {
+        font-size: 1.6rem;
+        color: #4a3c31;
+        margin: 0 0 25px;
+        font-weight: 700;
+        border-left: 5px solid #8cc63f;
+        padding-left: 15px;
+        line-height: 1.3;
+        letter-spacing: 1px;
+      }
+
+      /* イラスト（挿絵） */
+      .chapter-illustration-wrapper {
+        margin: 30px 0;
+        text-align: center;
+      }
+      .chapter-illustration {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: inline-block;
+      }
+
+      /* 小説本文 */
+      .chapter-body {
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+        text-align: justify;
+      }
+      .story-p {
+        margin: 0 0 18px 0;
+        text-indent: 1em;
+      }
+      .story-p:empty {
+        height: 18px;
+      }
+
+      /* 区切り線 */
+      .chapter-separator {
+        border: none;
+        height: 1px;
+        background: linear-gradient(to right, rgba(220, 210, 200, 0), rgba(220, 210, 200, 0.6) 50%, rgba(220, 210, 200, 0));
+        margin: 50px 0;
+      }
+
+      /* タグセクション */
+      .tags-section {
+        margin-top: 60px;
+        border-top: 2px dashed rgba(220, 210, 200, 0.5);
+        padding-top: 30px;
+      }
+      .tags-title {
+        font-size: 1.25rem;
+        color: #5c524e;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+      .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .tag-badge {
+        display: inline-block;
+        background: #f5ece3;
+        color: #7d6b63;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(220, 210, 200, 0.3);
+      }
+      .tag-badge:hover {
+        background-color: #8cc63f;
+        color: white;
+        border-color: #8cc63f;
+      }
+
+      /* ==========================================================================
+         古典的縦書き (Vertical Writing Mode) 特有スタイル
+         ========================================================================== */
+      .book-paper.writing-vertical {
+        writing-mode: vertical-rl;
+        height: 72vh;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 50px 40px;
+        white-space: nowrap;
+        text-orientation: mixed;
+        border-radius: 12px;
+      }
+      
+      .book-paper.writing-vertical .book-header {
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        border-bottom: none;
+        border-left: 2px dashed rgba(220, 210, 200, 0.5);
+        padding-bottom: 0;
+        padding-left: 35px;
+        margin-bottom: 0;
+        margin-left: 50px;
+        white-space: normal;
+      }
+      .book-paper.writing-vertical .book-title {
+        font-size: 2.1rem;
+        line-height: 1.3;
+        margin-left: 10px;
+        height: 80%;
+        display: inline-block;
+      }
+      .book-paper.writing-vertical .book-subtitle {
+        font-size: 0.95rem;
+        display: inline-block;
+        height: 60%;
+        margin-top: 10px;
+      }
+
+      .book-paper.writing-vertical .chapter-section {
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        margin-bottom: 0;
+        margin-left: 60px;
+        white-space: normal; /* 折り返しを復元 */
+      }
+
+      .book-paper.writing-vertical .chapter-title {
+        border-left: none;
+        border-top: 5px solid #8cc63f;
+        padding-left: 0;
+        padding-top: 15px;
+        margin-bottom: 0;
+        margin-left: 25px;
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        font-size: 1.4rem;
+      }
+
+      .book-paper.writing-vertical .chapter-body {
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+      }
+
+      .book-paper.writing-vertical .story-p {
+        margin: 0 16px 0 0; /* 段落同士の間隔（横マージン） */
+        line-height: 2.2; /* 縦書き時は少し広めが行を追いやすい */
+      }
+
+      .book-paper.writing-vertical .chapter-illustration-wrapper {
+        display: inline-block;
+        height: 100%;
+        margin: 0 40px;
+        vertical-align: top;
+      }
+      .book-paper.writing-vertical .chapter-illustration {
+        height: 55vh;
+        width: auto;
+        max-height: 100%;
+        max-width: none;
+      }
+
+      .book-paper.writing-vertical .chapter-separator {
+        display: inline-block;
+        height: 100%;
+        width: 1px;
+        border: none;
+        background: linear-gradient(to bottom, rgba(220, 210, 200, 0), rgba(220, 210, 200, 0.6) 50%, rgba(220, 210, 200, 0));
+        margin: 0 45px;
+      }
+
+      .book-paper.writing-vertical .tags-section {
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        border-top: none;
+        border-left: 2px dashed rgba(220, 210, 200, 0.5);
+        padding-top: 0;
+        padding-left: 30px;
+        margin-top: 0;
+        margin-left: 40px;
+        white-space: normal;
+      }
+      .book-paper.writing-vertical .tags-title {
+        font-size: 1.15rem;
+        margin-bottom: 20px;
+      }
+      .book-paper.writing-vertical .tags-list {
+        writing-mode: horizontal-tb; /* バッジ内は横書きのままにする */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* レスポンシブ調整 */
+      @media (max-width: 768px) {
+        .book-paper {
+          padding: 35px 25px;
+        }
+        .book-title {
+          font-size: 1.8rem;
+        }
+        .chapter-title {
+          font-size: 1.35rem;
+        }
+        .chapter-body {
+          font-size: 1rem;
+        }
+        .story-page-wrapper {
+          margin-top: 80px;
+        }
+        .reader-toolbar {
+          padding: 12px;
+          border-radius: 15px;
+          justify-content: center;
+        }
+      }
     </style>
   </head>
   <body>
-  <AppBar />  
-    <h1>おむつ後輩さんの物語</h1>
+    <AppBar title="おむもふ文庫" />  
+    
+    <div class="story-page-wrapper" id="story-page-wrapper">
+      
+      <!-- 設定ツールバー -->
+      <div class="reader-toolbar">
+        <div class="toolbar-group">
+          <span class="toolbar-label">サイズ:</span>
+          <button id="btn-size-small" class="toolbar-btn">小</button>
+          <button id="btn-size-medium" class="toolbar-btn active">中</button>
+          <button id="btn-size-large" class="toolbar-btn">大</button>
+        </div>
+        <div class="toolbar-group">
+          <span class="toolbar-label">背景:</span>
+          <button id="btn-theme-light" class="toolbar-btn theme-btn light active">白</button>
+          <button id="btn-theme-sepia" class="toolbar-btn theme-btn sepia">紙</button>
+          <button id="btn-theme-dark" class="toolbar-btn theme-btn dark">黒</button>
+        </div>
+        <div class="toolbar-group">
+          <span class="toolbar-label">組方向:</span>
+          <button id="btn-dir-horiz" class="toolbar-btn active">横書き</button>
+          <button id="btn-dir-vert" class="toolbar-btn">縦書き</button>
+        </div>
+      </div>
 
-    {story.map(chapter => (
-      <>
-        <h2>{chapter.title}</h2>
-        <p>{chapter.content}</p>
-        {chapter.image && <img src={chapter.image} alt={chapter.title} />}
-      </>
-    ))}
+      <!-- クイック目次選択 -->
+      <div class="toc-container">
+        <select id="toc-select" class="toc-dropdown" aria-label="章を選択">
+          <option value="">📖 目次（章を選択してジャンプ）</option>
+          {story.map((chapter, idx) => (
+            <option value={`chapter-${idx}`}>{chapter.title}</option>
+          ))}
+        </select>
+      </div>
 
-    <div class="tags">
-      <h2>タグ</h2>
-      {tags.map(tag => <span class="tag">#{tag}</span>)}
+      <!-- 紙面本体 -->
+      <article class="book-paper" id="book-paper">
+        <!-- 表紙ヘッダー -->
+        <header class="book-header">
+          <h1 class="book-title">おむつ後輩さんの物語</h1>
+          <p class="book-subtitle">おむもふ文庫 — 短編連載小説</p>
+        </header>
+
+        <!-- 本文ループ -->
+        {story.map((chapter, index) => {
+          // 本文を改行ごとに配列に分割してレンダリング
+          const lines = chapter.content.split('\n');
+          return (
+            <section class="chapter-section" id={`chapter-${index}`}>
+              <h2 class="chapter-title">{chapter.title}</h2>
+              
+              <div class="chapter-body">
+                {lines.map(line => {
+                  const trimmed = line.trim();
+                  // かぎ括弧や括弧から始まる場合は段落頭の一文字下げをしない
+                  const hasIndent = trimmed && !trimmed.startsWith('「') && !trimmed.startsWith('（');
+                  return (
+                    <p class="story-p" style={hasIndent ? "" : "text-indent: 0;"}>
+                      {line}
+                    </p>
+                  );
+                })}
+              </div>
+
+              {chapter.image && (
+                <div class="chapter-illustration-wrapper">
+                  <img 
+                    src={chapter.image} 
+                    alt={`挿絵: ${chapter.title}`} 
+                    class="chapter-illustration" 
+                    loading="lazy"
+                  />
+                </div>
+              )}
+
+              {index < story.length - 1 && <hr class="chapter-separator" />}
+            </section>
+          );
+        })}
+
+        <!-- タグエリア -->
+        <footer class="tags-section">
+          <h2 class="tags-title">タグ一覧</h2>
+          <div class="tags-list">
+            {tags.map(tag => (
+              <span class="tag-badge">#{tag}</span>
+            ))}
+          </div>
+        </footer>
+      </article>
     </div>
+
+    <!-- リーダーインタラクションJS -->
+    <script>
+      // DOM要素
+      const paper = document.getElementById('book-paper')!;
+      const wrapper = document.getElementById('story-page-wrapper')!;
+      
+      // 文字サイズコントロール
+      const btnSizeSmall = document.getElementById('btn-size-small')!;
+      const btnSizeMedium = document.getElementById('btn-size-medium')!;
+      const btnSizeLarge = document.getElementById('btn-size-large')!;
+      
+      btnSizeSmall.addEventListener('click', () => {
+        setOption('size', 'small', [btnSizeSmall, btnSizeMedium, btnSizeLarge], btnSizeSmall);
+      });
+      btnSizeMedium.addEventListener('click', () => {
+        setOption('size', 'medium', [btnSizeSmall, btnSizeMedium, btnSizeLarge], btnSizeMedium);
+      });
+      btnSizeLarge.addEventListener('click', () => {
+        setOption('size', 'large', [btnSizeSmall, btnSizeMedium, btnSizeLarge], btnSizeLarge);
+      });
+
+      // 背景テーマコントロール
+      const btnThemeLight = document.getElementById('btn-theme-light')!;
+      const btnThemeSepia = document.getElementById('btn-theme-sepia')!;
+      const btnThemeDark = document.getElementById('btn-theme-dark')!;
+      
+      btnThemeLight.addEventListener('click', () => {
+        setOption('theme', 'light', [btnThemeLight, btnThemeSepia, btnThemeDark], btnThemeLight);
+      });
+      btnThemeSepia.addEventListener('click', () => {
+        setOption('theme', 'sepia', [btnThemeLight, btnThemeSepia, btnThemeDark], btnThemeSepia);
+      });
+      btnThemeDark.addEventListener('click', () => {
+        setOption('theme', 'dark', [btnThemeLight, btnThemeSepia, btnThemeDark], btnThemeDark);
+      });
+
+      // 組み方向（横書き・縦書き）コントロール
+      const btnDirHoriz = document.getElementById('btn-dir-horiz')!;
+      const btnDirVert = document.getElementById('btn-dir-vert')!;
+
+      btnDirHoriz.addEventListener('click', () => {
+        setOption('writing', 'horizontal', [btnDirHoriz, btnDirVert], btnDirHoriz);
+        paper.classList.remove('writing-vertical');
+        wrapper.classList.remove('vertical-wrapper');
+      });
+      btnDirVert.addEventListener('click', () => {
+        setOption('writing', 'vertical', [btnDirHoriz, btnDirVert], btnDirVert);
+        paper.classList.add('writing-vertical');
+        wrapper.classList.add('vertical-wrapper');
+      });
+
+      // 設定更新ヘルパー
+      function setOption(type: 'size' | 'theme' | 'writing', value: string, buttons: HTMLElement[], activeBtn: HTMLElement) {
+        if (type === 'size') {
+          paper.classList.remove('size-small', 'size-medium', 'size-large');
+          paper.classList.add(`size-${value}`);
+        } else if (type === 'theme') {
+          paper.classList.remove('theme-light', 'theme-sepia', 'theme-dark');
+          paper.classList.add(`theme-${value}`);
+          // Bodyの背景もテーマに同期させる
+          if (value === 'light') document.body.style.backgroundColor = '#FAF6F0';
+          else if (value === 'sepia') document.body.style.backgroundColor = '#F4ECD8';
+          else if (value === 'dark') document.body.style.backgroundColor = '#12100e';
+        }
+        
+        buttons.forEach(btn => btn.classList.remove('active'));
+        activeBtn.classList.add('active');
+
+        // ローカルストレージに設定保存
+        localStorage.setItem(`reader-${type}`, value);
+      }
+
+      // 初回ロード時の設定復元
+      const savedSize = localStorage.getItem('reader-size') || 'medium';
+      const savedTheme = localStorage.getItem('reader-theme') || 'light';
+      const savedWriting = localStorage.getItem('reader-writing') || 'horizontal';
+
+      const sizeBtns = { small: btnSizeSmall, medium: btnSizeMedium, large: btnSizeLarge };
+      setOption('size', savedSize, Object.values(sizeBtns), sizeBtns[savedSize as 'small' | 'medium' | 'large']);
+
+      const themeBtns = { light: btnThemeLight, sepia: btnThemeSepia, dark: btnThemeDark };
+      setOption('theme', savedTheme, Object.values(themeBtns), themeBtns[savedTheme as 'light' | 'sepia' | 'dark']);
+
+      if (savedWriting === 'vertical') {
+        btnDirVert.click();
+      } else {
+        btnDirHoriz.click();
+      }
+
+      // 目次ナビゲーション
+      const tocSelect = document.getElementById('toc-select') as HTMLSelectElement;
+      tocSelect.addEventListener('change', (e) => {
+        const targetId = (e.target as HTMLSelectElement).value;
+        if (!targetId) return;
+
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          const isVertical = paper.classList.contains('writing-vertical');
+          if (isVertical) {
+            // 縦書き（横スクロール）モード時のジャンプ
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+          } else {
+            // 横書き（縦スクロール）モード時のジャンプ
+            const yOffset = -90; // AppBarの高さ分ずらす
+            const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }
+        tocSelect.value = ''; // 選択をリセット
+      });
+    </script>
   </body>
 </html>
-
-
-<style>
-.img {
-  width: 100%;      /* 幅いっぱい */
-  height: auto;     /* 高さは自動調整 */
-  display: block;   /* 上下の余白の調整に便利 */
-  margin: 1rem 0;
-}
-</style>
