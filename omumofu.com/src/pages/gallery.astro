@@ -1,0 +1,69 @@
+---
+import Layout from "~/layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro"
+
+const siteTitle = "おむもふ画廊 | ABDL総合コミュニティ";
+const siteDescription = "おむもふ画廊は、ABDL専用の画像を集めたギャラリーページです。";
+const siteUrl = "https://omumofu.com/gallery";
+const siteImage = "/assets/images/og-image.png";
+const twitterHandle = "@omumofu_com";
+
+const images = (() => {
+  const arr = [];
+  for (let i = 847; i >= 1; i--) {
+    const num = i.toString().padStart(3, '0');
+    arr.push(`/assets/images/gallery/${num}.png`);
+  }
+  return arr;
+})();
+---
+<Layout>
+<AppBar />
+  <div class="gallery-grid">
+    {images.map(src => (
+      <div class="gallery-item">
+        <img src={src} alt="gallery image" loading="lazy" />
+      </div>
+    ))}
+  </div>
+</Layout>
+<style>
+/* ギャラリー全体のスタイル */
+.gallery-grid {
+  display: grid;
+  /* 画面幅に応じて列数を自動調整します */
+  /* 各列の最小幅は300px、最大で利用可能なスペースを均等に分割します */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px; /* 画像間の隙間 */
+  padding: 16px; /* ギャラリー全体の余白 */
+  background-color: #f0f0f0;
+}
+
+/* 各画像アイテムのスタイル */
+.gallery-item {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden; /* はみ出しを隠す（ホバーエフェクト用） */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* ホバー時に少し拡大するエフェクト */
+.gallery-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover; /* 画像をコンテナいっぱいに表示（アスペクト比を維持） */
+  transition: transform 0.3s ease;
+}
+
+/* ホバー時に画像を少しズーム */
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+</style>

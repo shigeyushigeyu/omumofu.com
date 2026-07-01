@@ -1,0 +1,21 @@
+# build output
+dist/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env
+.env*.local
+
+*.DS_Store
+stable-diffusion-webui/
+
+# Environment variables
+.env
+/generated/prisma

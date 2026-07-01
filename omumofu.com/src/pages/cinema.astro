@@ -1,0 +1,133 @@
+---
+//src/pages/cinema.astro
+import Layout from "~/layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro"
+
+const pageTitle = "おむもふシネマ | ABDL総合コミュニティ";
+
+// 動画リストの自動生成
+const totalVideos = 85;
+const videoFiles = Array.from({ length: totalVideos }, (_, i) => {
+  const number = (totalVideos - i).toString().padStart(3, '0');
+  return `${number}.mp4`;
+});
+---
+
+<Layout title="おむもふギャラリー">
+  <AppBar />
+  <div class="gallery-container">
+    <div class="video-grid">
+      <!-- ★★★ここからHTMLの変更★★★ -->
+      {videoFiles.map((videoFile) => {
+        const videoSrc = `/assets/videos/cinema/${videoFile}`;
+        return (
+          <div 
+            class="video-card" 
+            data-video-src={videoSrc}  
+          >
+            <video
+              src={videoSrc}
+              autoplay  
+              muted
+              loop
+              playsinline
+              controls={false} 
+              class="video-player"
+              preload="metadata"
+            ></video>
+            <!-- おまけ: 最初から動いているので、再生アイコンは不要かもしれません -->
+            <!-- <div class="play-icon-overlay">▶</div> -->
+          </div>
+        );
+      })}
+      <!-- ★★★ここまでHTMLの変更★★★ -->
+    </div>
+  </div>
+
+  <!-- ライトボックス用のHTML（変更なし） -->
+  <div id="lightbox" class="lightbox-overlay">
+    <div class="lightbox-content">
+      <span id="lightbox-close" class="lightbox-close">×</span>
+      <video id="lightbox-video" controls autoplay muted></video>
+    </div>
+  </div>
+
+  <!-- CSS（変更なし） -->
+  <style>
+    .gallery-container {
+      padding: 2rem 1rem;
+      background-color: #fffaf0;
+    }
+    .gallery-title {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #ff8c8c;
+      margin-bottom: 2rem;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .video-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      aspect-ratio: 16 / 9;
+      position: relative;
+    }
+    .video-card:hover {
+      transform: scale(1.05) translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    .video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* ... ライトボックスのスタイルは省略（前回のものをそのまま使用） ... */
+    .lightbox-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out; }
+    .lightbox-overlay.visible { display: flex; opacity: 1; }
+    .lightbox-content { position: relative; width: 90%; max-width: 900px; max-height: 90vh; }
+    #lightbox-close { position: absolute; top: -40px; right: 0px; font-size: 3rem; color: white; cursor: pointer; line-height: 1; }
+    #lightbox-video { width: 100%; max-height: 90vh; border-radius: 8px; }
+  </style>
+
+  <!-- ★★★ここからJavaScriptの変更★★★ -->
+  <script>
+    // 必要なHTML要素を取得
+    const videoCards = document.querySelectorAll('.video-card');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxVideo = document.getElementById('lightbox-video');
+    const lightboxClose = document.getElementById('lightbox-close');
+
+    // 各動画カードの処理
+    videoCards.forEach(card => {
+      // カードがクリックされたらライトボックスを表示する機能だけを残す
+      card.addEventListener('click', () => {
+        lightboxVideo.src = card.dataset.videoSrc;
+        lightbox.classList.add('visible');
+      });
+    });
+
+    // ライトボックスを閉じる処理（変更なし）
+    function closeLightbox() {
+      lightbox.classList.remove('visible');
+      lightboxVideo.pause();
+      lightboxVideo.src = '';
+    }
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  </script>
+</Layout>

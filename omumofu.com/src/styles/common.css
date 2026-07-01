@@ -1,0 +1,253 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent !important;
+}
+
+.body {
+  font-family: 'Hatimaru', sans-serif;
+  background-color: transparent !important;
+}
+
+/* --- 背景動画のスタイル --- */
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  opacity: 1.0; /* 背景動画を少し控えめ(30%)にして、コンテンツを引き立てます */
+  z-index: -1;
+}
+
+/* --- メインコンテンツのエリア --- */
+main {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2.5rem 3rem; /* 内側の余白を少し広げて、ゆったりとした印象に */
+  font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
+  
+  /* ▼▼▼ 【最重要】背景の半透明ピンクを濃く(85%)して、文字を読みやすくします ▼▼▼ */
+  background-color: rgba(255, 249, 252, 0.50); 
+
+  border-radius: 25px; /* 角をさらに丸くして、より可愛く */
+  
+  /* 枠線を点線(dotted)にすると、手縫いのような可愛さが出ます */
+  border: 3px dotted #ffc0cb; 
+  
+  box-shadow: 0 10px 30px rgba(180, 120, 140, 0.2);
+}
+
+/* --- メインタイトル (一番大きな見出し) --- */
+h1 {
+  color: #d36ba6;
+  text-align: center;
+  font-size: 2.8rem; /* 少し大きくして、よりタイトルらしく */
+  margin-bottom: 1.5rem;
+  
+  /* 白い縁取りを少し太くして、文字をくっきりさせます */
+  text-shadow: 2px 2px 4px #fff, -2px -2px 4px #fff;
+}
+
+/* 待機中のリトルの見出し（小さめで柔らかく） */
+h1.little-waiting {
+  font-size: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: #e889b3;
+}
+
+/* --- サブ見出し --- */
+h2 {
+  text-align: center;
+  padding: 1rem 2rem;
+  border-radius: 50px; /* 完全に丸いカプセル型にして、可愛さを強調 */
+  box-shadow: 0 4px 10px rgba(240, 120, 180, 0.25);
+  font-size: 1.5rem;
+  color: #a05585;
+  margin: 3rem 0 1.5rem; /* 上下の余白を調整 */
+  font-weight: 600;
+  
+  /* ▼▼▼ アクセントとして、ほぼ不透明で可愛い白背景を残します ▼▼▼ */
+  background-color: rgba(255, 250, 252, 0.95); 
+}
+
+/* --- 通常の文章 --- */
+p {
+  font-size: 1.05rem;
+  line-height: 1.9; /* 行間を広げて、読みやすく */
+  color: #7d5b6b;
+  text-align: center;
+}
+
+/* --- (他のスタイルは、ほぼ変更なしでも大丈夫です) --- */
+.catchphrase {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #d06d9c;
+  margin-bottom: 2rem;
+}
+
+.welcome-message {
+    margin-bottom: 3rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 50px;
+    background-color: #ffc0cb;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(200, 150, 160, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #fca8ba;
+    transform: translateY(-3px); 
+    box-shadow: 0 6px 15px rgba(200, 150, 160, 0.5);
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  object-fit: contain;
+}
+@font-face {
+  font-family: 'HachiMaruPop';
+  src: url('/assets/fonts/HachiMaruPop-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* その他のスタイルはそのまま */
+.catchphrase {
+    /* ... */
+}
+
+/* 表示位置 */
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- 「ABDLとは？」セクションの基本スタイル（スマホ表示） --- */
+.about-section {
+  display: flex;
+  flex-direction: column; /* スマホではアイテムを縦に並べる */
+  align-items: center;   /* 中央に寄せる */
+  gap: 2rem;             /* アイテム間のスペース */
+  margin: 4rem 0;        /* セクション全体の上下の余白 */
+}
+
+/* --- カード風アイテムのスタイル --- */
+.item {
+  width: 90%;            /* 画面幅の90%を使う */
+  max-width: 400px;        /* ただし、最大でも400pxまで */
+  background-color: rgba(255, 255, 255, 0.7); /* ほんのり透ける白いカード背景 */
+  padding: 1.5rem;
+  border-radius: 20px;     /* カードの角を丸くする */
+  box-shadow: 0 6px 15px rgba(180, 120, 140, 0.15);
+  box-sizing: border-box;  /* paddingを含めて幅を計算する（はみ出し防止） */
+  text-align: center;
+  transition: all 0.3s ease; /* マウスを乗せた時のアニメーション */
+}
+
+/* カードにマウスを乗せると少し浮き上がる */
+.item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(180, 120, 140, 0.25);
+}
+
+/* --- 【画像のはみ出し解決】アイテム内の画像のスタイル --- */
+.item img {
+  width: 100%;             /* 親要素(.item)の幅いっぱいに広げる */
+  aspect-ratio: 16 / 10;   /* 画像の縦横比を16:10に固定（高さを揃える）*/
+  object-fit: cover;       /* 比率を保ったまま、枠内に収まるように切り抜く */
+  border-radius: 1rem;
+  margin-top: 1rem;        /* 上のテキストとの余白 */
+}
+
+/* アイテム内の見出し(h2)とリンク(a)のスタイルを整える */
+.item h2 {
+  margin-top: 0;
+}
+
+.item h2 a {
+  text-decoration: none; /* リンクの下線を消す */
+  color: inherit;        /* 文字色を親(h2)から引き継ぐ */
+}
+
+/* --- 【PC表示用の設定】画面幅が768px以上になったら適用 --- */
+@media screen and (min-width: 768px) {
+  .about-section {
+    flex-direction: row;     /* アイテムを横に並べる */
+    justify-content: center; /* 中央に寄せる */
+    flex-wrap: wrap;         /* 画面が狭ければ折り返す */
+    align-items: stretch;    /* アイテムの高さを揃える */
+  }
+
+  .item {
+    width: 45%;              /* 横に2つ並ぶように幅を設定 */
+  }
+}
+
+.background-video {
+  /* 画面に位置を固定します（スクロールしても動かないように）*/
+  position: fixed;
+
+  /* 画面の左上を基準点にします */
+  top: 0;
+  left: 0;
+
+  /* 画面いっぱいの幅と高さに広げます */
+  width: 100vw;
+  height: 100vh;
+
+  /* 動画のアスペクト比を保ったまま、画面全体を覆うように拡大・縮小します */
+  object-fit: cover;
+
+  /* 動画を半透明にします（0.4は40%の濃さ。0.1〜1.0で調整可能）*/
+  opacity: 0.8;
+
+  /* 全てのコンテンツの背面（一番奥）に配置します */
+  z-index: -1;
+}
+
+.image-placeholder {
+  /* ▼▼▼▼▼ このように max-width に一本化します ▼▼▼▼▼ */
+  max-width: 100%; /* 親要素の幅を超えないようにする（はみ出し防止） */
+  /* width: 100%; */   /* ← この行は不要なので削除、またはコメントアウトします */
+  
+  margin: 0 auto;
+  padding: 16px;
+
+  /* ▼▼▼ この1行を追加すると、計算がより正確になります ▼▼▼ */
+  box-sizing: border-box; /* paddingを含めて幅を計算する */
+}
+
+.menu-button {
+  font-size: 28px;      /* 3点リーダーを大きく見せる */
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #000;          /* 文字色を黒に */
+  line-height: 1;
+  user-select: none;
+}

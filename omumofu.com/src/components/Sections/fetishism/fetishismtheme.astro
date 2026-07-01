@@ -1,0 +1,34 @@
+---
+const { theme, images } = Astro.props;
+---
+
+<section class="theme-section">
+  <h2>{theme}</h2>
+  <div class="image-grid">
+    {images.map((img) => (
+      <img src={img} alt={theme} loading="lazy" />
+    ))}
+  </div>
+</section>
+
+<style>
+.theme-section {
+  margin-bottom: 2rem;
+}
+.theme-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.image-grid img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>

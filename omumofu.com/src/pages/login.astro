@@ -1,0 +1,39 @@
+---
+import Layout from "~/layouts/Layout.astro";
+
+
+---
+<!-- Google Sign-In クライアントスクリプトを読み込む 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div id="g_id_onload"
+     data-client_id="350732692726-4embdf0kvo787dstk03ri1v98ulg4mn2.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+</div>
+
+<div class="g_id_signin"
+     data-type="standard"
+     data-theme="outline"
+     data-size="large">
+</div>
+
+<script is:inline>
+window.handleCredentialResponse = async function(response) {
+  console.log("Googleからのレスポンス:", response);
+  const id_token = response.credential;
+
+  const res = await fetch("http://localhost:4321/api/login",{
+    method : "POST",
+    headers : { "Content-Type": "application/json" },
+    body: JSON.stringify({ id_token: id_token })
+
+  });
+};
+</script>
+
+-->
+
+<Layout>
+        <h1> login page </h1>
+</Layout>

@@ -1,0 +1,99 @@
+---
+// src/pages/thread/[id].astro
+export const prerender = false; // このページはSSR
+
+import Layout from '../../layouts/Layout.astro';
+const { id } = Astro.params;
+
+// 型定義
+type Post = {
+  author_name: string;
+  body: string;
+  created_at: string;
+};
+type ThreadData = {
+  id: number;
+  title: string;
+  posts: Post[];
+};
+
+let threadData: ThreadData | null = null;
+let error: string | null = null;
+
+try {
+  // プランA：IPアドレスとポートを直接指定してAPIを叩く
+  const apiUrl = new URL(`https://api.omumofu.com/threads/${id}`);
+  const response = await fetch(apiUrl);
+
+  if (response.ok) {
+    threadData = await response.json();
+  } else {
+    if (response.status === 404) {
+      error = "指定されたスレッドは見つかりませんでした。";
+    } else {
+      error = `スレッドの取得に失敗しました (ステータス: ${response.status})`;
+    }
+  }
+} catch (e) {
+  console.error(e);
+  error = "APIサーバーへの接続中にエラーが発生しました。";
+}
+---
+<Layout title={threadData ? threadData.title : (error ? "エラー" : "読み込み中...")}>
+  <main>
+    {error && (
+      <div>
+        <h1>エラー</h1>
+        <p>{error}</p>
+        <a href="/messageboard">掲示板一覧に戻る</a>
+      </div>
+    )}
+
+    {threadData && (
+      <>
+        <h1>{threadData.title}</h1>
+        
+        <div class="posts-container">
+          {threadData.posts.map((post, index) => (
+            <div class="post">
+              <p><strong>{index + 1}. {post.author_name}</strong> - {new Date(post.created_at).toLocaleString()}</p>
+              {/* 改行を<br>に変換して表示 */}
+              <p set:html={post.body.replace(/\n/g, '<br>')} />
+            </div>
+          ))}
+          {threadData.posts.length === 0 && <p>このスレッドにはまだ投稿がありません。</p>}
+        </div>
+
+        <hr />
+
+        <h2>書き込む</h2>
+          {/* ★★★ actionを /api/posts に戻す ★★★ */}
+          <form method="POST" action="/api/posts" enctype="application/x-www-form-urlencoded">
+            <input type="hidden" name="thread_id" value={threadData.id} />
+            <div>
+              <label for="author_name">名前:</label>
+              <input type="text" id="author_name" name="author_name" placeholder="名無しさん" />
+            </div>
+            <div>
+              <label for="body">本文:</label>
+              <textarea id="body" name="body" rows="5" required></textarea>
+            </div>
+            <button type="submit">書き込む</button>
+          </form>
+          {/* ... */}
+      </>
+    )}
+
+    {!threadData && !error && <p>読み込み中...</p>}
+  </main>
+
+</Layout>
+
+<style>
+  /* スタイルは変更なし */
+  .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; word-wrap: break-word; }
+  .post p { margin: 0.5em 0; }
+  form div { margin-bottom: 10px; }
+  label { display: block; margin-bottom: 5px; }
+  input[text], textarea { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; }
+</style>

@@ -1,0 +1,79 @@
+---
+// src/pages/messageboard.astro
+import menuBackground from '~/assets/images/moremenu.png';
+import Layout from '../layouts/Layout.astro';
+import AppBar from "../components/shared/AppBar.astro"
+type Thread = {
+  id: number;
+  title: string;
+  created_at: string;
+}
+
+let threads: Thread[] = [];
+let error: string | null = null;
+
+try {
+  // ★★★ ここを修正 ★★★
+const apiUrl = new URL('https://api.omumofu.com/threads');
+ const response = await fetch(apiUrl);
+
+  if (response.ok) {
+    threads = await response.json();
+
+// ↓↓↓↓ この並び替え処理を追加 ↓↓↓↓
+threads.sort((a, b) => {
+  // bの最新投稿日時 - aの最新投稿日時 で降順ソート
+  // 投稿がない(null)場合は、比較のために非常に古い時刻とみなす
+  const timeA = a.latest_post_at ? new Date(a.latest_post_at).getTime() : 0;
+  const timeB = b.latest_post_at ? new Date(b.latest_post_at).getTime() : 0;
+
+  // 最新投稿日時が異なる場合は、その順で決定
+  if (timeA !== timeB) {
+    return timeB - timeA;
+  }
+
+  // 最新投稿日時が同じ場合は、スレッド自体の作成日時で降順ソート
+  const createdA = new Date(a.created_at).getTime();
+  const createdB = new Date(b.created_at).getTime();
+  return createdB - createdA;
+});
+
+
+
+
+  } else {
+    error = `スレッド一覧の取得に失敗しました (ステータス: ${response.status})`;
+  }
+} catch (e) {
+  console.error(e);
+  error = "APIへの接続中にエラーが発生しました。";
+}
+---
+
+
+<Layout title="おむもふ掲示板">
+  <AppBar />
+  <main>
+    <h1>掲示板スレッド一覧</h1>
+    
+    {error ? (
+      <p style="color: red;">{error}</p>
+    ) : (
+      <>
+        {threads.length > 0 ? (
+          <ul>
+            {threads.map(thread => (
+              <li>
+                <a href={`/thread/${thread.id}`}>{thread.title}</a>
+                <small>({new Date(thread.created_at).toLocaleString()})</small>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>まだスレッドがありません。</p>
+        )}
+      </>
+    )}
+  </main>
+</Layout>
+<style> pre { background-color: #eee; padding: 1em; white-space: pre-wrap; word-wrap: break-word; } </style>

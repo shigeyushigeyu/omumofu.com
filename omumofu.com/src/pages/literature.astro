@@ -1,0 +1,337 @@
+---
+import AppBar from "../components/shared/AppBar.astro"
+// src/pages/Literature.astro
+
+// ページの基本情報を設定
+const pageTitle = "おむもふ文庫 | ABDL総合コミュニティ";
+
+// 各文庫セクションのデータを配列で管理します。
+// ここを編集するだけで、ページのコンテンツを簡単に追加・変更できます。
+const bunkoSections = [
+  {
+    icon: "🧸",
+    title: "おむもふひとくち物語",
+    description: "ちいさくて可愛い短編小説の宝箱。読み切りで気軽に楽しめる、夢と優しさが詰まった物語たち。",
+    stories: [
+      { title: "おむつ後輩さん", link: "/literature/businesswoman" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
+    ],
+    bgColor: "var(--c-pink)" // CSS変数で色を指定
+  },
+  {
+    icon: "🌙",
+    title: "おむもふ夢綴り",
+    description: "長く続く連載作品のページ。ゆらゆら揺れる夢のような物語が、少しずつ綴られていくよ。",
+    stories: [
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
+    ],
+    bgColor: "var(--c-blue)"
+  },
+  {
+    icon: "🕊️",
+    title: "おむもふ詩集",
+    description: "ふわふわと舞う言葉たちの庭。リズムと感情が織りなす、やさしい詩とポエムの世界。",
+    stories: [
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
+    ],
+    bgColor: "var(--c-green)"
+  },
+  {
+    icon: "💌",
+    title: "おむもふ思い出綴",
+    description: "あたたかくてほっこりする実話体験の記録。読者と作家の心がつながる、やわらかな記憶のページ。",
+    stories: [
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
+    ],
+    bgColor: "var(--c-yellow)"
+  },
+  {
+    icon: "☁️",
+    title: "おむもふ夢空想",
+    description: "とろけるような妄想やファンタジーが広がる場所。自由に空想の翼を広げて、あなただけの夢を描いてね。",
+    stories: [
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" },
+      { title: "準備中です", link: "#" }
+    ],
+    bgColor: "var(--c-purple)"
+  }
+];
+---
+
+  <!doctype html>
+  <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="ABDL総合コミュニティのおむもふ文庫ページ。ふわふわでかわいい物語がたくさん！" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- かわいい丸ゴシックフォントを読み込み -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+  <AppBar />
+
+
+
+  <main class="container">
+    <header class="page-header">
+      <h1 class="title-text">
+        <span class="icon">🍼</span> おむもふ文庫
+      </h1>
+      <p class="subtitle">
+        ふわふわで、やさしい時間が流れる、あなただけの物語の部屋。
+      </p>
+    </header>
+
+    <!-- ここで配列データを元に各セクションを自動で生成します -->
+    {bunkoSections.map(section => (
+      <section class="bunko-section" style={`--section-bg: ${section.bgColor};`}>
+        <header class="section-header">
+          <div class="icon">{section.icon}</div>
+          <h2>{section.title}</h2>
+        </header>
+        <p class="description">{section.description}</p>
+        
+        <ul class="story-list">
+          {section.stories.map(story => (
+            <li>
+              <a href={story.link}>
+                <span class="book-icon">📖</span>
+                {story.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <footer class="page-footer">
+      <p>ABDL総合コミュニティ 💖</p>
+    </footer>
+
+  </main>
+
+</body>
+</html>
+
+<!-- is:global を使って、ページ全体のスタイルを定義します -->
+<style is:global>
+  /* ページ全体のデザインを決める基本的なスタイル */
+  :root {
+    /* ふわふわパステルカラーパレット */
+    --c-bg: #fff8f8; /* ほんのりピンクがかった背景 */
+    --c-text: #5c524e; /* やさしいブラウンの文字色 */
+    --c-pink: #ffe4e1;
+    --c-blue: #e0f0ff;
+    --c-yellow: #fffacd;
+    --c-green: #e6ffed;
+    --c-purple: #f3e8ff;
+    --c-white: #ffffff;
+    --c-accent: #ffb6c1; /* 強調したいピンク */
+    --c-border: #f0d0d0; /* ふんわりした境界線 */
+
+    /* フォント */
+    --font-body: 'M PLUS Rounded 1c', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: var(--c-bg);
+    color: var(--c-text);
+    line-height: 1.7;
+    /* 背景にキラキラしたドットを追加して、かわいい雰囲気を演出 */
+    background-image:
+      radial-gradient(circle at 15% 15%, var(--c-blue) 2px, transparent 0),
+      radial-gradient(circle at 85% 20%, var(--c-pink) 2px, transparent 0),
+      radial-gradient(circle at 30% 80%, var(--c-yellow) 2px, transparent 0),
+      radial-gradient(circle at 70% 75%, var(--c-green) 2px, transparent 0);
+    background-size: 100px 100px;
+    background-attachment: fixed;
+    animation: fadeIn 0.8s ease-out; /* ページがふわっと表示されるアニメーション */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: 1.5px;
+  }
+
+  a {
+    color: var(--c-accent);
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  a:hover {
+    opacity: 0.7;
+  }
+</style>
+
+<!-- このページ固有のコンポーネントのスタイルを定義します -->
+<style>
+  /* 全体を包むコンテナ */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  
+  /* ページ最上部のヘッダー */
+  .page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 2rem;
+    background: var(--c-white);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(212, 175, 175, 0.1);
+    border: 3px dashed var(--c-border);
+  }
+
+  .title-text {
+    font-size: 3rem;
+    color: var(--c-accent);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    text-shadow: 2px 2px 0 var(--c-pink);
+  }
+
+  .title-text .icon {
+    font-size: 3.5rem;
+    display: inline-block;
+    animation: wiggle 2.5s infinite; /* 哺乳瓶アイコンがゆらゆら揺れる */
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--c-text);
+    margin-top: 0.5rem;
+  }
+
+  /* 各文庫セクションのカードデザイン */
+  .bunko-section {
+    background-color: var(--c-white);
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 25px rgba(212, 175, 175, 0.2);
+    border: 3px dashed var(--c-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* 上部の帯の色を動的に変更 */
+    border-top: 10px solid var(--section-bg); 
+  }
+
+  .bunko-section:hover {
+    transform: translateY(-5px); /* マウスを乗せると少し浮き上がる */
+    box-shadow: 0 15px 30px rgba(212, 175, 175, 0.3);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px dotted var(--c-border);
+    padding-bottom: 1rem;
+  }
+
+  .section-header .icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    transform: rotate(-10deg); /* アイコンを少し傾けて可愛さをプラス */
+  }
+
+  .section-header h2 {
+    color: var(--c-text);
+    font-size: 1.8rem;
+    margin: 0;
+  }
+
+  .description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    padding-left: 1rem;
+    /* 左の線の色を動的に変更 */
+    border-left: 4px solid var(--section-bg);
+  }
+
+  /* 物語リストのデザイン */
+  .story-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    /* 画面幅に応じて列数を自動調整 */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .story-list li a {
+    display: block;
+    /* 背景色を動的に変更 */
+    background-color: var(--section-bg);
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    color: var(--c-text);
+    font-weight: 700;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .story-list li a:hover {
+    transform: scale(1.05) rotate(-1deg); /* マウスオーバーで拡大＆傾く */
+    background-color: var(--c-white);
+    color: var(--c-accent);
+    /* 枠線の色を動的に変更 */
+    border: 2px solid var(--section-bg);
+    opacity: 1;
+  }
+
+  .book-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+
+  .story-list li a:hover .book-icon {
+    transform: rotate(15deg); /* 本のアイコンがくるっと回る */
+  }
+
+  /* ページ最下部のフッター */
+  .page-footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--c-border);
+    color: var(--c-accent);
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+import AppBar from "../components/shared/AppBar.astro";
+
+const pageTitle = "おむもふリンク | ABDLコミュニティ";
+
+type LinkPost = {
+  id: number;
+  site_name: string;
+  site_url: string;
+  comment: string | null;
+  username: string | null;
+  created_at: string;
+}
+
+// サンプルデータ
+let posts: LinkPost[] = [
+  { id: 1, site_name: "Google", site_url: "https://www.google.com", comment: "検索エンジンの定番！", username: "admin", created_at: "2025-09-15T10:00:00Z" },
+  { id: 2, site_name: "Apple", site_url: "https://www.apple.com", comment: "公式サイト、最新情報はこちら", username: "user1", created_at: "2025-09-14T15:30:00Z" },
+  { id: 3, site_name: "Amazon", site_url: "https://www.amazon.co.jp", comment: "通販サイトの代表格", username: "user2", created_at: "2025-09-13T09:20:00Z" }
+];
+
+// 最新投稿順にソート
+posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+let error: string | null = null;
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="ABDLコミュニティのおすすめリンク集" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{pageTitle}</title>
+    <style>
+      body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+      .container { max-width: 800px; margin: 2rem auto; padding: 1rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      h1 { text-align: center; }
+      form { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2rem; }
+      input, textarea { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; width: 100%; }
+      button { padding: 0.5rem; border: none; border-radius: 4px; background: #0077ff; color: #fff; cursor: pointer; }
+      button:hover { background: #005fcc; }
+      .post { padding: 1rem; border-bottom: 1px solid #eee; }
+      .post a { color: #0077ff; text-decoration: none; }
+      .post a:hover { text-decoration: underline; }
+      .post-meta { font-size: 0.8rem; color: #666; margin-bottom: 0.3rem; }
+    </style>
+  </head>
+  <body>
+    <AppBar />
+    <div class="container">
+      <h1>おむもふリンク</h1>
+
+      <!-- 投稿フォーム -->
+      <form id="linkForm">
+        <input type="text" id="siteName" placeholder="サイト名" required />
+        <input type="url" id="siteURL" placeholder="URL" required />
+        <textarea id="siteComment" placeholder="コメント（任意）"></textarea>
+        <button type="submit">投稿する</button>
+      </form>
+
+      {error ? (
+        <p style="color: red;">{error}</p>
+      ) : (
+        <ul id="postsList">
+          {posts.map(post => (
+            <li class="post">
+              <div>
+                <strong><a href={post.site_url} target="_blank" rel="noopener noreferrer">{post.site_name}</a></strong>
+                {post.username ? ` - 投稿者: ${post.username}` : ""}
+              </div>
+              {post.comment && <div style="margin-top: 0.3rem;">{post.comment}</div>}
+              <small class="post-meta">{new Date(post.created_at).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <script>
+      const form = document.getElementById('linkForm');
+      const postsList = document.getElementById('postsList');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('siteName').value;
+        const url = document.getElementById('siteURL').value;
+        const comment = document.getElementById('siteComment').value;
+
+        const li = document.createElement('li');
+        li.classList.add('post');
+        li.innerHTML = `
+          <div>
+            <strong><a href="${url}" target="_blank" rel="noopener noreferrer">${name}</a></strong>
+          </div>
+          <div>${comment ? comment : ''}</div>
+          <small class="post-meta">${new Date().toLocaleString()}</small>
+        `;
+
+        // 新しい投稿をリストの先頭に追加
+        postsList.prepend(li);
+
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

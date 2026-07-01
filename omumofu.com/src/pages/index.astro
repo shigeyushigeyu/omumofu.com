@@ -1,0 +1,67 @@
+---
+//src/pages/index.astro
+import AppBar from "../components/shared/AppBar.astro"
+import Videos from "../components/shared/videos.astro";
+import '../styles/common.css';
+import Layout from '../layouts/Layout.astro';
+import LoginButton from '../components/buttons/loginbutton.astro';
+import AboutLittle from '../components/sections/aboutlittle.astro';
+import AboutABDL from '../components/sections/aboutabdl.astro';
+import SectionMessageBoard from '../components/sections/sectionmessageboard.astro';
+import Literature from '../components/sections/literature.astro';
+import Gallery from '../components/sections/gallery.astro';
+import Fetishism from '../components/sections/home_fetishism.astro';
+import Cinema from '../components/sections/cinema.astro';
+import Link from '../components/sections/link.astro';
+import { isNewExpression } from "typescript";
+---
+  <Layout>
+  <AppBar />
+
+    <div class="fixed-background"></div>
+      <Videos />
+    <main>
+
+
+      <h1>おむもふ</h1>
+
+      
+      <p class="catchphrase">ABDL総合コミュニティサイト</p>
+      <video
+        src="/assets/videos/indexhero.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        class="video"
+      ></video>
+
+      <p class="welcome-message">
+        ABDLの世界へ初めての方も、長く楽しんでいる方も、
+        安心して交流できる総合コミュニティです。<br />
+        ここでは情報共有、イベント参加、ショッピング、そして何よりも繋がりを大切にしています。
+        たくさんのリトルとおともだちになろう
+      </p>
+
+      <!--<div class="center-wrapper"><LoginButton /></div>-->
+      <!--<p class="welcome-message">はじめてリトルはここから</p>-->
+      <Gallery />
+      <Cinema />
+      <SectionMessageBoard />
+      <Literature />
+      <!--<<AboutSection />-->
+      <AboutABDL />
+      <AboutLittle />
+      <!--<Link />>-->
+  
+
+      <!--<Fetishism />
+      <div class="button-group">
+        <a href="/aboutabdl" class="btn">ABDLとは？</a>
+        <a href="/aboutlittle" class="btn">リトルとは</a>
+        <a href="/forum" class="btn">掲示板・チャット</a>
+        <a href="/literature" class="btn">おむもふ文庫</a>
+      </div>-->
+    </main>
+  </Layout>
