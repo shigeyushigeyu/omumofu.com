@@ -24,13 +24,17 @@ import { GALLERY_THEMES } from "../data/galleryThemes";
           <!-- カバー画像エリア -->
           <div class="theme-cover-wrapper">
             <div class="skeleton-shimmer"></div>
-            <img 
-              src={`/assets/images/gallery/${theme.coverImage}.png`} 
-              alt={theme.title} 
-              loading="lazy" 
-              class="theme-cover-image"
-              onload="this.previousElementSibling.remove(); this.style.opacity=1;"
-            />
+            {theme.coverImage ? (
+              <img 
+                src={`/assets/images/gallery/${theme.id}/${theme.coverImage}.png`} 
+                alt={theme.title} 
+                loading="lazy" 
+                class="theme-cover-image"
+                onload="this.previousElementSibling.remove(); this.style.opacity=1;"
+              />
+            ) : (
+              <div class="no-image-placeholder">No Image 🧸</div>
+            )}
             <span class="image-count-badge">
               {theme.emoji} {theme.imageIds.length}枚の画像
             </span>
@@ -189,6 +193,19 @@ import { GALLERY_THEMES } from "../data/galleryThemes";
   }
   .theme-card:hover .arrow-icon {
     transform: translateX(6px);
+  }
+
+  /* カバー画像がない場合のプレースホルダー */
+  .no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7f3f0;
+    color: #7a6e6b;
+    font-size: 1.1rem;
+    font-weight: 800;
   }
 
   /* スケルトンシマーローダー */

@@ -39,12 +39,17 @@ const initialImages = theme.imageIds.slice(0, 24);
 
   <!-- ギャラリー・メインコンテナ -->
   <main class="gallery-container">
+    {theme.imageIds.length === 0 && (
+      <div class="empty-gallery-message">
+        <p>🍼 ただいま画像を準備中だよ。お楽しみに！ 🧸</p>
+      </div>
+    )}
     <div class="gallery-masonry" id="gallery-masonry">
       {initialImages.map(id => (
         <div class="gallery-item" data-image-id={id}>
           <div class="skeleton-shimmer"></div>
           <img 
-            src={`/assets/images/gallery/${id}.png`} 
+            src={`/assets/images/gallery/${theme.id}/${id}.png`} 
             alt={`${theme.title} No.${id}`} 
             loading="lazy" 
             class="gallery-image"
@@ -187,7 +192,7 @@ const initialImages = theme.imageIds.slice(0, 24);
       card.innerHTML = `
         <div class="skeleton-shimmer"></div>
         <img 
-          src="/assets/images/gallery/${id}.png" 
+          src="/assets/images/gallery/${theme.id}/${id}.png" 
           alt="${theme.title} No.${id}" 
           loading="lazy" 
           class="gallery-image"
@@ -254,7 +259,7 @@ const initialImages = theme.imageIds.slice(0, 24);
     if (!theme) return;
 
     const imgId = imageIds[activeImageIndex];
-    const imagePath = `/assets/images/gallery/${imgId}.png`;
+    const imagePath = `/assets/images/gallery/${theme.id}/${imgId}.png`;
 
     lightboxImg.src = imagePath;
     lightboxTitle.textContent = `${theme.title} No.${imgId}`;
@@ -273,6 +278,22 @@ const initialImages = theme.imageIds.slice(0, 24);
 </script>
 
 <style is:global>
+  /* 空のギャラリー表示 */
+  .empty-gallery-message {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    margin-top: 40px;
+  }
+  .empty-gallery-message p {
+    font-size: 1.2rem;
+    color: #7a6e6b;
+    font-weight: bold;
+  }
+
   /* 全体のレイアウト設定 */
   .gallery-container {
     max-width: 1200px;
