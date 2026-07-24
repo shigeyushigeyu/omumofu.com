@@ -19,7 +19,7 @@ if (!theme) {
 const initialImages = theme.imageIds.slice(0, 24);
 ---
 
-<Layout>
+<Layout title={theme.title} description={theme.desc}>
   <AppBar title={`画廊: ${theme.title}`} />
   
   <!-- ヒーローヘッダー -->

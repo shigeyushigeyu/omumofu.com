@@ -1,7 +1,17 @@
 ---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+
 import '../styles/common.css';
-const siteTitle = "おむもふ | ABDL総合コミュニティ";
-const siteDescription = "おむもふはABDL（Adult Baby Diaper Lover）総合コミュニティサイトです。安心して交流できる場所を提供します。";
+const defaultSiteTitle = "おむもふ | ABDL総合コミュニティ";
+const defaultSiteDescription = "おむもふはABDL（Adult Baby Diaper Lover）総合コミュニティサイトです。安心して交流できる場所を提供します。";
+
+const siteTitle = title ? `${title} | おむもふ` : defaultSiteTitle;
+const siteDescription = description || defaultSiteDescription;
 const siteUrl = "https://omumofu.com";
 const siteImage = "/assets/images/og-image.png";
 const twitterHandle = "@omumofu_com";
