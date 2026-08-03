@@ -590,6 +590,14 @@ export const GALLERY_THEMES: GalleryTheme[] = [
     ],
   },
   {
+    id: "animal",
+    title: "アニマル",
+    desc: "もこもこの着ぐるみや動物の耳としっぽが可愛いお写真だよ。",
+    emoji: "🐾",
+    coverImage: "002",
+    imageIds: ["001", "002", "003", "004"],
+  },
+  {
     id: "woman",
     title: "女性・おとな",
     desc: "大人の女性の魅力とおむつのギャップが楽しめるお写真だよ。",
