@@ -11,7 +11,10 @@ service cloud.firestore {
     match /threads/{threadId} {
       allow read: if true; // 誰でも閲覧可能
       allow create: if request.auth != null; // ログインユーザーのみスレッド作成可能
-      allow update: if request.auth != null; // ログインユーザーなら最新投稿日時の更新が可能
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.authorId ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latestPostAt'])
+      );
       allow delete: if request.auth != null && request.auth.uid == resource.data.authorId; // 作成者のみ削除可能
       
       // サブコレクションとしての投稿ルール

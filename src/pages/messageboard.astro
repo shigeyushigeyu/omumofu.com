@@ -138,9 +138,22 @@ import '../styles/common.css';
           deleteBtn.className = 'delete-btn-small';
           deleteBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            if (confirm(`スレッド「${data.title}」を削除しますか？\n（注: スレッド内の投稿も閲覧できなくなります）`)) {
+            if (confirm(`スレッド「${data.title}」を削除しますか？\n（注: スレッド内の投稿も完全に削除されます）`)) {
               try {
-                await deleteDoc(doc(db, 'threads', documentSnapshot.id));
+                const threadId = documentSnapshot.id;
+                // サブコレクションのpostsを取得
+                const postsQ = query(collection(db, 'threads', threadId, 'posts'));
+                const postsSnapshot = await getDocs(postsQ);
+                
+                // postを一つずつ削除
+                const deletePromises = postsSnapshot.docs.map(postDoc => 
+                  deleteDoc(doc(db, 'threads', threadId, 'posts', postDoc.id))
+                );
+                await Promise.all(deletePromises);
+
+                // 親スレッドを削除
+                await deleteDoc(doc(db, 'threads', threadId));
+                
                 loadThreads(); // 再読み込み
               } catch (err: any) {
                 console.error('Delete error:', err);
