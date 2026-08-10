@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro";
+import { Timeline } from "../components/react/timeline/Timeline";
+import '../styles/common.css';
+---
+
+<Layout title="タイムライン - おむもふ">
+  <AppBar title="タイムライン" />
+  
+  <main class="timeline-page-container">
+    <Timeline client:load />
+  </main>
+</Layout>
+
+<style>
+  .timeline-page-container {
+    max-width: 1200px;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+  }
+</style>

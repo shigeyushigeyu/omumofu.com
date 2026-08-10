@@ -1,7 +1,7 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 
 // Astroの環境変数からFirebaseの設定値を読み込みます
 const firebaseConfig = {
@@ -17,5 +17,9 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// QUIC (UDP) プロトコルのブロック・タイムアウトエラー回避のためLong Pollingを強制
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
 export const googleProvider = new GoogleAuthProvider();

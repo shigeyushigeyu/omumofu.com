@@ -36,7 +36,7 @@ const { title = "おむもふ" } = Astro.props;
       const displayName = user.displayName || 'ユーザー';
       
       authContainer.innerHTML = `
-        <a href="/user" class="login-btn-link" title="${displayName}のプロフィール">マイページ</a>
+        <a href="/mypage" class="login-btn-link" title="${displayName}のプロフィール">マイページ</a>
       `;
     } else {
       // 未ログイン：ログインリンクを表示

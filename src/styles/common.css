@@ -1,13 +1,15 @@
+@import "tailwindcss";
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: transparent !important;
+  background-color: #e6ffec; /* 薄いクリームに近い緑 */
 }
 
 .body {
   font-family: 'Hatimaru', sans-serif;
-  background-color: transparent !important;
+  background-color: #e6ffec;
 }
 
 /* --- 背景動画のスタイル --- */
@@ -18,7 +20,7 @@ html, body {
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  opacity: 1.0; /* 背景動画を少し控えめ(30%)にして、コンテンツを引き立てます */
+  opacity: 1.0;
   z-index: -1;
 }
 
@@ -26,18 +28,18 @@ html, body {
 main {
   max-width: 800px;
   margin: 3rem auto;
-  padding: 2.5rem 3rem; /* 内側の余白を少し広げて、ゆったりとした印象に */
+  padding: 2.5rem 3rem;
   font-family: 'HachiMaruPop', 'Noto Sans JP', sans-serif;
   
-  /* ▼▼▼ 【最重要】背景の半透明ピンクを濃く(85%)して、文字を読みやすくします ▼▼▼ */
-  background-color: rgba(255, 249, 252, 0.50); 
+  /* 薄い白（少し透明）にして、背景の緑と馴染ませます */
+  background-color: rgba(255, 255, 255, 0.85); 
 
-  border-radius: 25px; /* 角をさらに丸くして、より可愛く */
+  border-radius: 25px;
   
-  /* 枠線を点線(dotted)にすると、手縫いのような可愛さが出ます */
-  border: 3px dotted #ffc0cb; 
+  /* 枠線を点線の淡い緑にします */
+  border: 3px dotted #a2e4b8; 
   
-  box-shadow: 0 10px 30px rgba(180, 120, 140, 0.2);
+  box-shadow: 0 10px 30px rgba(120, 180, 140, 0.2);
 }
 
 /* --- メインタイトル (一番大きな見出し) --- */
@@ -119,6 +121,10 @@ p {
     background-color: #fca8ba;
     transform: translateY(-3px); 
     box-shadow: 0 6px 15px rgba(200, 150, 160, 0.5);
+}
+
+.image-wrapper {
+  margin-top: 2rem; /* テキストと画像（動画）の間に余白をもたせる */
 }
 
 .video {

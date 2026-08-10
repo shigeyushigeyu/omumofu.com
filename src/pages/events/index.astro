@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { EventList } from '../../components/react/EventList';
+import '../../styles/profile.css';
+---
+
+<Layout title="イベント・オフ会 - ABDL">
+  <AppBar title="イベント一覧" />
+  
+  <div class="min-h-screen pt-10 pb-20">
+    <EventList client:load />
+  </div>
+</Layout>

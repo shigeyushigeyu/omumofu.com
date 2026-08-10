@@ -57,7 +57,7 @@ import '../styles/common.css';
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // ログイン中ならプロフィールページへリダイレクト
-      window.location.href = '/user';
+      window.location.href = '/mypage';
     } else {
       // 未ログイン
       loggedOutState.style.display = 'block';

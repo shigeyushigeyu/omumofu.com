@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { EventDetail } from '../../components/react/EventDetail';
+
+const { id } = Astro.params;
+---
+
+<Layout title="イベント詳細 - ABDL">
+  <AppBar title="イベント詳細" />
+  
+  <div class="min-h-screen pt-10 pb-20">
+    <EventDetail eventId={id as string} client:load />
+  </div>
+</Layout>

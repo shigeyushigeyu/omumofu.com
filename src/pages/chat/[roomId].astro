@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { ChatRoom } from '../../components/react/ChatRoom';
+
+const { roomId } = Astro.params;
+
+if (!roomId) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="チャットルーム">
+  <AppBar title="チャット" />
+  
+  <main className="min-h-screen bg-gray-50 py-12">
+    <div className="max-w-4xl mx-auto px-4">
+      <ChatRoom roomId={roomId} client:load />
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { ProfileEditor } from '../../components/react/ProfileEditor';
+import '../../styles/common.css';
+import '../../styles/profile.css';
+---
+
+<Layout title="マイページ・プロフィール編集">
+  <Fragment slot="head">
+    <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet" />
+  </Fragment>
+  
+  <AppBar title="マイページ" />
+  
+  <main className="profile-page-container min-h-screen bg-gray-50 py-12">
+    <ProfileEditor client:load />
+  </main>
+</Layout>

@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { UserList } from '../../components/react/UserList';
+---
+
+<Layout title="ユーザーを探す">
+  <AppBar title="ユーザー一覧" />
+  
+  <main className="min-h-screen bg-gray-50 py-12">
+    <UserList client:load />
+  </main>
+</Layout>

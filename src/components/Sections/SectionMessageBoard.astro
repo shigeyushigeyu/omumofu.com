@@ -6,13 +6,12 @@ import MessageBoardImage from '~/assets/images/messageBoard.png';
   <p>たくさんのリトルと交流しよう</p>
 
     <div class="image-wrapper">
-      <video
-        src="/assets/videos/messageboard.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        controls
-        class="video"></video>
+      <a href="/messageboard" style="display: block; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        <img 
+          src="/assets/images/sectionmessageboard.png" 
+          alt="おむもふ掲示板" 
+          style="width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(240, 120, 180, 0.25);" 
+        />
+      </a>
   </div>
 </section>

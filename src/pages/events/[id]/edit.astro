@@ -1,0 +1,16 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import AppBar from '../../../components/shared/AppBar.astro';
+import { EventForm } from '../../../components/react/EventForm';
+import '../../../styles/profile.css';
+
+const { id } = Astro.params;
+---
+
+<Layout title="イベントの編集 - ABDL">
+  <AppBar title="イベントの編集" />
+  
+  <div class="min-h-screen pt-10 pb-20">
+    <EventForm eventId={id as string} client:load />
+  </div>
+</Layout>
