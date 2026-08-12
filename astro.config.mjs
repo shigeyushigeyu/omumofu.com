@@ -7,10 +7,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare(),
-
-  // ← 必須！（Cloudflare Functions互換モード）
-  mode: 'nodejs',
-
   integrations: [react()],
 
   vite: {
