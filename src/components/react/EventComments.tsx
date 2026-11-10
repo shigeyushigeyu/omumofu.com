@@ -72,25 +72,25 @@ export const EventComments: React.FC<EventCommentsProps> = ({ eventId }) => {
             const profile = profiles[comment.authorId];
             return (
               <div key={comment.id} className="flex space-x-3">
-                <a href={`/user?uid=${comment.authorId}`} className="flex-shrink-0">
+                <a href={`/user/${encodeURIComponent(comment.authorId)}`} className="flex-shrink-0">
                   {profile?.profileImageUrl ? (
                     <img src={profile.profileImageUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-                      {profile?.displayName?.charAt(0) || '?'}
+                    <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-400 font-bold">
+                      🧸
                     </div>
                   )}
                 </a>
                 <div className="flex-1 bg-gray-50 rounded-2xl rounded-tl-none p-4">
                   <div className="flex justify-between items-baseline mb-1">
-                    <a href={`/user?uid=${comment.authorId}`} className="font-bold text-sm text-gray-900 hover:underline">
-                      {profile?.displayName || '読み込み中...'}
+                    <a href={`/user/${encodeURIComponent(comment.authorId)}`} className="font-bold text-sm text-gray-900 hover:underline">
+                      {profile?.displayName || '名無しのおともだち'}
                     </a>
                     <span className="text-xs text-gray-500">
                       {comment.createdAt ? formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: ja }) : '送信中...'}
                     </span>
                   </div>
-                  <p className="text-gray-800 whitespace-pre-wrap text-sm leading-relaxed">{comment.content}</p>
+                  <p className="text-gray-800 whitespace-pre-wrap text-sm leading-relaxed" style={{ textAlign: 'left', margin: 0 }}>{comment.content}</p>
                 </div>
               </div>
             );

@@ -11,6 +11,8 @@ import {
   query, 
   where, 
   orderBy, 
+  limit,
+  limitToLast,
   onSnapshot,
   serverTimestamp,
   Timestamp,
@@ -26,27 +28,58 @@ const toDate = (timestamp: any): Date => {
   return new Date(); // Fallback
 };
 
+// プロフィール取得のメモリキャッシュ（重複読み取り・Firestore課金の抑制）
+const userProfileCache = new Map<string, UserProfile | null>();
+const inFlightProfilePromises = new Map<string, Promise<UserProfile | null>>();
+
 /**
- * プロフィール情報の取得
+ * プロフィール情報の取得（メモリキャッシュ対応・メールアドレス等の非公開情報は除外）
  */
-export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
-  try {
-    const docRef = doc(db, 'users', uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return {
-        ...data,
-        uid: docSnap.id,
-        createdAt: toDate(data.createdAt),
-        updatedAt: toDate(data.updatedAt),
-      } as UserProfile;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    throw error;
+export const getUserProfile = async (uid: string, forceRefresh: boolean = false): Promise<UserProfile | null> => {
+  if (!uid) return null;
+  if (!forceRefresh && userProfileCache.has(uid)) {
+    return userProfileCache.get(uid) ?? null;
   }
+  if (!forceRefresh && inFlightProfilePromises.has(uid)) {
+    return inFlightProfilePromises.get(uid)!;
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const profile: UserProfile = {
+          uid: docSnap.id,
+          displayName: data.displayName || '',
+          profileImageUrl: data.profileImageUrl || '',
+          bio: data.bio || '',
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          kokoro: data.kokoro || '',
+          tokimeki: Array.isArray(data.tokimeki) ? data.tokimeki : [],
+          privacySettings: {
+            searchable: data.privacySettings?.searchable ?? true,
+            chatAcceptance: data.privacySettings?.chatAcceptance ?? 'all',
+          },
+          createdAt: toDate(data.createdAt),
+          updatedAt: toDate(data.updatedAt),
+        };
+        userProfileCache.set(uid, profile);
+        return profile;
+      }
+      userProfileCache.set(uid, null);
+      return null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    } finally {
+      inFlightProfilePromises.delete(uid);
+    }
+  })();
+
+  inFlightProfilePromises.set(uid, fetchPromise);
+  return fetchPromise;
 };
 
 /**
@@ -55,11 +88,12 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 export const updateUserProfile = async (uid: string, data: Partial<Omit<UserProfile, 'uid' | 'createdAt' | 'updatedAt'>>): Promise<void> => {
   try {
     const docRef = doc(db, 'users', uid);
-    // If we are sure it exists, we could use updateDoc, but setDoc with merge handles first-time creation too
     await setDoc(docRef, {
       ...data,
       updatedAt: serverTimestamp(),
     }, { merge: true });
+    // キャッシュを破棄して次回最新を取得
+    userProfileCache.delete(uid);
   } catch (error) {
     console.error("Error updating user profile:", error);
     throw error;
@@ -93,17 +127,19 @@ export const getUserChatRooms = async (userId: string): Promise<ChatRoom[]> => {
     const q = query(
       collection(db, 'chatRooms'),
       where('members', 'array-contains', userId),
-      orderBy('lastUpdatedAt', 'desc')
+      limit(100)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => {
+    const rooms = querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
-        ...data,
+        members: Array.isArray(data.members) ? data.members : [],
+        lastMessage: data.lastMessage || '',
         lastUpdatedAt: toDate(data.lastUpdatedAt)
       } as ChatRoom;
     });
+    return rooms.sort((a, b) => b.lastUpdatedAt.getTime() - a.lastUpdatedAt.getTime());
   } catch (error) {
     console.error("Error fetching chat rooms:", error);
     throw error;
@@ -111,15 +147,68 @@ export const getUserChatRooms = async (userId: string): Promise<ChatRoom[]> => {
 };
 
 /**
+ * 2人のユーザー間のチャットルームを取得、存在しなければ新規作成してroomIdを返す
+ */
+export const getOrCreateChatRoom = async (uid1: string, uid2: string): Promise<string> => {
+  try {
+    const existingRooms = await getUserChatRooms(uid1);
+    const matched = existingRooms.find(
+      room => room.members.includes(uid1) && room.members.includes(uid2) && room.members.length === 2
+    );
+    if (matched) {
+      return matched.id;
+    }
+
+    const roomId = [uid1, uid2].sort().join('_');
+    await setDoc(doc(db, 'chatRooms', roomId), {
+      members: [uid1, uid2],
+      lastMessage: '',
+      lastUpdatedAt: serverTimestamp(),
+    });
+    return roomId;
+  } catch (error) {
+    console.error("Error getting or creating chat room:", error);
+    throw error;
+  }
+};
+
+/**
+ * チャットルーム情報の取得
+ */
+export const getChatRoomById = async (roomId: string): Promise<ChatRoom | null> => {
+  try {
+    const docSnap = await getDoc(doc(db, 'chatRooms', roomId));
+    if (!docSnap.exists()) return null;
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      members: Array.isArray(data.members) ? data.members : [],
+      lastMessage: data.lastMessage || '',
+      lastUpdatedAt: toDate(data.lastUpdatedAt),
+    } as ChatRoom;
+  } catch (error) {
+    console.error("Error fetching chat room:", error);
+    return null;
+  }
+};
+
+/**
  * 特定チャットルームのメッセージをリアルタイム取得する関数（リスナー）
+ * 直近 maxCount 件（デフォルト50件）のみ取得してFirestore読み取り課金を抑える
  * @param roomId チャットルームID
  * @param callback 新しいメッセージリストを受け取るコールバック関数
+ * @param maxCount 取得する直近メッセージ件数（デフォルト: 50）
  * @returns リスナーを解除するための関数 (unsubscribe)
  */
-export const subscribeToMessages = (roomId: string, callback: (messages: Message[]) => void): () => void => {
+export const subscribeToMessages = (
+  roomId: string,
+  callback: (messages: Message[]) => void,
+  maxCount: number = 50
+): () => void => {
   const q = query(
     collection(db, 'chatRooms', roomId, 'messages'),
-    orderBy('createdAt', 'asc')
+    orderBy('createdAt', 'asc'),
+    limitToLast(maxCount)
   );
 
   const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -258,7 +347,7 @@ export const createComment = async (postId: string, authorId: string, content: s
  */
 export const getEvents = async (): Promise<EventModel[]> => {
   try {
-    const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'), limit(100));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => {
       const data = doc.data();
@@ -363,12 +452,17 @@ export const createEventComment = async (eventId: string, authorId: string, cont
 };
 
 /**
- * イベントコメントの購読
+ * イベントコメントの購読（直近 maxCount 件に制限して課金を抑制）
  */
-export const subscribeToEventComments = (eventId: string, callback: (comments: Comment[]) => void): () => void => {
+export const subscribeToEventComments = (
+  eventId: string,
+  callback: (comments: Comment[]) => void,
+  maxCount: number = 50
+): () => void => {
   const q = query(
     collection(db, 'events', eventId, 'comments'),
-    orderBy('createdAt', 'asc')
+    orderBy('createdAt', 'asc'),
+    limitToLast(maxCount)
   );
 
   const unsubscribe = onSnapshot(q, (snapshot) => {

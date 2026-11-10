@@ -1,30 +1,58 @@
 ---
-//src/pages/index.astro
-import AppBar from "../components/shared/AppBar.astro"
+// src/pages/index.astro
+import AppBar from "../components/shared/AppBar.astro";
 import '../styles/common.css';
 import Layout from '../layouts/Layout.astro';
-import LoginButton from '../components/buttons/loginbutton.astro';
 import AboutLittle from '../components/sections/aboutlittle.astro';
 import AboutABDL from '../components/sections/aboutabdl.astro';
 import SectionMessageBoard from '../components/sections/sectionmessageboard.astro';
 import Literature from '../components/sections/literature.astro';
 import Gallery from '../components/sections/gallery.astro';
 import Cinema from '../components/sections/cinema.astro';
-import Link from '../components/sections/link.astro';
 import Timeline from '../components/sections/timeline.astro';
 import Events from '../components/sections/events.astro';
+import Users from '../components/sections/users.astro';
 import Hero from '../components/sections/hero.astro';
-import { isNewExpression } from "typescript";
+
+const quickNavItems = [
+  { icon: "🍼", label: "おともだち検索", href: "/users" },
+  { icon: "🎀", label: "タイムライン", href: "/timeline" },
+  { icon: "🎪", label: "イベント", href: "/events" },
+  { icon: "📝", label: "掲示板", href: "/messageboard" },
+  { icon: "🖼️", label: "おむもふ画廊", href: "/gallery" },
+  { icon: "🎬", label: "おむもふシネマ", href: "/cinema" },
+  { icon: "📖", label: "おむもふ文庫", href: "/literature" },
+  { icon: "🧷", label: "ABDLとは", href: "/aboutabdl" },
+  { icon: "🧸", label: "リトルについて", href: "/aboutlittle" },
+];
 ---
-  <Layout>
+
+<Layout>
   <AppBar />
 
-    <div class="fixed-background"></div>
-    <main>
+  <div class="fixed-background"></div>
+  <main class="home-main">
+    <h1>おむもふ</h1>
+    <Hero />
 
+    <!-- SEO & ユーザビリティ向上のためのメインナビゲーション -->
+    <nav class="home-quick-nav" aria-label="おむもふコーナー案内">
+      <div class="quick-nav-title">✨ おむもふのお部屋一覧 ✨</div>
+      <ul class="home-quick-nav-list">
+        {quickNavItems.map((item) => (
+          <li>
+            <a href={item.href} class="home-quick-nav-pill">
+              <span aria-hidden="true">{item.icon}</span>
+              <span>{item.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
 
-      <h1>おむもふ</h1>
-      <Hero />
+    <!-- 各コーナーのセクション一覧（1セクション＝1カード枠で「見出し→説明→画像」のまとまりを明確化） -->
+    <div class="home-sections-stack">
+      <Users />
       <Timeline />
       <Events />
       <Gallery />
@@ -33,5 +61,196 @@ import { isNewExpression } from "typescript";
       <Literature />
       <AboutABDL />
       <AboutLittle />
-    </main>
-  </Layout>
+    </div>
+
+    <footer class="home-footer">
+      <nav aria-label="フッターナビゲーション">
+        <ul class="footer-links">
+          <li><a href="/users">おともだち検索</a></li>
+          <li><a href="/timeline">タイムライン</a></li>
+          <li><a href="/events">イベント</a></li>
+          <li><a href="/messageboard">掲示板</a></li>
+          <li><a href="/gallery">画廊</a></li>
+          <li><a href="/cinema">シネマ</a></li>
+          <li><a href="/literature">文庫</a></li>
+          <li><a href="/aboutabdl">ABDLとは</a></li>
+          <li><a href="/aboutlittle">リトルについて</a></li>
+          <li><a href="/sitemap">サイトマップ</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </main>
+</Layout>
+
+<style>
+  .home-main {
+    margin-top: 84px;
+    padding: 2rem 1.5rem;
+  }
+
+  @media screen and (min-width: 640px) {
+    .home-main {
+      padding: 2.5rem 2.5rem;
+    }
+  }
+
+  .home-quick-nav {
+    margin: 1.8rem 0 2.8rem;
+    padding: 1.25rem 1rem;
+    background: rgba(255, 250, 252, 0.95);
+    border: 2px dashed #ffc0cb;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(240, 120, 180, 0.1);
+  }
+
+  .quick-nav-title {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #d36ba6;
+    margin-bottom: 0.85rem;
+  }
+
+  .home-quick-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .home-quick-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 9999px;
+    background: #ffffff;
+    border: 1.5px solid #ffe0e6;
+    color: #a05585;
+    font-weight: bold;
+    font-size: 0.88rem;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(240, 120, 180, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .home-quick-nav-pill:hover {
+    background: #ffe0e6;
+    border-color: #ffc0cb;
+    color: #d36ba6;
+    transform: translateY(-2px);
+  }
+
+  /* =========================================================
+     各セクションを独立した可愛いカード枠にまとめ、
+     「① タイトル(h2) → ② 説明文(p) → ③ 画像(.image-wrapper)」
+     の親子関係・順序が一目で分かるようにする
+     ========================================================= */
+  .home-sections-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .home-sections-stack :global(section) {
+    background: rgba(255, 255, 255, 0.96);
+    border: 2.5px dashed #ffc0cb;
+    border-radius: 24px;
+    padding: 1.6rem 1.4rem 1.8rem;
+    box-shadow: 0 8px 22px rgba(200, 130, 160, 0.14);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+  }
+
+  @media screen and (min-width: 640px) {
+    .home-sections-stack :global(section) {
+      padding: 2rem 2.2rem 2.2rem;
+    }
+  }
+
+  .home-sections-stack :global(section:hover) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(240, 120, 180, 0.22);
+    border-color: #f78fb3;
+  }
+
+  /* カード内のタイトル(h2)は上部にぴったり配置し、すぐ下の説明・画像と一体化させる */
+  .home-sections-stack :global(section h2) {
+    margin: 0 0 0.75rem 0;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.4rem;
+    background: linear-gradient(135deg, #fff5f8 0%, #fffafc 100%);
+    border: 2px solid #ffe0e6;
+    border-radius: 9999px;
+    box-shadow: 0 3px 8px rgba(240, 120, 180, 0.15);
+  }
+
+  .home-sections-stack :global(section h2 a) {
+    color: #d36ba6;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .home-sections-stack :global(section h2 a::after) {
+    content: "→";
+    font-size: 1.05rem;
+    color: #f78fb3;
+    transition: transform 0.2s ease;
+  }
+
+  .home-sections-stack :global(section:hover h2 a::after) {
+    transform: translateX(4px);
+  }
+
+  /* カード内の説明文(p)は見出しのすぐ下に近づける */
+  .home-sections-stack :global(section p) {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #7d5b6b;
+  }
+
+  /* カード内の画像は説明文のすぐ下に配置（従来の margin-top: 2rem を解消） */
+  .home-sections-stack :global(section .image-wrapper) {
+    margin-top: 0.5rem;
+  }
+
+  .home-sections-stack :global(section .image-wrapper img) {
+    display: block;
+    border: 2px solid #ffe0e6;
+  }
+
+  .home-footer {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 2px dotted #ffc0cb;
+    text-align: center;
+  }
+
+  .footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
+  }
+
+  .footer-links a {
+    color: #a05585;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+
+  .footer-links a:hover {
+    color: #d36ba6;
+    text-decoration: underline;
+  }
+</style>

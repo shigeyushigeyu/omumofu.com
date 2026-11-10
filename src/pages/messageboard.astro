@@ -41,7 +41,7 @@ import '../styles/common.css';
 
 <script>
   import { db, auth } from '../lib/firebase';
-  import { collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+  import { collection, query, orderBy, limit, getDocs, getCountFromServer, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
   import { onAuthStateChanged } from 'firebase/auth';
 
   const threadList = document.getElementById('thread-list')!;
@@ -74,8 +74,8 @@ import '../styles/common.css';
   async function loadThreads() {
     errorMessage.style.display = 'none';
     try {
-      // 最新の投稿順（latestPostAt）の降順で取得
-      const q = query(collection(db, 'threads'), orderBy('latestPostAt', 'desc'));
+      // 最新の投稿順（latestPostAt）の降順で取得（最大50件に制限して課金を抑制）
+      const q = query(collection(db, 'threads'), orderBy('latestPostAt', 'desc'), limit(50));
       const querySnapshot = await getDocs(q);
       
       threadList.innerHTML = '';
@@ -90,42 +90,46 @@ import '../styles/common.css';
       noThreadsMessage.style.display = 'none';
       threadList.style.display = 'block';
 
-      querySnapshot.forEach((documentSnapshot) => {
+      // 各スレッドのレス数を並列で取得
+      const threadsWithCounts = await Promise.all(
+        querySnapshot.docs.map(async (documentSnapshot) => {
+          let postCount = 0;
+          try {
+            const countSnap = await getCountFromServer(
+              collection(db, 'threads', documentSnapshot.id, 'posts')
+            );
+            postCount = countSnap.data().count;
+          } catch (e) {
+            console.warn('Count fetch failed for thread:', documentSnapshot.id, e);
+          }
+          return { documentSnapshot, postCount };
+        })
+      );
+
+      threadsWithCounts.forEach(({ documentSnapshot, postCount }) => {
         const data = documentSnapshot.data();
         const li = document.createElement('li');
         li.className = 'thread-item';
 
-        // 左側：タイトルと日時・作成者
+        // 左側：タイトル＋レス数
         const infoDiv = document.createElement('div');
         infoDiv.className = 'thread-info';
 
         const link = document.createElement('a');
         link.href = `/thread/${documentSnapshot.id}`;
-        link.textContent = data.title;
         link.className = 'thread-title-link';
 
-        const meta = document.createElement('span');
-        meta.className = 'thread-meta';
-        const dateStr = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString() : '作成中...';
-        const authorName = data.authorName || '名無し';
-        const authorId = data.authorId || '';
-        
-        // HTMLエスケープヘルパー
-        const escapeHTML = (str: string) => str
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'thread-title-text';
+        titleSpan.textContent = data.title;
 
-        if (authorId) {
-          meta.innerHTML = ` (<a href="/user/${authorId}" class="profile-link" title="${escapeHTML(authorName)}のプロフィール">${escapeHTML(authorName)}</a> - ${dateStr})`;
-        } else {
-          meta.textContent = ` (${authorName} - ${dateStr})`;
-        }
+        const countSpan = document.createElement('span');
+        countSpan.className = 'thread-count';
+        countSpan.textContent = `（${postCount}）`;
 
+        link.appendChild(titleSpan);
+        link.appendChild(countSpan);
         infoDiv.appendChild(link);
-        infoDiv.appendChild(meta);
         li.appendChild(infoDiv);
 
         // 右側：削除ボタン（自分が作成したスレッドのみ）
@@ -145,11 +149,11 @@ import '../styles/common.css';
                 const postsQ = query(collection(db, 'threads', threadId, 'posts'));
                 const postsSnapshot = await getDocs(postsQ);
                 
-                // postを一つずつ削除
+                // postを一つずつ削除（他ユーザーの返信削除が万一失敗しても親スレッド削除を続行できるよう allSettled を使用）
                 const deletePromises = postsSnapshot.docs.map(postDoc => 
                   deleteDoc(doc(db, 'threads', threadId, 'posts', postDoc.id))
                 );
-                await Promise.all(deletePromises);
+                await Promise.allSettled(deletePromises);
 
                 // 親スレッドを削除
                 await deleteDoc(doc(db, 'threads', threadId));
@@ -251,8 +255,8 @@ import '../styles/common.css';
     border-color: #b5f57c;
   }
   .btn {
-    background-color: #b5f57c;
-    color: white;
+    background-color: #8cc63f;
+    color: #ffffff;
     padding: 10px 20px;
     border: none;
     border-radius: 6px;
@@ -262,7 +266,7 @@ import '../styles/common.css';
     transition: background 0.2s;
   }
   .btn:hover {
-    background-color: #a3ea6c;
+    background-color: #7ab32e;
   }
   .info-card {
     background-color: #f9f9f9;
@@ -278,58 +282,57 @@ import '../styles/common.css';
   .thread-list {
     list-style: none;
     padding: 0;
+    margin: 0;
+    font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
   }
-  .thread-item {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-    border: 1px solid #eee;
+  :global(.thread-item) {
+    background: #ffffff;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e6f2ea;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
-  .thread-info {
+  :global(.thread-item:hover) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(140, 198, 63, 0.14);
+    border-color: #b5f57c;
+  }
+  :global(.thread-info) {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+  :global(.thread-title-link) {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: baseline;
+    flex-wrap: wrap;
     gap: 4px;
-  }
-  @media screen and (min-width: 600px) {
-    .thread-info {
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
-  }
-  .thread-title-link {
-    font-size: 1.1rem;
+    font-size: 1.08rem;
+    line-height: 1.5;
     color: #333;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
   }
-  .thread-title-link:hover {
-    color: #8cc63f;
+  :global(.thread-title-link:hover .thread-title-text) {
+    color: #6da828;
     text-decoration: underline;
   }
-  .thread-meta {
-    font-size: 0.85rem;
-    color: #888;
+  :global(.thread-count) {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #d36ba6;
+    white-space: nowrap;
   }
-  :global(.profile-link) {
-    color: #d36ba6; /* 優しいピンク */
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.2s ease;
-  }
-  :global(.profile-link:hover) {
-    color: #e64980;
-    text-decoration: underline dotted; /* 点線のアンダーライン */
-  }
-  .thread-actions {
+  :global(.thread-actions) {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
   :global(.delete-btn-small) {
     background-color: #ffeef2; /* パステルピンク */

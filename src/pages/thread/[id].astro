@@ -54,7 +54,7 @@ const { id } = Astro.params;
 
 <script>
   import { db, auth } from '../../lib/firebase';
-  import { doc, collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+  import { doc, collection, query, orderBy, limitToLast, onSnapshot, addDoc, updateDoc, deleteDoc, serverTimestamp, getDoc } from 'firebase/firestore';
   import { onAuthStateChanged } from 'firebase/auth';
 
   const threadPage = document.getElementById('thread-page')!;
@@ -137,8 +137,8 @@ const { id } = Astro.params;
       const authorName = post.authorName || '名無しさん';
       const dateStr = post.createdAt?.toDate ? post.createdAt.toDate().toLocaleString() : '送信中...';
       const authorId = post.authorId || '';
-      if (authorId) {
-        postHeader.innerHTML = `<strong>${index + 1}. <a href="/user/${authorId}" class="profile-link" title="${escapeHTML(authorName)}のプロフィール">${escapeHTML(authorName)}</a></strong> - <span class="post-date">${dateStr}</span>`;
+      if (authorId && authorId !== 'legacy_anonymous') {
+        postHeader.innerHTML = `<strong>${index + 1}. <a href="/user/${encodeURIComponent(authorId)}" class="profile-link" title="${escapeHTML(authorName)}のプロフィール">${escapeHTML(authorName)}</a></strong> - <span class="post-date">${dateStr}</span>`;
       } else {
         postHeader.innerHTML = `<strong>${index + 1}. ${escapeHTML(authorName)}</strong> - <span class="post-date">${dateStr}</span>`;
       }
@@ -230,10 +230,11 @@ const { id } = Astro.params;
     });
   }
 
-  // 4. 投稿のリアルタイム購読設定
+  // 4. 投稿のリアルタイム購読設定（直近100件に制限して大量読み取り課金を防止）
   const postsQuery = query(
     collection(db, 'threads', threadId, 'posts'),
-    orderBy('createdAt', 'asc')
+    orderBy('createdAt', 'asc'),
+    limitToLast(100)
   );
 
   const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
@@ -309,32 +310,38 @@ const { id } = Astro.params;
   }
   .posts-container {
     margin-bottom: 30px;
+    font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
   }
-  .post {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 15px;
+  :global(.post) {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e6f2ea;
+    border-radius: 12px;
+    padding: 16px 20px;
     margin-bottom: 15px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     position: relative;
+    text-align: left;
   }
-  .post-header {
+  :global(.post-header) {
     margin: 0 0 10px 0;
     font-size: 0.95rem;
     color: #555;
     border-bottom: 1px dashed #eee;
-    padding-bottom: 5px;
+    padding-bottom: 6px;
+    text-align: left;
+    line-height: 1.5;
   }
-  .post-date {
+  :global(.post-date) {
     color: #888;
     font-size: 0.85rem;
   }
-  .post-body-text {
+  :global(.post-body-text) {
     margin: 0 0 10px 0;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.7;
     color: #333;
     word-break: break-all;
+    text-align: left;
   }
   /* 動的に生成されるボタンやフォームのグローバルスタイル */
   :global(.post-actions) {
@@ -438,7 +445,7 @@ const { id } = Astro.params;
     transform: translateY(-2px) scale(1.03);
   }
 
-  .no-posts {
+  :global(.no-posts) {
     color: #666;
     text-align: center;
     padding: 20px;
@@ -483,8 +490,8 @@ const { id } = Astro.params;
     border-color: #b5f57c;
   }
   .btn {
-    background-color: #b5f57c;
-    color: white;
+    background-color: #8cc63f;
+    color: #ffffff;
     padding: 10px 20px;
     border: none;
     border-radius: 6px;
@@ -494,7 +501,7 @@ const { id } = Astro.params;
     transition: background 0.2s;
   }
   .btn:hover {
-    background-color: #a3ea6c;
+    background-color: #7ab32e;
   }
   .info-card {
     background-color: #f9f9f9;

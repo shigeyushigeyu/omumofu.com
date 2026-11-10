@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppBar from '../../components/shared/AppBar.astro';
+import { ChatList } from '../../components/react/ChatList';
+import '../../styles/common.css';
+import '../../styles/profile.css';
+---
+
+<Layout title="おともだちチャット一覧 - おむもふ">
+  <Fragment slot="head">
+    <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet" />
+  </Fragment>
+
+  <AppBar title="チャット一覧" />
+  
+  <main class="profile-page-container">
+    <ChatList client:load />
+  </main>
+</Layout>

@@ -8,13 +8,98 @@ const { title, description } = Astro.props;
 
 import '../styles/common.css';
 const defaultSiteTitle = "おむもふ | ABDL総合コミュニティ";
-const defaultSiteDescription = "おむもふはABDL（Adult Baby Diaper Lover）総合コミュニティサイトです。安心して交流できる場所を提供します。";
+const defaultSiteDescription = "おむもふはABDL（Adult Baby Diaper Lover）・リトルのためのやさしい総合コミュニティサイトです。おともだち検索・タイムライン・イベント・掲示板・画廊・シネマ・文庫で楽しく安心して交流できます。";
 
 const siteTitle = title ? `${title} | おむもふ` : defaultSiteTitle;
 const siteDescription = description || defaultSiteDescription;
 const siteUrl = "https://omumofu.com";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
 const siteImage = "/assets/images/og-image.png";
 const twitterHandle = "@omumofu_com";
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      "url": siteUrl,
+      "name": "おむもふ",
+      "alternateName": "おむもふ | ABDL総合コミュニティ",
+      "description": defaultSiteDescription,
+      "inLanguage": "ja"
+    },
+    {
+      "@type": "ItemList",
+      "name": "おむもふ メインナビゲーション",
+      "itemListElement": [
+        {
+          "@type": "SiteNavigationElement",
+          "position": 1,
+          "name": "おともだち検索",
+          "description": "こころのすがたやときめきスタイルから気のあうリトルのおともだちを探せます",
+          "url": `${siteUrl}/users`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 2,
+          "name": "おむもふタイムライン",
+          "description": "かわいいリトルのお写真やイラストを投稿・交流できるタイムライン",
+          "url": `${siteUrl}/timeline`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 3,
+          "name": "おむもふイベント",
+          "description": "ABDL・リトル向けのイベント情報やオフ会の案内・主催登録",
+          "url": `${siteUrl}/events`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 4,
+          "name": "おむもふ掲示板",
+          "description": "たくさんのリトルのおともだちと気軽におしゃべりできる掲示板",
+          "url": `${siteUrl}/messageboard`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 5,
+          "name": "おむもふ画廊",
+          "description": "かわいい作品を集めた、リトルのためのやさしいギャラリー",
+          "url": `${siteUrl}/gallery`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 6,
+          "name": "おむもふシネマ",
+          "description": "おむもふ動画を楽しめるシネマコーナー",
+          "url": `${siteUrl}/cinema`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 7,
+          "name": "おむもふ文庫",
+          "description": "ABDL・リトル向けの物語や小説が読める文庫コーナー",
+          "url": `${siteUrl}/literature`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 8,
+          "name": "ABDLとは",
+          "description": "ABDL（Adult Baby Diaper Lover）についてのわかりやすい解説",
+          "url": `${siteUrl}/aboutabdl`
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 9,
+          "name": "リトルについて",
+          "description": "リトルの世界や楽しみ方についての紹介",
+          "url": `${siteUrl}/aboutlittle`
+        }
+      ]
+    }
+  ]
+};
 ---
 
 <!DOCTYPE html>
@@ -25,14 +110,16 @@ const twitterHandle = "@omumofu_com";
 
   <title>{siteTitle}</title>
   <meta name="description" content={siteDescription} />
-  <meta name="keywords" content="おむもふ, ABDL, Adult Baby, Diaper Lover, コミュニティ, 赤ちゃんプレイ, おむつ" />
+  <meta name="keywords" content="おむもふ, ABDL, Adult Baby, Diaper Lover, リトル, コミュニティ, おともだち検索, イベント, 掲示板" />
   <meta name="author" content="おむもふコミュニティ運営" />
+  <link rel="canonical" href={canonicalUrl} />
 
   <link rel="icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:url" content={siteUrl} />
+  <meta property="og:site_name" content="おむもふ" />
+  <meta property="og:url" content={canonicalUrl} />
   <meta property="og:title" content={siteTitle} />
   <meta property="og:description" content={siteDescription} />
   <meta property="og:image" content="https://omumofu.com/assets/images/og-image.png" />
@@ -45,8 +132,10 @@ const twitterHandle = "@omumofu_com";
 
   <link rel="me" href="https://twitter.com/omumofu" />
   <link rel="me" href="https://www.instagram.com/omumofu" />
-  <link rel="me" href="https://line.me/ti/p/xxxxxxxx" />
 
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  <slot name="head" />
   <meta name="generator" content="Astro" />
 </head>
 <body>

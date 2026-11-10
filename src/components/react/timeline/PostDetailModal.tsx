@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { User } from 'firebase/auth';
 import { X, Heart, MessageCircle, Loader2 } from 'lucide-react';
 import { db } from '../../../lib/firebase';
-import { doc, getDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, limitToLast, onSnapshot } from 'firebase/firestore';
 import type { Post, UserProfile, Comment } from '../../../types/schema';
 import { getUserProfile, toggleLike, checkHasLiked, createComment } from '../../../lib/firebaseUtils';
 
@@ -50,8 +50,12 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({ postId, curren
   }, [postId, currentUser]);
 
   useEffect(() => {
-    // Listen to comments
-    const q = query(collection(db, 'posts', postId, 'comments'), orderBy('createdAt', 'asc'));
+    // Listen to comments (limit to last 50 to save Firestore reads)
+    const q = query(
+      collection(db, 'posts', postId, 'comments'),
+      orderBy('createdAt', 'asc'),
+      limitToLast(50)
+    );
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const rawComments = snapshot.docs.map(d => {
         const data = d.data();
@@ -152,12 +156,20 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({ postId, curren
           {/* Details Section */}
           <div className="post-info-section">
             <div className="post-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ffe0e6', overflow: 'hidden' }}>
-                  {author?.profileImageUrl ? <img src={author.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+              <a
+                href={`/user/${encodeURIComponent(post.authorId)}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
+                title="おともだちのプロフィールを見る"
+              >
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ffe0e6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {author?.profileImageUrl ? (
+                    <img src={author.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontSize: '0.9rem' }}>🧸</span>
+                  )}
                 </div>
-                <strong style={{ color: '#4a3e3d', fontSize: '1.1rem' }}>{author?.displayName || '名無しさん'}</strong>
-              </div>
+                <strong style={{ color: '#4a3e3d', fontSize: '1.1rem' }}>{author?.displayName || '名無しのおともだち'}</strong>
+              </a>
             </div>
 
             <div className="post-content">
@@ -188,20 +200,29 @@ export const PostDetailModal: React.FC<PostDetailModalProps> = ({ postId, curren
               ) : (
                 comments.map(c => (
                   <div key={c.id} className="comment-item">
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#f0f0f0', overflow: 'hidden', flexShrink: 0 }}>
-                      {c.authorProfile?.profileImageUrl && <img src={c.authorProfile.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                    </div>
+                    <a
+                      href={`/user/${encodeURIComponent(c.authorId)}`}
+                      style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffe0e6', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                    >
+                      {c.authorProfile?.profileImageUrl ? (
+                        <img src={c.authorProfile.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: '0.75rem' }}>🧸</span>
+                      )}
+                    </a>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                        <strong style={{ fontSize: '0.9rem', color: '#4a3e3d' }}>{c.authorProfile?.displayName || '名無しさん'}</strong>
+                        <a href={`/user/${encodeURIComponent(c.authorId)}`} style={{ textDecoration: 'none' }}>
+                          <strong style={{ fontSize: '0.9rem', color: '#4a3e3d' }}>{c.authorProfile?.displayName || '名無しのおともだち'}</strong>
+                        </a>
                         <button 
-                          onClick={() => handleReplyClick(c.authorProfile?.displayName || '名無しさん')}
+                          onClick={() => handleReplyClick(c.authorProfile?.displayName || '名無しのおともだち')}
                           style={{ background: 'none', border: 'none', color: '#8cc63f', fontSize: '0.8rem', cursor: 'pointer', padding: 0 }}
                         >
-                          返信
+                          おへんじ
                         </button>
                       </div>
-                      <p style={{ margin: '2px 0 0', fontSize: '0.95rem', color: '#555', wordBreak: 'break-word' }}>{c.content}</p>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.95rem', color: '#555', wordBreak: 'break-word', textAlign: 'left' }}>{c.content}</p>
                     </div>
                   </div>
                 ))

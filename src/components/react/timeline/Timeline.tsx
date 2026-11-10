@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, onSnapshot, getDocs } from 'firebase/firestore';
+import React, { useState, useEffect, useCallback } from 'react';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import type { Post } from '../../../types/schema';
 import { PostCard } from './PostCard';
@@ -17,17 +17,15 @@ export const Timeline: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Listen to posts collection (type: image)
-    const q = query(
-      collection(db, 'posts'),
-      // For simplicity in this demo, we won't strictly filter by type in the query 
-      // if composite index is missing, but we'll sort by createdAt.
-      orderBy('createdAt', 'desc'),
-      limit(50)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+  const fetchPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const q = query(
+        collection(db, 'posts'),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      );
+      const snapshot = await getDocs(q);
       const postsData = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
@@ -37,16 +35,17 @@ export const Timeline: React.FC = () => {
           updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Post;
       });
-      // Filter image posts on client side for now to avoid needing a composite index immediately
       setPosts(postsData.filter(p => p.type === 'image'));
-      setLoading(false);
-    }, (error) => {
+    } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
   }, []);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   if (authLoading || loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}><Loader2 className="animate-spin" color="#ffc0cb" size={40} /></div>;
@@ -126,7 +125,10 @@ export const Timeline: React.FC = () => {
       {isCreateModalOpen && currentUser && (
         <CreatePostModal 
           currentUser={currentUser}
-          onClose={() => setIsCreateModalOpen(false)} 
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            fetchPosts();
+          }} 
         />
       )}
       

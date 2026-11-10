@@ -1,0 +1,60 @@
+---
+// src/pages/sitemap.astro
+import Layout from "../layouts/Layout.astro";
+import AppBar from "../components/shared/AppBar.astro";
+import "../styles/common.css";
+
+const sections = [
+  {
+    title: "🍼 コミュニティ・交流",
+    links: [
+      { label: "おともだち検索", url: "/users", desc: "こころのすがたやときめきスタイルでおともだちを探そう" },
+      { label: "おともだちチャット", url: "/chat", desc: "おともだちと1対1でおしゃべりできるチャットルーム" },
+      { label: "おむもふタイムライン", url: "/timeline", desc: "かわいいお写真やイラストをみんなにシェアしよう" },
+      { label: "おむもふイベント", url: "/events", desc: "オフ会やイベントのチェック・主催登録" },
+      { label: "おむもふ掲示板", url: "/messageboard", desc: "スレッド形式でいろんなテーマをおしゃべり" },
+    ],
+  },
+  {
+    title: "🎀 ギャラリー・読みもの",
+    links: [
+      { label: "おむもふ画廊", url: "/gallery", desc: "かわいい作品を集めたやさしいギャラリー" },
+      { label: "おむもふシネマ", url: "/cinema", desc: "おむもふ動画を楽しめるシネマコーナー" },
+      { label: "おむもふ文庫", url: "/literature", desc: "ドキドキ・ふわふわな物語が読める文庫コーナー" },
+    ],
+  },
+  {
+    title: "🧸 はじめてのおともだちへ",
+    links: [
+      { label: "ABDLとは", url: "/aboutabdl", desc: "ABDLについてのやさしい解説ページ" },
+      { label: "リトルについて", url: "/aboutlittle", desc: "リトルの世界や楽しみ方の紹介" },
+      { label: "マイページ・設定", url: "/mypage", desc: "プロフィールやプライバシー設定の編集" },
+    ],
+  },
+];
+---
+
+<Layout title="サイトマップ" description="おむもふ（ABDL総合コミュニティ）の全コーナー案内・サイトマップです。">
+  <AppBar title="サイトマップ" />
+
+  <main style="margin-top: 84px;">
+    <h1>サイトマップ 🗺️</h1>
+    <p>おむもふのいろんなお部屋への案内図だよ🍼</p>
+
+    {sections.map((sec) => (
+      <section style="margin-bottom: 2.5rem;">
+        <h2>{sec.title}</h2>
+        <ul style="list-style: none; padding: 0; display: grid; gap: 12px;">
+          {sec.links.map((link) => (
+            <li style="background: rgba(255,255,255,0.9); border: 2px dashed #ffc0cb; border-radius: 16px; padding: 14px 20px;">
+              <a href={link.url} style="font-size: 1.1rem; font-weight: bold; color: #d36ba6; text-decoration: none; display: block;">
+                {link.label} →
+              </a>
+              <span style="font-size: 0.9rem; color: #7d5b6b;">{link.desc}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </main>
+</Layout>

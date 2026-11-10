@@ -1,0 +1,57 @@
+---
+// src/components/sections/users.astro
+---
+<section class="users-section">
+  <h2><a href="/users">おともだち検索</a></h2>
+  <p>こころのすがたやときめきスタイルから、<br />気のあうリトルのおともだちを探してみよう🍼</p>
+  <div class="image-wrapper">
+    <a href="/users" class="users-banner-link">
+      <div class="users-banner-card">
+        <div class="users-banner-icons">
+          <span>🍼</span>
+          <span>🧸</span>
+          <span>🎀</span>
+          <span>✨</span>
+        </div>
+        <div class="users-banner-title">おともだち一覧・プロフィール検索へ</div>
+        <div class="users-banner-sub">こころのすがた・ときめきスタイルで検索できます</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<style>
+  .users-banner-link {
+    display: block;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+  }
+  .users-banner-link:hover {
+    transform: scale(1.02);
+  }
+  .users-banner-card {
+    background: linear-gradient(135deg, #fff5f8 0%, #f3fdec 100%);
+    border: 3px dashed #ffc0cb;
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(240, 120, 180, 0.2);
+  }
+  .users-banner-icons {
+    font-size: 2.2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .users-banner-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #d36ba6;
+    margin-bottom: 0.4rem;
+  }
+  .users-banner-sub {
+    font-size: 0.95rem;
+    color: #7d5b6b;
+  }
+</style>

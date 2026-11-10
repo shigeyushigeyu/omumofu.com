@@ -152,7 +152,22 @@ export const ProfileEditor: React.FC = () => {
     <div className="profile-card">
       <div className="user-header">
         <h1>プロフィール設定</h1>
-        <p className="email-text">{currentUser.email}</p>
+        <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <a
+            href="/chat"
+            className="save-btn"
+            style={{ textDecoration: 'none', padding: '8px 22px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            💬 チャット一覧を見る
+          </a>
+          <a
+            href="/users"
+            className="logout-btn"
+            style={{ textDecoration: 'none', padding: '8px 22px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            🍼 おともだちを探す
+          </a>
+        </div>
       </div>
 
       {error && <p className="status-text error">{error}</p>}
@@ -328,17 +343,39 @@ export const ProfileEditor: React.FC = () => {
 
           <h3 style={{ fontSize: '1.05rem', color: '#a05585', fontWeight: 'bold', marginBottom: '10px' }}>検索・一覧表示の許可</h3>
           <p className="section-desc">オンにすると、他のユーザーがあなたを見つけやすくなります。</p>
-          <label className="option-card checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px' }}>
+          <label className="option-card checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px', marginBottom: '20px' }}>
             <input 
               type="checkbox" 
               checked={profile.privacySettings?.searchable ?? true}
               onChange={(e) => setProfile(prev => ({
                 ...prev, 
-                privacySettings: { ...prev.privacySettings!, searchable: e.target.checked }
+                privacySettings: {
+                  searchable: e.target.checked,
+                  chatAcceptance: prev.privacySettings?.chatAcceptance ?? 'all'
+                }
               }))}
             />
             <span className="option-content">
               <strong className="option-title">プロフィールを公開して検索を許可する</strong>
+            </span>
+          </label>
+
+          <h3 style={{ fontSize: '1.05rem', color: '#a05585', fontWeight: 'bold', marginBottom: '10px' }}>チャットの受付設定</h3>
+          <p className="section-desc">オンにすると、他のおともだちからあなたへチャットを送れるようになります。</p>
+          <label className="option-card checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px' }}>
+            <input 
+              type="checkbox" 
+              checked={(profile.privacySettings?.chatAcceptance ?? 'all') !== 'none'}
+              onChange={(e) => setProfile(prev => ({
+                ...prev, 
+                privacySettings: {
+                  searchable: prev.privacySettings?.searchable ?? true,
+                  chatAcceptance: e.target.checked ? 'all' : 'none'
+                }
+              }))}
+            />
+            <span className="option-content">
+              <strong className="option-title">おともだちからのチャットを受け付ける</strong>
             </span>
           </label>
         </div>

@@ -102,16 +102,23 @@ export const PostCard: React.FC<PostCardProps> = ({ post, currentUser, onClick }
       </div>
       
       <div style={{ padding: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffe0e6', overflow: 'hidden' }}>
+        <a
+          href={`/user/${encodeURIComponent(post.authorId)}`}
+          onClick={(e) => e.stopPropagation()}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', textDecoration: 'none' }}
+          title="おともだちのプロフィールを見る"
+        >
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ffe0e6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {author?.profileImageUrl ? (
               <img src={author.profileImageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : null}
+            ) : (
+              <span style={{ fontSize: '0.75rem' }}>🧸</span>
+            )}
           </div>
           <span style={{ fontWeight: 'bold', color: '#4a3e3d', fontSize: '0.9rem', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {author?.displayName || '名無しさん'}
+            {author?.displayName || '名無しのおともだち'}
           </span>
-        </div>
+        </a>
         
         <p style={{ 
           fontSize: '0.95rem', 

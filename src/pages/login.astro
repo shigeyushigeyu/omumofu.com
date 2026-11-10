@@ -9,8 +9,8 @@ import '../styles/common.css';
   <AppBar />
   <main class="login-container">
     <div class="login-card">
-      <h1 id="login-title">ログイン</h1>
-      <p id="login-desc">おむもふ掲示板に書き込むにはログインが必要です。</p>
+      <h1 id="login-title">おむもふログイン 🍼</h1>
+      <p id="login-desc">ログインすると、マイページ設定やおともだちチャット・掲示板・タイムラインが使えるようになるよ🧸</p>
       
       <!-- ログイン前の表示 -->
       <div id="logged-out-state">
@@ -22,14 +22,13 @@ import '../styles/common.css';
       <!-- ログイン後の表示 -->
       <div id="logged-in-state" style="display: none;">
         <div class="user-profile">
-          <h2 id="user-name">ようこそ、ゲストさん</h2>
-          <p id="user-email"></p>
+          <h2 id="user-name">ようこそ、おともだち！</h2>
         </div>
         <button id="logout-btn" class="login-action-btn logout-btn">
           ログアウト
         </button>
         <div style="margin-top: 20px;">
-          <a href="/messageboard" class="back-link">掲示板に戻る</a>
+          <a href="/mypage" class="back-link">マイページへ移動する</a>
         </div>
       </div>
       
@@ -48,7 +47,6 @@ import '../styles/common.css';
   const logoutBtn = document.getElementById('logout-btn')!;
 
   const userName = document.getElementById('user-name')!;
-  const userEmail = document.getElementById('user-email')!;
   const errorMessage = document.getElementById('error-message')!;
   const loginTitle = document.getElementById('login-title')!;
   const loginDesc = document.getElementById('login-desc')!;
@@ -62,8 +60,8 @@ import '../styles/common.css';
       // 未ログイン
       loggedOutState.style.display = 'block';
       loggedInState.style.display = 'none';
-      loginTitle.textContent = 'ログイン';
-      loginDesc.textContent = 'おむもふ掲示板に書き込むにはログインが必要です。';
+      loginTitle.textContent = 'おむもふログイン 🍼';
+      loginDesc.textContent = 'ログインすると、マイページ設定やおともだちチャット・掲示板・タイムラインが使えるようになるよ🧸';
     }
   });
 

@@ -2,12 +2,18 @@
 import Layout from '../../layouts/Layout.astro';
 import AppBar from '../../components/shared/AppBar.astro';
 import { UserList } from '../../components/react/UserList';
+import '../../styles/common.css';
+import '../../styles/profile.css';
 ---
 
-<Layout title="ユーザーを探す">
-  <AppBar title="ユーザー一覧" />
+<Layout title="おともだち検索 - おむもふ">
+  <Fragment slot="head">
+    <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet" />
+  </Fragment>
+
+  <AppBar title="おともだち検索" />
   
-  <main className="min-h-screen bg-gray-50 py-12">
+  <main class="profile-page-container">
     <UserList client:load />
   </main>
 </Layout>

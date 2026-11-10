@@ -105,7 +105,7 @@ export const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
         
         {/* Organizer */}
         <div className="flex items-center mb-8 border-b pb-6">
-          <a href={`/user?uid=${event.organizerId}`} className="flex items-center group cursor-pointer">
+          <a href={`/user/${encodeURIComponent(event.organizerId)}`} className="flex items-center group cursor-pointer" style={{ textDecoration: 'none' }}>
             {organizer?.profileImageUrl ? (
               <img src={organizer.profileImageUrl} alt="Organizer" className="w-12 h-12 rounded-full border-2 border-pink-100 object-cover" />
             ) : (
@@ -114,8 +114,8 @@ export const EventDetail: React.FC<EventDetailProps> = ({ eventId }) => {
               </div>
             )}
             <div className="ml-3">
-              <p className="text-sm text-gray-500">主催者</p>
-              <p className="font-bold text-gray-900 group-hover:text-pink-500 transition-colors">{organizer?.displayName || '読み込み中...'}</p>
+              <p className="text-sm text-gray-500" style={{ textAlign: 'left', margin: 0 }}>主催のおともだち 🍼</p>
+              <p className="font-bold text-gray-900 group-hover:text-pink-500 transition-colors" style={{ textAlign: 'left', margin: 0 }}>{organizer?.displayName || 'おともだち'}</p>
             </div>
           </a>
         </div>
